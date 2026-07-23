@@ -1,0 +1,145 @@
+/* Charts Styling */
+.chart-container {
+  min-height: 260px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Gauge Chart styling */
+.gauge-svg {
+  transform: rotate(-180deg);
+  transform-origin: 50% 50%;
+}
+.gauge-track {
+  stroke: var(--s2);
+  stroke-width: 14;
+  fill: none;
+}
+.gauge-fill {
+  stroke-width: 14;
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.gauge-text {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  fill: var(--text);
+  font-size: 28px;
+}
+
+/* Score bar */
+.score-bar {
+  height: 6px;
+  background: var(--s2);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.score-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+/* Radar Chart Custom styling */
+.radar-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+  fill: none;
+}
+.radar-axis {
+  stroke: var(--border);
+  stroke-dasharray: 2 2;
+}
+.radar-polygon-ideal {
+  fill: rgba(123, 111, 255, 0.05);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.radar-polygon {
+  fill: rgba(0, 207, 168, 0.25);
+  stroke: var(--t);
+  stroke-width: 2;
+  transition: all 0.5s ease;
+}
+.radar-label {
+  font-size: 9px;
+  fill: var(--muted);
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+/* Line / Bar Chart Svg classes */
+.chart-line {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke-dashoffset 1s ease;
+}
+.chart-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.chart-grid-text {
+  fill: var(--muted);
+  font-size: 9px;
+  font-family: var(--font-mono);
+}
+.chart-bar {
+  transition: height 0.5s ease, y 0.5s ease;
+}
+.chart-bar:hover {
+  opacity: 0.8;
+}
+
+/* Box Plot Svg classes */
+.boxplot-box {
+  fill: rgba(123, 111, 255, 0.15);
+  stroke: var(--v);
+  stroke-width: 2;
+}
+.boxplot-line {
+  stroke: var(--v);
+  stroke-width: 1.5;
+}
+.boxplot-median {
+  stroke: var(--t);
+  stroke-width: 3;
+}
+.boxplot-outlier {
+  fill: var(--r);
+}
+
+/* Network Graph classes */
+.node {
+  cursor: pointer;
+  transition: transform 0.2s ease, fill 0.2s ease;
+}
+.node:hover {
+  transform: scale(1.15);
+}
+.node-label {
+  font-size: 10px;
+  fill: var(--text);
+  font-family: var(--font-mono);
+  pointer-events: none;
+}
+.edge {
+  stroke: var(--border);
+  stroke-opacity: 0.4;
+  transition: stroke 0.2s ease;
+}
+.edge.active {
+  stroke: var(--v);
+  stroke-opacity: 0.9;
+  stroke-width: 2;
+}
+.node.active circle {
+  stroke: var(--v);
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 5px var(--v));
+}

@@ -1,0 +1,2 @@
+// API: jobsAPI
+export default {};

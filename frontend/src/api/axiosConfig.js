@@ -1,0 +1,2 @@
+// Axios Configuration
+export default {};

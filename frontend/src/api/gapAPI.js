@@ -1,0 +1,2 @@
+// API: gapAPI
+export default {};

@@ -1,0 +1,173 @@
+:root {
+  --bg: #07070e;
+  --s1: #0e0e1c;
+  --s2: #15152a;
+  --s3: #1c1c32;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-focus: rgba(123, 111, 255, 0.4);
+  --b2: rgba(255, 255, 255, 0.11);
+  --text: #eaeaf5;
+  --muted: #8888a5;
+  
+  /* Accent Colors */
+  --v: #7b6fff;     /* Violet */
+  --v-glow: rgba(123, 111, 255, 0.15);
+  --t: #00cfa8;     /* Teal */
+  --t-glow: rgba(0, 207, 168, 0.15);
+  --a: #f5a623;     /* Amber */
+  --r: #ff6b6b;     /* Red */
+  --g: #1ecb7b;     /* Green */
+  --b: #4f8fff;     /* Blue */
+  --pk: #e865c8;    /* Pink */
+
+  --font-sans: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Smooth theme transitions */
+  transition: background-color 0.45s ease, color 0.45s ease;
+}
+
+/* All major surfaces transition on theme change */
+.sidebar,
+.main-content,
+.topbar,
+.card,
+.glass,
+.assistant-panel,
+.assistant-panel-header,
+.assistant-messages,
+.assistant-quick-actions,
+.assistant-input-area,
+.assistant-textarea,
+.form-input,
+.btn {
+  transition:
+    background-color 0.4s ease,
+    background 0.4s ease,
+    border-color 0.4s ease,
+    color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--s3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--v);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Typography Utility */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #fff 20%, var(--v) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--t);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.lead {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+
+/* Helpers */
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-cols-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.grid-cols-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.grid-cols-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.section-divider {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 2rem 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Glassmorphism Classes */
+.glass {
+  background: rgba(14, 14, 28, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}

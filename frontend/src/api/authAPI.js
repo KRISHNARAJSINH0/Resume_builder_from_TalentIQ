@@ -1,0 +1,2 @@
+// API: authAPI
+export default {};

@@ -1,0 +1,1 @@
+name: CI\non: [push]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - name: Setup python\n        uses: actions/setup-python@v5\n      - name: Run Tests\n        run: echo 'Running tests...'\n

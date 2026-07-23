@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalentIQ — User Side Demo Walkthrough</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070e;--s1:#0e0e1c;--s2:#15152a;--s3:#1c1c32;
+  --border:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.11);
+  --text:#eaeaf5;--muted:#666685;
+  --v:#7b6fff;--t:#00cfa8;--a:#f5a623;--r:#ff6b6b;--g:#1ecb7b;--b:#4f8fff;--pk:#e865c8;
+}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;font-size:15px;line-height:1.75;min-height:100vh}
+
+/* PROGRESS BAR TOP */
+.progress-bar{
+  position:fixed;top:0;left:0;right:0;height:3px;
+  background:var(--s2);z-index:200;
+}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--v),var(--t));transition:width .3s ease;width:0%}
+
+/* NAV */
+nav{
+  position:sticky;top:3px;z-index:100;
+  background:rgba(7,7,14,.97);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  padding:.9rem 2rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.nav-logo{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--v);margin-right:10px;flex-shrink:0}
+nav button{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  padding:5px 12px;border-radius:4px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+nav button.active,nav button:hover{background:var(--v);color:#fff;border-color:var(--v)}
+.nav-step{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-left:auto}
+
+/* TABS */
+.tab{display:none;max-width:860px;margin:0 auto;padding:2.5rem 2rem 6rem}
+.tab.active{display:block}
+
+/* STEP HERO */
+.step-hero{margin-bottom:2.5rem}
+.step-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--t);border:1px solid rgba(0,207,168,.3);
+  padding:4px 12px;border-radius:20px;margin-bottom:1rem;
+  text-transform:uppercase;letter-spacing:.12em;
+}
+.step-num{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--t);color:#000;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;
+}
+h1{font-size:clamp(1.9rem,4vw,2.8rem);font-weight:800;line-height:1.08;margin-bottom:.75rem}
+h1 span{background:linear-gradient(130deg,var(--v),var(--t));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+p.lead{font-size:15px;color:var(--muted);line-height:1.85;max-width:640px;margin-bottom:0}
+
+/* WHAT USER SEES BOX */
+.sees-box{
+  background:var(--s1);border:1px solid var(--b2);border-radius:14px;
+  overflow:hidden;margin:1.75rem 0;
+}
+.sees-bar{
+  background:var(--s2);border-bottom:1px solid var(--border);
+  padding:.8rem 1.25rem;display:flex;align-items:center;gap:10px;
+}
+.sees-dots{display:flex;gap:5px}
+.sees-dot{width:10px;height:10px;border-radius:50%}
+.sees-url{
+  flex:1;background:var(--s1);border:1px solid var(--border);
+  border-radius:4px;padding:4px 12px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);
+}
+.sees-body{padding:1.5rem}
+
+/* MOCK UI SCREENS */
+.mock-screen{
+  background:var(--s2);border:1px solid var(--border);
+  border-radius:10px;padding:1.25rem;margin-bottom:1rem;
+}
+.mock-title{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.1em}
+
+/* SKILL TAGS */
+.skill-tag{
+  display:inline-block;font-size:11px;font-family:'JetBrains Mono',monospace;
+  padding:3px 10px;border-radius:4px;margin:3px;
+}
+.have{background:rgba(30,203,123,.15);color:var(--g);border:1px solid rgba(30,203,123,.3)}
+.missing{background:rgba(255,107,107,.15);color:var(--r);border:1px solid rgba(255,107,107,.3)}
+.neutral{background:var(--s1);color:var(--muted);border:1px solid var(--border)}
+
+/* PROGRESS STEPS */
+.steps-row{display:flex;align-items:center;gap:0;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px}
+.step-item{
+  display:flex;flex-direction:column;align-items:center;
+  gap:4px;flex-shrink:0;
+}
+.step-circle{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;
+}
+.step-line{width:40px;height:2px;background:var(--border);margin:0;flex-shrink:0;align-self:center;margin-bottom:16px}
+.step-label{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-align:center;max-width:60px;line-height:1.3}
+
+/* EXPLANATION BLOCKS */
+.explain{margin:1.5rem 0}
+.explain-title{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.6rem;display:flex;align-items:center;gap:8px}
+.explain-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* CONCEPT BOXES */
+.box{border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.75rem;border-left:3px solid}
+.box.what{border-color:var(--v);background:rgba(123,111,255,.07)}
+.box.why{border-color:var(--t);background:rgba(0,207,168,.07)}
+.box.user{border-color:var(--a);background:rgba(245,166,35,.07)}
+.box.link{border-color:var(--g);background:rgba(30,203,123,.07)}
+.box-label{font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px;font-weight:600}
+.box.what .box-label{color:var(--v)}
+.box.why  .box-label{color:var(--t)}
+.box.user .box-label{color:var(--a)}
+.box.link .box-label{color:var(--g)}
+.box p{font-size:13px;color:var(--muted);line-height:1.85}
+.box p strong{color:var(--text)}
+
+/* GAUGE */
+.gauge-wrap{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;padding:1rem}
+.gauge{
+  width:120px;height:60px;position:relative;flex-shrink:0;
+}
+.gauge svg{width:100%;height:100%}
+.gauge-score{
+  font-size:24px;font-weight:800;color:var(--g);
+  font-family:'JetBrains Mono',monospace;
+}
+.gauge-label{font-size:10px;color:var(--g);font-family:'JetBrains Mono',monospace}
+.gauge-info p{font-size:13px;color:var(--muted);line-height:1.8}
+
+/* SCORE BARS */
+.score-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.score-lbl{font-size:11px;color:var(--muted);width:130px;flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.score-bar-wrap{flex:1;height:5px;background:var(--s1);border-radius:3px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:3px}
+.score-val{font-size:11px;font-weight:600;width:35px;text-align:right;font-family:'JetBrains Mono',monospace}
+
+/* JOB CARD */
+.job-card{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:10px;padding:1rem 1.25rem;margin-bottom:8px;
+  display:flex;align-items:flex-start;gap:12px;
+}
+.job-logo{
+  width:38px;height:38px;border-radius:8px;
+  background:var(--s2);display:flex;align-items:center;
+  justify-content:center;font-size:16px;flex-shrink:0;
+}
+.job-info{flex:1}
+.job-title{font-size:14px;font-weight:600;margin-bottom:2px}
+.job-company{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.job-match{
+  font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:700;
+  padding:3px 10px;border-radius:4px;flex-shrink:0;
+}
+
+/* INTERVIEW UI */
+.q-card{
+  background:var(--s2);border:1px solid var(--b2);
+  border-radius:10px;padding:1.25rem;margin-bottom:.75rem;
+}
+.q-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:6px}
+.q-text{font-size:14px;font-weight:500;margin-bottom:10px}
+.a-box{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:6px;padding:.75rem;
+  font-size:12px;color:var(--muted);line-height:1.7;font-style:italic;margin-bottom:.75rem;
+}
+.score-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-family:'JetBrains Mono',monospace;
+  padding:3px 10px;border-radius:4px;margin-right:6px;
+}
+
+/* NAVIGATION BUTTONS */
+.nav-btns{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);
+}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;
+  padding:.7rem 1.5rem;border-radius:6px;cursor:pointer;border:none;
+  transition:all .15s;text-decoration:none;
+}
+.btn-primary{background:var(--v);color:#fff}
+.btn-primary:hover{background:#6a5eff}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--b2)}
+
+/* LINK BOX */
+.link-box{
+  background:linear-gradient(135deg,rgba(123,111,255,.09),rgba(0,207,168,.05));
+  border:1px solid rgba(123,111,255,.25);border-radius:12px;
+  padding:1.25rem 1.5rem;margin:1.5rem 0;
+}
+.link-box h3{color:var(--v);margin-bottom:6px;font-size:15px}
+.link-box p{font-size:13px;color:var(--muted);line-height:1.85}
+
+/* BADGE */
+.badge{display:inline-block;font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 9px;border-radius:3px;font-weight:600;margin-right:4px}
+.bg{background:rgba(30,203,123,.12);color:var(--g)}
+.ba{background:rgba(245,166,35,.12);color:var(--a)}
+.bp{background:rgba(123,111,255,.12);color:var(--v)}
+.bt{background:rgba(0,207,168,.12);color:var(--t)}
+.br{background:rgba(255,107,107,.12);color:var(--r)}
+.bb{background:rgba(79,143,255,.12);color:var(--b)}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-size:10px;font-family:'JetBrains Mono',monospace;background:var(--s2);border:1px solid var(--b2);border-radius:3px;padding:3px 9px;color:var(--muted)}
+
+.sl{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.9rem;margin-top:1.75rem;display:flex;align-items:center;gap:10px}
+.sl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+hr.dv{border:none;border-top:1px solid var(--border);margin:1.75rem 0}
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<nav>
+  <span class="nav-logo">TalentIQ</span>
+  <button class="active" onclick="show('intro',this)">🏠 Intro</button>
+  <button onclick="show('s1',this)">1 · Register</button>
+  <button onclick="show('s2',this)">2 · Resume</button>
+  <button onclick="show('s3',this)">3 · Gap</button>
+  <button onclick="show('s4',this)">4 · Jobs</button>
+  <button onclick="show('s5',this)">5 · Salary</button>
+  <button onclick="show('s6',this)">6 · Readiness</button>
+  <button onclick="show('s7',this)">7 · Interview</button>
+  <button onclick="show('s8',this)">8 · Trends</button>
+  <button onclick="show('link',this)">🔗 Connection</button>
+  <span class="nav-step" id="stepcount">Step 0 of 9</span>
+</nav>
+
+<!-- ══════════ INTRO ══════════ -->
+<div class="tab active" id="intro">
+  <div class="step-hero">
+    <div class="step-tag"><div class="step-num">→</div>User Side Overview</div>
+    <h1>Hey — Let me show you <span>what I built</span></h1>
+    <p class="lead">You've seen the recruiter/company side. Let me walk you through the <strong style="color:var(--text)">job seeker's journey</strong> — what a student like me actually experiences when they use TalentIQ, step by step, from first login to getting a job offer.</p>
+  </div>
+
+  <div class="sl">The story in one line</div>
+  <div class="box what">
+    <div class="box-label">The user's journey</div>
+    <p><strong>You are a final year CS student in Ahmedabad.</strong> You want a backend Django internship. You have no idea which skills you're missing, what salary to ask for, or why you keep failing interviews. You open TalentIQ — and in one session you get all three answers. Backed by real data, not guesswork.</p>
+  </div>
+
+  <div class="sl">8 steps the user goes through</div>
+
+  <div class="steps-row">
+    <div class="step-item">
+      <div class="step-circle" style="background:var(--v);color:#fff">1</div>
+      <div class="step-label">Register & Login</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-circle" style="background:var(--t);color:#000">2</div>
+      <div class="step-label">Upload Resume</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-circle" style="background:var(--a);color:#000">3</div>
+      <div class="step-label">Skill Gap</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-circle" style="background:var(--b);color:#fff">4</div>
+      <div class="step-label">Job Matches</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-circle" style="background:var(--pk);color:#fff">5</div>
+      <div class="step-label">Salary Predict</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-circle" style="background:var(--g);color:#000">6</div>
+      <div class="step-label">Readiness Score</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-circle" style="background:var(--r);color:#fff">7</div>
+      <div class="step-label">AI Interview</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-item">
+      <div class="step-circle" style="background:var(--a);color:#000">8</div>
+      <div class="step-label">Market Trends</div>
+    </div>
+  </div>
+
+  <div class="box why">
+    <div class="box-label">How this connects to your side</div>
+    <p>Everything I do as a user <strong>feeds data to your recruiter dashboard.</strong> When I upload my resume and get a readiness score of 74, that score appears in your talent pool. When I apply to a job listing, your pipeline sees it. When I have a skill gap in Docker, that gap shows up in your "skill shortage" heatmap. We are two sides of the same platform.</p>
+  </div>
+
+  <div class="nav-btns">
+    <span></span>
+    <button class="btn btn-primary" onclick="show('s1',null);document.querySelectorAll('nav button')[1].classList.add('active');document.querySelectorAll('nav button')[0].classList.remove('active')">Start walkthrough →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 1: REGISTER ══════════ -->
+<div class="tab" id="s1">
+  <div class="step-hero">
+    <div class="step-tag"><div class="step-num">1</div>Step 1 of 8</div>
+    <h1>I <span>Register</span> as a Job Seeker</h1>
+    <p class="lead">First thing I do — create an account. I choose role: "Job Seeker". This one choice determines everything I see from this point on. Your side would choose "Recruiter".</p>
+  </div>
+
+  <div class="sees-box">
+    <div class="sees-bar">
+      <div class="sees-dots">
+        <div class="sees-dot" style="background:#ff5f56"></div>
+        <div class="sees-dot" style="background:#ffbd2e"></div>
+        <div class="sees-dot" style="background:#27c93f"></div>
+      </div>
+      <div class="sees-url">talentiq.app/register</div>
+    </div>
+    <div class="sees-body">
+      <div class="mock-screen">
+        <div class="mock-title">Register Screen — what I see</div>
+        <div style="max-width:360px;margin:0 auto">
+          <div style="margin-bottom:10px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-family:'JetBrains Mono',monospace">Full Name</div>
+            <div style="background:var(--s1);border:1px solid var(--b2);border-radius:6px;padding:.6rem .9rem;font-size:13px">Kartik Shah</div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px;font-family:'JetBrains Mono',monospace">Email</div>
+            <div style="background:var(--s1);border:1px solid var(--b2);border-radius:6px;padding:.6rem .9rem;font-size:13px">kartik@email.com</div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-family:'JetBrains Mono',monospace">I am a...</div>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;background:rgba(123,111,255,.2);border:2px solid var(--v);border-radius:8px;padding:.6rem;text-align:center;font-size:13px;font-weight:600">👤 Job Seeker</div>
+              <div style="flex:1;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:.6rem;text-align:center;font-size:13px;color:var(--muted)">🏢 Recruiter</div>
+            </div>
+          </div>
+          <div style="background:var(--v);border-radius:6px;padding:.7rem;text-align:center;font-size:13px;font-weight:700;cursor:pointer">Create Account →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="explain-title">What's happening behind the scenes</div>
+    <div class="box what">
+      <div class="box-label">What Django does</div>
+      <p>When I click Create Account, React sends a <strong>POST /api/auth/register/</strong> to Django. Django hashes my password with PBKDF2, creates a User row in PostgreSQL with <strong>role = 'seeker'</strong>, and returns a <strong>JWT access token + refresh token</strong>. React stores this token in useContext — now every request I make automatically includes it in the Authorization header.</p>
+    </div>
+    <div class="box why">
+      <div class="box-label">Why role matters</div>
+      <p>That <strong>role='seeker'</strong> field is a gate for everything. When I try to visit /recruiter, Django's <strong>IsRecruiter permission class</strong> blocks me. When your recruiter mate tries to visit /gap or /interview, they're blocked too. One field, all access control.</p>
+    </div>
+    <div class="box link">
+      <div class="box-label">How this connects to the recruiter side</div>
+      <p>The moment I register, I appear in your <strong>Talent Pool</strong> with a blank profile. As I complete my resume and get a readiness score, your view of me updates in real time. You can see I'm a seeker from Ahmedabad, Sem 4 CS student — even before I apply to any job.</p>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="show('intro',null)">← Back</button>
+    <button class="btn btn-primary" onclick="show('s2',null)">Step 2: Upload Resume →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 2: RESUME ══════════ -->
+<div class="tab" id="s2">
+  <div class="step-hero">
+    <div class="step-tag"><div class="step-num">2</div>Step 2 of 8</div>
+    <h1>I <span>Upload My Resume</span></h1>
+    <p class="lead">I drag and drop my PDF resume. In about 3 seconds, the system reads it and pulls out every skill, company, degree, and experience year — no manual typing.</p>
+  </div>
+
+  <div class="sees-box">
+    <div class="sees-bar">
+      <div class="sees-dots"><div class="sees-dot" style="background:#ff5f56"></div><div class="sees-dot" style="background:#ffbd2e"></div><div class="sees-dot" style="background:#27c93f"></div></div>
+      <div class="sees-url">talentiq.app/resume</div>
+    </div>
+    <div class="sees-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="mock-screen">
+          <div class="mock-title">Upload Zone</div>
+          <div style="border:2px dashed rgba(123,111,255,.4);border-radius:10px;padding:2rem 1rem;text-align:center">
+            <div style="font-size:28px;margin-bottom:8px">📄</div>
+            <div style="font-size:13px;color:var(--muted)">Drag & drop your PDF resume</div>
+            <div style="font-size:11px;color:var(--v);margin-top:4px;font-family:'JetBrains Mono',monospace">or click to browse</div>
+            <div style="margin-top:12px;background:var(--v);border-radius:6px;padding:6px 14px;display:inline-block;font-size:12px;font-weight:600">Upload PDF</div>
+          </div>
+        </div>
+        <div class="mock-screen">
+          <div class="mock-title">Parsed Profile — auto generated</div>
+          <div style="font-size:12px;margin-bottom:6px"><span style="color:var(--muted);font-family:'JetBrains Mono',monospace">Name: </span>Kartik Shah</div>
+          <div style="font-size:12px;margin-bottom:6px"><span style="color:var(--muted);font-family:'JetBrains Mono',monospace">Exp: </span>0.5 years (intern)</div>
+          <div style="font-size:12px;margin-bottom:6px"><span style="color:var(--muted);font-family:'JetBrains Mono',monospace">Edu: </span>BTech CS — GTU 2026</div>
+          <div style="font-size:12px;margin-bottom:8px"><span style="color:var(--muted);font-family:'JetBrains Mono',monospace">Skills:</span></div>
+          <span class="skill-tag have">Python</span>
+          <span class="skill-tag have">Django</span>
+          <span class="skill-tag have">React</span>
+          <span class="skill-tag have">SQL</span>
+          <span class="skill-tag have">XGBoost</span>
+          <span class="skill-tag have">FAISS</span>
+          <span class="skill-tag neutral">Git</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="explain-title">What's happening behind the scenes</div>
+    <div class="box what">
+      <div class="box-label">The parsing pipeline</div>
+      <p><strong>PyPDF2</strong> extracts raw text from the PDF. <strong>spaCy's NER model</strong> finds PERSON (my name), ORG (company names), DATE (graduation year, experience period). A <strong>custom skill extractor</strong> scans the text against a 500+ skill taxonomy stored in PostgreSQL — if "React.js" appears in my resume AND in the taxonomy, it's flagged as a confirmed skill. Final structured profile saved to the <strong>ResumeProfile model</strong> with a OneToOne relationship to my User.</p>
+    </div>
+    <div class="box why">
+      <div class="box-label">Why this is the foundation of everything</div>
+      <p>Every single other feature reads from this parsed profile. Gap analysis uses my skills. Salary prediction uses my experience + education + skills. Interview simulator picks questions for my target role. Readiness score uses my skill coverage. <strong>If the parser gets it wrong, everything downstream is wrong</strong> — which is why users can edit any field the parser got incorrect.</p>
+    </div>
+    <div class="box link">
+      <div class="box-label">How this connects to the recruiter side</div>
+      <p>Your recruiter dashboard's <strong>Talent Pool</strong> now shows my profile with parsed skills. When a recruiter searches for "Django candidates in Ahmedabad", I appear. My resume is indexed in PostgreSQL with <strong>GIN indexing on the skills array</strong> — search is fast even with thousands of candidates.</p>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="show('s1',null)">← Register</button>
+    <button class="btn btn-primary" onclick="show('s3',null)">Step 3: Skill Gap →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 3: GAP ══════════ -->
+<div class="tab" id="s3">
+  <div class="step-hero">
+    <div class="step-tag"><div class="step-num">3</div>Step 3 of 8</div>
+    <h1>I See My <span>Exact Skill Gap</span></h1>
+    <p class="lead">I type "Backend Django Developer" as my target role. The system compares my parsed skills against 50+ live job listings scraped from Indeed and Naukri — and tells me exactly what I'm missing, ranked by how critical each gap is.</p>
+  </div>
+
+  <div class="sees-box">
+    <div class="sees-bar">
+      <div class="sees-dots"><div class="sees-dot" style="background:#ff5f56"></div><div class="sees-dot" style="background:#ffbd2e"></div><div class="sees-dot" style="background:#27c93f"></div></div>
+      <div class="sees-url">talentiq.app/gap</div>
+    </div>
+    <div class="sees-body">
+      <div style="margin-bottom:12px;display:flex;gap:8px;align-items:center">
+        <div style="flex:1;background:var(--s1);border:1px solid var(--b2);border-radius:6px;padding:.6rem .9rem;font-size:13px">Backend Django Developer</div>
+        <div style="background:var(--v);border-radius:6px;padding:.6rem 1rem;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0">Analyse Gap →</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="mock-screen">
+          <div class="mock-title">✅ Skills you HAVE (matches job listings)</div>
+          <span class="skill-tag have">Python ✓</span>
+          <span class="skill-tag have">Django ✓</span>
+          <span class="skill-tag have">SQL ✓</span>
+          <span class="skill-tag have">React ✓</span>
+          <span class="skill-tag have">Git ✓</span>
+          <div style="font-size:11px;color:var(--g);margin-top:8px;font-family:'JetBrains Mono',monospace">5 / 13 required skills matched</div>
+        </div>
+        <div class="mock-screen">
+          <div class="mock-title">❌ Skills you're MISSING (ranked by demand)</div>
+          <div style="font-size:12px;margin-bottom:4px"><span class="skill-tag missing">Docker</span><span style="font-size:10px;color:var(--r);font-family:'JetBrains Mono',monospace">in 89% of listings</span></div>
+          <div style="font-size:12px;margin-bottom:4px"><span class="skill-tag missing">PostgreSQL</span><span style="font-size:10px;color:var(--r);font-family:'JetBrains Mono',monospace">in 76% of listings</span></div>
+          <div style="font-size:12px;margin-bottom:4px"><span class="skill-tag missing">AWS/GCP</span><span style="font-size:10px;color:var(--r);font-family:'JetBrains Mono',monospace">in 71% of listings</span></div>
+          <div style="font-size:12px;margin-bottom:4px"><span class="skill-tag missing">Redis</span><span style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">in 44% of listings</span></div>
+          <div style="font-size:12px"><span class="skill-tag missing">Celery</span><span style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">in 31% of listings</span></div>
+        </div>
+      </div>
+      <div class="mock-screen">
+        <div class="mock-title">📚 Learning Roadmap — for your top gap skill</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:.5rem 0;border-bottom:1px solid var(--border)">
+          <span class="skill-tag missing">Docker</span>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600">Docker for Python Developers</div>
+            <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">YouTube · TechWorld with Nana · Free · 3 hrs</div>
+          </div>
+          <div style="font-size:10px;color:var(--t);font-family:'JetBrains Mono',monospace">→ Watch</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:.5rem 0">
+          <span class="skill-tag missing">Docker</span>
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:600">Official Docker Documentation</div>
+            <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace">docs.docker.com · Free</div>
+          </div>
+          <div style="font-size:10px;color:var(--t);font-family:'JetBrains Mono',monospace">→ Read</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="explain-title">What's happening behind the scenes</div>
+    <div class="box what">
+      <div class="box-label">The Pandas gap computation</div>
+      <p>Django loads all 50+ job listings for "Backend Django Developer" from PostgreSQL. <strong>Pandas</strong> flattens all the required_skills arrays into one big list and runs <strong>value_counts()</strong> — counting how often each skill appears across listings. Then a simple <strong>Python set subtraction</strong>: required_skills_set minus my parsed_skills_set = gap. Each gap skill gets a priority rank based on its frequency count. The ranked DataFrame is serialised as JSON and sent to React.</p>
+    </div>
+    <div class="box why">
+      <div class="box-label">Why ranking by frequency matters</div>
+      <p>Not all missing skills are equal. Docker in 89% of listings is critical — learn this first. Celery in 31% is nice-to-have. Without ranking, I'd waste time learning obscure skills while missing the obvious ones. <strong>This ranked, data-driven priority list is what no other tool gives you.</strong></p>
+    </div>
+    <div class="box link">
+      <div class="box-label">How this connects to the recruiter side</div>
+      <p>The gap data I generate becomes the recruiter's <strong>"Skill Shortage Heatmap"</strong>. If 80% of candidates are missing Docker, your dashboard shows "Docker — Critical Shortage in Backend Pool". This tells you as a recruiter: either lower the bar on Docker, or offer Docker training to hired candidates. My individual gap feeds your market intelligence.</p>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="show('s2',null)">← Resume</button>
+    <button class="btn btn-primary" onclick="show('s4',null)">Step 4: Job Matches →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 4: JOBS ══════════ -->
+<div class="tab" id="s4">
+  <div class="step-hero">
+    <div class="step-tag"><div class="step-num">4</div>Step 4 of 8</div>
+    <h1>I Get <span>Job Recommendations</span></h1>
+    <p class="lead">The system finds the top 10 job listings from the live database that best match my skill profile — not just by title, but by how many of the required skills I actually have. Each job shows my exact match percentage.</p>
+  </div>
+
+  <div class="sees-box">
+    <div class="sees-bar">
+      <div class="sees-dots"><div class="sees-dot" style="background:#ff5f56"></div><div class="sees-dot" style="background:#ffbd2e"></div><div class="sees-dot" style="background:#27c93f"></div></div>
+      <div class="sees-url">talentiq.app/jobs</div>
+    </div>
+    <div class="sees-body">
+      <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <div style="background:rgba(123,111,255,.15);border:1px solid rgba(123,111,255,.3);border-radius:4px;padding:4px 10px;font-size:11px;font-family:'JetBrains Mono',monospace">Role: Backend Django ▾</div>
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted)">City: Ahmedabad ▾</div>
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted)">Salary: ₹3L–₹8L ▾</div>
+        <div style="background:var(--s1);border:1px solid var(--border);border-radius:4px;padding:4px 10px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted)">Sort: Match % ▾</div>
+      </div>
+      <div class="job-card">
+        <div class="job-logo">🏢</div>
+        <div class="job-info">
+          <div class="job-title">Backend Python Developer</div>
+          <div class="job-company">AddWeb Solution · Ahmedabad · ₹4L–₹6L</div>
+          <div style="margin-top:6px"><span class="skill-tag have" style="font-size:9px">Python ✓</span><span class="skill-tag have" style="font-size:9px">Django ✓</span><span class="skill-tag have" style="font-size:9px">SQL ✓</span><span class="skill-tag missing" style="font-size:9px">Docker ✗</span></div>
+        </div>
+        <div class="job-match" style="background:rgba(30,203,123,.15);color:var(--g);border:1px solid rgba(30,203,123,.3)">78% match</div>
+      </div>
+      <div class="job-card">
+        <div class="job-logo">💻</div>
+        <div class="job-info">
+          <div class="job-title">Django REST API Developer</div>
+          <div class="job-company">Anblicks · Ahmedabad · ₹3.5L–₹5.5L</div>
+          <div style="margin-top:6px"><span class="skill-tag have" style="font-size:9px">Python ✓</span><span class="skill-tag have" style="font-size:9px">Django ✓</span><span class="skill-tag missing" style="font-size:9px">AWS ✗</span><span class="skill-tag missing" style="font-size:9px">Docker ✗</span></div>
+        </div>
+        <div class="job-match" style="background:rgba(245,166,35,.15);color:var(--a);border:1px solid rgba(245,166,35,.3)">62% match</div>
+      </div>
+      <div class="job-card">
+        <div class="job-logo">🚀</div>
+        <div class="job-info">
+          <div class="job-title">Full Stack Python Intern</div>
+          <div class="job-company">eSparkBiz · Ahmedabad · Internship</div>
+          <div style="margin-top:6px"><span class="skill-tag have" style="font-size:9px">Python ✓</span><span class="skill-tag have" style="font-size:9px">React ✓</span><span class="skill-tag have" style="font-size:9px">Django ✓</span></div>
+        </div>
+        <div class="job-match" style="background:rgba(30,203,123,.15);color:var(--g);border:1px solid rgba(30,203,123,.3)">85% match</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="explain-title">What's happening behind the scenes</div>
+    <div class="box what">
+      <div class="box-label">TF-IDF + Cosine Similarity</div>
+      <p>My skill profile and every job listing's required skills are converted into <strong>TF-IDF vectors</strong> — mathematical representations where each skill is a dimension. <strong>Cosine similarity</strong> measures the angle between my vector and each job's vector — 1.0 = perfect match, 0 = zero overlap. The top 10 jobs by cosine score are returned. This is the same technique Netflix uses for content recommendations — I've applied it to skill matching.</p>
+    </div>
+    <div class="box why">
+      <div class="box-label">Why cosine similarity and not just "count matching skills"</div>
+      <p>Simple skill count doesn't weight importance. Cosine similarity with TF-IDF weights rare skills higher — if I have "FAISS" (rare skill) and a job requires it, that match scores higher than having "Python" (common skill). <strong>Rare skill matches signal genuine fit.</strong></p>
+    </div>
+    <div class="box link">
+      <div class="box-label">How this connects to the recruiter side</div>
+      <p>When I click "Apply" on a job listing, that application appears in your <strong>recruiter pipeline</strong> with my readiness score and shortlist probability attached. You don't see a raw resume — you see a ranked candidate with a data-driven score. That's the recruiter side's value: every applicant already has an AI-computed fit score before you open their profile.</p>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="show('s3',null)">← Gap Analysis</button>
+    <button class="btn btn-primary" onclick="show('s5',null)">Step 5: Salary →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 5: SALARY ══════════ -->
+<div class="tab" id="s5">
+  <div class="step-hero">
+    <div class="step-tag"><div class="step-num">5</div>Step 5 of 8</div>
+    <h1>I Learn My <span>Market Salary</span></h1>
+    <p class="lead">I have no idea whether to ask for ₹3.5L or ₹7L. The salary predictor takes my profile — skills, experience, education, city — and gives me a data-backed salary range specific to the Indian market.</p>
+  </div>
+
+  <div class="sees-box">
+    <div class="sees-bar">
+      <div class="sees-dots"><div class="sees-dot" style="background:#ff5f56"></div><div class="sees-dot" style="background:#ffbd2e"></div><div class="sees-dot" style="background:#27c93f"></div></div>
+      <div class="sees-url">talentiq.app/salary</div>
+    </div>
+    <div class="sees-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="mock-screen">
+          <div class="mock-title">Your inputs (auto-filled from profile)</div>
+          <div style="font-size:12px;line-height:2.1">
+            <span style="color:var(--muted);font-family:'JetBrains Mono',monospace">Experience: </span>0.5 yrs<br>
+            <span style="color:var(--muted);font-family:'JetBrains Mono',monospace">Skill Count: </span>7 skills<br>
+            <span style="color:var(--muted);font-family:'JetBrains Mono',monospace">Has ML Skills: </span><span style="color:var(--g)">Yes ✓</span><br>
+            <span style="color:var(--muted);font-family:'JetBrains Mono',monospace">Has Cloud: </span><span style="color:var(--r)">No ✗</span><br>
+            <span style="color:var(--muted);font-family:'JetBrains Mono',monospace">Education: </span>BTech (level 1)<br>
+            <span style="color:var(--muted);font-family:'JetBrains Mono',monospace">City Tier: </span>2 (Ahmedabad)<br>
+            <span style="color:var(--muted);font-family:'JetBrains Mono',monospace">Role: </span>Backend Developer
+          </div>
+          <div style="background:var(--v);border-radius:6px;padding:.6rem;text-align:center;font-size:12px;font-weight:600;margin-top:10px;cursor:pointer">Predict My Salary →</div>
+        </div>
+        <div class="mock-screen">
+          <div class="mock-title">Prediction Result</div>
+          <div style="text-align:center;padding:.75rem 0">
+            <div style="font-size:28px;font-weight:800;color:var(--g);font-family:'JetBrains Mono',monospace">₹4.2L – ₹6.8L</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Annual CTC · 82% confidence</div>
+          </div>
+          <div style="background:var(--s1);border-radius:6px;padding:.75rem;margin-top:6px">
+            <div style="font-size:11px;color:var(--a);font-family:'JetBrains Mono',monospace;margin-bottom:6px">💡 Salary Boosters — add these to earn more:</div>
+            <div style="font-size:12px;line-height:1.9">
+              <div>+Docker → <span style="color:var(--g)">+₹0.8L/yr</span></div>
+              <div>+AWS → <span style="color:var(--g)">+₹1.2L/yr</span></div>
+              <div>+PostgreSQL → <span style="color:var(--g)">+₹0.5L/yr</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="explain-title">What's happening behind the scenes</div>
+    <div class="box what">
+      <div class="box-label">The ML model chain</div>
+      <p>Django's <strong>salary/predictor.py</strong> loads a <strong>Random Forest Regressor .pkl</strong> file (trained offline in Jupyter on a Kaggle Indian salary dataset). My profile features are built into a numpy array: [0.5, 7, 1, 0, 1, 2]. The model's <strong>predict()</strong> method returns a single salary value. A confidence interval is computed from the model's tree variance. The "salary boosters" are computed by running the model again with each gap skill added — the salary delta is the booster value.</p>
+    </div>
+    <div class="box why">
+      <div class="box-label">Why this matters practically</div>
+      <p>I now know my range is ₹4.2L–₹6.8L. When a recruiter offers me ₹3.5L, I know that's below market. When they offer ₹6L, I know that's fair. I also know that adding Docker to my skillset would push my range up by ₹0.8L — making the gap analysis even more actionable: <strong>learn Docker, earn more, immediately.</strong></p>
+    </div>
+    <div class="box link">
+      <div class="box-label">How this connects to the recruiter side</div>
+      <p>Your <strong>Salary Benchmarks</strong> on the recruiter dashboard aggregate all candidate predictions to show: "Backend Django candidates in Ahmedabad expect ₹4.2L–₹6.8L on average." This tells you exactly what the going rate is — so your JD's salary range is competitive, not outdated.</p>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="show('s4',null)">← Job Matches</button>
+    <button class="btn btn-primary" onclick="show('s6',null)">Step 6: Readiness Score →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 6: READINESS ══════════ -->
+<div class="tab" id="s6">
+  <div class="step-hero">
+    <div class="step-tag"><div class="step-num">6</div>Step 6 of 8</div>
+    <h1>My <span>Readiness Score</span> — 0 to 100</h1>
+    <p class="lead">Everything the system has learned about me — my skill gap, experience, education, and interview performance — gets combined into one single number. This is the most important number on my dashboard.</p>
+  </div>
+
+  <div class="sees-box">
+    <div class="sees-bar">
+      <div class="sees-dots"><div class="sees-dot" style="background:#ff5f56"></div><div class="sees-dot" style="background:#ffbd2e"></div><div class="sees-dot" style="background:#27c93f"></div></div>
+      <div class="sees-url">talentiq.app/dashboard</div>
+    </div>
+    <div class="sees-body">
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:1.5rem;align-items:center;flex-wrap:wrap;padding:.5rem 0 1rem">
+        <div style="text-align:center">
+          <svg width="140" height="80" viewBox="0 0 140 80">
+            <defs>
+              <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#ff6b6b"/>
+                <stop offset="45%" style="stop-color:#f5a623"/>
+                <stop offset="100%" style="stop-color:#1ecb7b"/>
+              </linearGradient>
+            </defs>
+            <path d="M 15 70 A 55 55 0 0 1 125 70" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>
+            <path d="M 15 70 A 55 55 0 0 1 125 70" fill="none" stroke="url(#g1)" stroke-width="12" stroke-linecap="round" stroke-dasharray="172" stroke-dashoffset="51"/>
+            <text x="70" y="65" text-anchor="middle" fill="#1ecb7b" font-size="20" font-weight="800" font-family="JetBrains Mono">67</text>
+            <text x="70" y="78" text-anchor="middle" fill="#666685" font-size="8" font-family="JetBrains Mono">READINESS</text>
+          </svg>
+          <div style="font-size:11px;color:var(--a);font-family:'JetBrains Mono',monospace;margin-top:4px">Getting There 🟡</div>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:.5rem">Score breakdown:</div>
+          <div class="score-row"><span class="score-lbl">Skill Coverage</span><div class="score-bar-wrap"><div class="score-bar-fill" style="width:62%;background:var(--a)"></div></div><span class="score-val" style="color:var(--a)">62%</span></div>
+          <div class="score-row"><span class="score-lbl">Experience Match</span><div class="score-bar-wrap"><div class="score-bar-fill" style="width:45%;background:var(--r)"></div></div><span class="score-val" style="color:var(--r)">45%</span></div>
+          <div class="score-row"><span class="score-lbl">Education Score</span><div class="score-bar-wrap"><div class="score-bar-fill" style="width:80%;background:var(--g)"></div></div><span class="score-val" style="color:var(--g)">80%</span></div>
+          <div class="score-row"><span class="score-lbl">Project Relevance</span><div class="score-bar-wrap"><div class="score-bar-fill" style="width:75%;background:var(--g)"></div></div><span class="score-val" style="color:var(--g)">75%</span></div>
+          <div class="score-row"><span class="score-lbl">Interview Score</span><div class="score-bar-wrap"><div class="score-bar-fill" style="width:0%;background:var(--muted)"></div></div><span class="score-val" style="color:var(--muted)">—</span></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px;font-family:'JetBrains Mono',monospace">⚠️ Complete the interview simulator to unlock your full score</div>
+        </div>
+      </div>
+      <div class="mock-screen">
+        <div class="mock-title">📈 Score trend over last 4 weeks</div>
+        <div style="display:flex;align-items:flex-end;gap:8px;height:50px;padding:0 .5rem">
+          <div style="flex:1;background:rgba(123,111,255,.4);border-radius:3px 3px 0 0;height:40%"></div>
+          <div style="flex:1;background:rgba(123,111,255,.5);border-radius:3px 3px 0 0;height:52%"></div>
+          <div style="flex:1;background:rgba(123,111,255,.7);border-radius:3px 3px 0 0;height:60%"></div>
+          <div style="flex:1;background:var(--v);border-radius:3px 3px 0 0;height:67%"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <div style="flex:1;text-align:center;font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace">Wk 1<br>40</div>
+          <div style="flex:1;text-align:center;font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace">Wk 2<br>52</div>
+          <div style="flex:1;text-align:center;font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace">Wk 3<br>60</div>
+          <div style="flex:1;text-align:center;font-size:9px;color:var(--v);font-family:'JetBrains Mono',monospace">Wk 4<br>67</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="explain-title">What's happening behind the scenes</div>
+    <div class="box what">
+      <div class="box-label">The weighted formula</div>
+      <p><strong>readiness = (0.40 × skill_coverage) + (0.20 × exp_match) + (0.15 × edu_score) + (0.15 × project_score) + (0.10 × interview_score)</strong>. Each component is normalised 0–1 then multiplied by 100. Django's <strong>readiness/calculator.py</strong> pulls all component values from their respective models, applies the formula, and saves a new <strong>ReadinessScore row with a timestamp</strong>. Every time it's computed (on resume update, after interview, after gap refresh), a new row is saved — that's how the trend chart works.</p>
+    </div>
+    <div class="box why">
+      <div class="box-label">Why one number is powerful</div>
+      <p>Instead of juggling 5 different metrics, I have one goal: <strong>push my score above 70</strong>. The breakdown tells me exactly where to focus — my Experience (45%) is dragging the score down. But since I can't magically get more experience, I focus on Skill Coverage (62% → target 85% by adding Docker, AWS, PostgreSQL) which will push the overall score to ~78. <strong>One number, clear action.</strong></p>
+    </div>
+    <div class="box link">
+      <div class="box-label">How this connects to the recruiter side</div>
+      <p>This score is <strong>the primary ranking signal</strong> on your candidate list. When you search for "Backend Django candidates", they're sorted by Readiness Score by default. My 67 ranks me above candidates at 50 but below those at 80. You can also filter: "Show only candidates with score > 70" — instantly shortlisting the ready ones without reading a single resume.</p>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="show('s5',null)">← Salary</button>
+    <button class="btn btn-primary" onclick="show('s7',null)">Step 7: AI Interview →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 7: INTERVIEW ══════════ -->
+<div class="tab" id="s7">
+  <div class="step-hero">
+    <div class="step-tag"><div class="step-num">7</div>Step 7 of 8</div>
+    <h1>I Practice with the <span>AI Interview Simulator</span></h1>
+    <p class="lead">5 questions for my target role. I type my answer. In 2 seconds I get a score, sentiment analysis, keyword coverage, and specific feedback. No waiting for a human mock interviewer.</p>
+  </div>
+
+  <div class="sees-box">
+    <div class="sees-bar">
+      <div class="sees-dots"><div class="sees-dot" style="background:#ff5f56"></div><div class="sees-dot" style="background:#ffbd2e"></div><div class="sees-dot" style="background:#27c93f"></div></div>
+      <div class="sees-url">talentiq.app/interview</div>
+    </div>
+    <div class="sees-body">
+      <div class="q-card">
+        <div class="q-num">Question 2 of 5 · Backend Django Developer</div>
+        <div class="q-text">Explain how Django's ORM works and how you would optimise a slow database query.</div>
+        <div class="a-box">
+          "Django ORM lets you interact with the database using Python objects instead of raw SQL. You define models as Python classes and Django maps them to database tables. For a slow query, I would first use Django's select_related() or prefetch_related() to reduce N+1 queries. I would also add database indexes on frequently filtered fields and use Django Debug Toolbar to identify slow queries."
+        </div>
+        <div>
+          <span class="score-pill" style="background:rgba(30,203,123,.15);color:var(--g);border:1px solid rgba(30,203,123,.3)">Score: 78/100</span>
+          <span class="score-pill" style="background:rgba(0,207,168,.15);color:var(--t);border:1px solid rgba(0,207,168,.3)">Sentiment: Confident</span>
+          <span class="score-pill" style="background:rgba(123,111,255,.15);color:var(--v);border:1px solid rgba(123,111,255,.3)">Keywords: 6/8</span>
+          <span class="score-pill" style="background:rgba(245,166,35,.15);color:var(--a);border:1px solid rgba(245,166,35,.3)">Length: Ideal ✓</span>
+        </div>
+        <div style="background:var(--s1);border-radius:6px;padding:.75rem;margin-top:.75rem;font-size:12px;color:var(--muted);line-height:1.7">
+          💡 <strong style="color:var(--text)">AI Feedback:</strong> Good answer covering ORM basics and N+1 optimisation. Missing keywords: <span class="skill-tag missing" style="font-size:9px">query_set.explain()</span><span class="skill-tag missing" style="font-size:9px">database_router</span>. Add one concrete example with actual code to score higher.
+        </div>
+      </div>
+      <div class="mock-screen" style="margin-top:8px">
+        <div class="mock-title">Session Summary (after 5 questions)</div>
+        <div style="display:flex;justify-content:center;align-items:center;gap:1.5rem;flex-wrap:wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <polygon points="60,10 110,38 110,82 60,110 10,82 10,38" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <polygon points="60,28 88,43 88,73 60,88 32,73 32,43" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+            <polygon points="60,25 85,40 85,75 60,90 35,75 35,40" fill="rgba(123,111,255,0.15)" stroke="var(--v)" stroke-width="1.5"/>
+            <text x="60" y="14" text-anchor="middle" fill="var(--muted)" font-size="7" font-family="JetBrains Mono">Technical</text>
+            <text x="106" y="42" text-anchor="middle" fill="var(--muted)" font-size="7" font-family="JetBrains Mono">Clarity</text>
+            <text x="106" y="80" text-anchor="middle" fill="var(--muted)" font-size="7" font-family="JetBrains Mono">Confidence</text>
+            <text x="60" y="114" text-anchor="middle" fill="var(--muted)" font-size="7" font-family="JetBrains Mono">Structure</text>
+            <text x="12" y="80" text-anchor="middle" fill="var(--muted)" font-size="7" font-family="JetBrains Mono">Brevity</text>
+          </svg>
+          <div>
+            <div class="score-row"><span class="score-lbl">Technical Accuracy</span><div class="score-bar-wrap"><div class="score-bar-fill" style="width:78%;background:var(--g)"></div></div><span class="score-val" style="color:var(--g)">78</span></div>
+            <div class="score-row"><span class="score-lbl">Clarity</span><div class="score-bar-wrap"><div class="score-bar-fill" style="width:72%;background:var(--a)"></div></div><span class="score-val" style="color:var(--a)">72</span></div>
+            <div class="score-row"><span class="score-lbl">Confidence</span><div class="score-bar-wrap"><div class="score-bar-fill" style="width:80%;background:var(--g)"></div></div><span class="score-val" style="color:var(--g)">80</span></div>
+            <div class="score-row"><span class="score-lbl">Answer Structure</span><div class="score-bar-wrap"><div class="score-bar-fill" style="width:65%;background:var(--a)"></div></div><span class="score-val" style="color:var(--a)">65</span></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px;font-family:'JetBrains Mono',monospace">Overall Session Score: <span style="color:var(--g)">74/100</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="explain-title">What's happening behind the scenes</div>
+    <div class="box what">
+      <div class="box-label">The 4-signal scoring pipeline</div>
+      <p>When I submit an answer, Django's <strong>interview/scorer.py</strong> runs 4 analyses in parallel: <strong>(1) VADER</strong> sentiment analysis gives compound polarity (-1 to +1) → maps to confidence level. <strong>(2) spaCy</strong> keyword matching checks overlap between my answer and expected keywords stored in the Question DB row. <strong>(3) Flesch Reading Ease</strong> score measures how clearly I wrote. <strong>(4) Word count</strong> vs ideal 50–200 word range. These 4 normalised values feed into a <strong>Random Forest classifier</strong> (trained on labelled interview answers) → outputs Poor/Average/Good/Excellent. Also stores scores in <strong>InterviewAnswer model</strong> for session history.</p>
+    </div>
+    <div class="box why">
+      <div class="box-label">Why instant feedback changes everything</div>
+      <p>In a real interview, you never know why you failed. Was it your answer content? Your confidence? Your clarity? This simulator tells you exactly — "Your keyword coverage was 6/8, your confidence was high, but your answer structure was weak." <strong>You know what to fix before the real interview.</strong></p>
+    </div>
+    <div class="box link">
+      <div class="box-label">How this connects to the recruiter side</div>
+      <p>After completing the interview simulator, my <strong>Readiness Score updates</strong> — the interview_component (10% weight) gets filled in. Your talent pool ranking updates in real time. Also, aggregate interview data from all candidates shows you: "Candidates for Backend Django roles struggle most with System Design questions" — helping you know where to probe in real interviews.</p>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="show('s6',null)">← Readiness Score</button>
+    <button class="btn btn-primary" onclick="show('s8',null)">Step 8: Market Trends →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 8: TRENDS ══════════ -->
+<div class="tab" id="s8">
+  <div class="step-hero">
+    <div class="step-tag"><div class="step-num">8</div>Step 8 of 8</div>
+    <h1><span>Market Trends</span> — What to Learn Next</h1>
+    <p class="lead">Even after fixing my current gaps, the market keeps moving. The trends page shows which skills are rising, which are falling, and — using ML — which skills will be in demand 6 months from now.</p>
+  </div>
+
+  <div class="sees-box">
+    <div class="sees-bar">
+      <div class="sees-dots"><div class="sees-dot" style="background:#ff5f56"></div><div class="sees-dot" style="background:#ffbd2e"></div><div class="sees-dot" style="background:#27c93f"></div></div>
+      <div class="sees-url">talentiq.app/trends</div>
+    </div>
+    <div class="sees-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="mock-screen">
+          <div class="mock-title">📈 Rising Skills — last 4 weeks</div>
+          <div style="font-size:12px;line-height:2.1">
+            <div>1. <span class="skill-tag have" style="font-size:9px">Docker</span> <span style="color:var(--g);font-family:'JetBrains Mono',monospace;font-size:10px">↑ +23%</span></div>
+            <div>2. <span class="skill-tag have" style="font-size:9px">FastAPI</span> <span style="color:var(--g);font-family:'JetBrains Mono',monospace;font-size:10px">↑ +18%</span></div>
+            <div>3. <span class="skill-tag have" style="font-size:9px">LangChain</span> <span style="color:var(--g);font-family:'JetBrains Mono',monospace;font-size:10px">↑ +41%</span></div>
+            <div>4. <span class="skill-tag have" style="font-size:9px">PostgreSQL</span> <span style="color:var(--g);font-family:'JetBrains Mono',monospace;font-size:10px">↑ +12%</span></div>
+          </div>
+        </div>
+        <div class="mock-screen">
+          <div class="mock-title">📉 Declining Skills</div>
+          <div style="font-size:12px;line-height:2.1">
+            <div>1. <span class="skill-tag missing" style="font-size:9px">Flask</span> <span style="color:var(--r);font-family:'JetBrains Mono',monospace;font-size:10px">↓ -14%</span></div>
+            <div>2. <span class="skill-tag missing" style="font-size:9px">MySQL</span> <span style="color:var(--r);font-family:'JetBrains Mono',monospace;font-size:10px">↓ -8%</span></div>
+            <div>3. <span class="skill-tag missing" style="font-size:9px">jQuery</span> <span style="color:var(--r);font-family:'JetBrains Mono',monospace;font-size:10px">↓ -22%</span></div>
+            <div>4. <span class="skill-tag missing" style="font-size:9px">PHP</span> <span style="color:var(--r);font-family:'JetBrains Mono',monospace;font-size:10px">↓ -19%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="mock-screen">
+        <div class="mock-title">🔮 6-Month Forecast (ML Prediction)</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Based on Polynomial Regression on weekly scrape data:</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="background:rgba(30,203,123,.1);border:1px solid rgba(30,203,123,.3);border-radius:6px;padding:6px 12px;text-align:center">
+            <div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--g)">LangChain</div>
+            <div style="font-size:10px;color:var(--muted)">+67% by Dec</div>
+          </div>
+          <div style="background:rgba(0,207,168,.1);border:1px solid rgba(0,207,168,.3);border-radius:6px;padding:6px 12px;text-align:center">
+            <div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--t)">Docker</div>
+            <div style="font-size:10px;color:var(--muted)">+31% by Dec</div>
+          </div>
+          <div style="background:rgba(123,111,255,.1);border:1px solid rgba(123,111,255,.3);border-radius:6px;padding:6px 12px;text-align:center">
+            <div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--v)">FastAPI</div>
+            <div style="font-size:10px;color:var(--muted)">+24% by Dec</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="explain">
+    <div class="explain-title">What's happening behind the scenes</div>
+    <div class="box what">
+      <div class="box-label">Weekly scraping → SkillTrend table → Regression forecast</div>
+      <p>Every week, Django's <strong>manage.py update_trends</strong> management command runs the scraper and counts how often each skill appears across all job listings. That count is stored as one row in the <strong>SkillTrend table</strong> (skill_name, week_date, frequency_count). After 8+ weeks of data, <strong>Polynomial Regression</strong> is fit on each skill's time series. The fitted curve is extrapolated 12–24 weeks forward to get the forecast. This is the same approach used by financial analysts for stock trend prediction.</p>
+    </div>
+    <div class="box why">
+      <div class="box-label">Why this is more valuable than the gap analysis</div>
+      <p>Gap analysis tells me what I need <strong>right now</strong>. Trends tell me what I need <strong>in 6 months</strong>. If LangChain is going up 67% by December, I should start learning it now — even if current job listings don't heavily require it yet. <strong>I'm not just fixing today's gap, I'm ahead of tomorrow's gap.</strong></p>
+    </div>
+    <div class="box link">
+      <div class="box-label">How this connects to the recruiter side</div>
+      <p>Your <strong>Hiring Forecast</strong> dashboard uses this exact same data — but from a recruiter's perspective. "LangChain will be in 67% more listings by December — start hiring for it now or your JDs will look outdated." The same ML model that advises me to learn a skill advises you to hire for it. User and recruiter data are two sides of one market intelligence system.</p>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="show('s7',null)">← AI Interview</button>
+    <button class="btn btn-primary" onclick="show('link',null)">See how we connect →</button>
+  </div>
+</div>
+
+<!-- ══════════ CONNECTION ══════════ -->
+<div class="tab" id="link">
+  <div class="step-hero">
+    <div class="step-tag"><div class="step-num">✓</div>The Full Picture</div>
+    <h1>How <span>My Side Connects</span> to Your Side</h1>
+    <p class="lead">You've now seen all 8 steps of the user journey. Here's the exact data flow between what I do as a user and what you see as a recruiter — we're two sides of one system.</p>
+  </div>
+
+  <div class="sl">Data flow — user action → recruiter view</div>
+
+  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem">
+
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--v);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">1</div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:2px">I upload my resume</div>
+        <div style="font-size:12px;color:var(--muted)">→ My skills, experience, and education appear in your <strong style="color:var(--text)">Talent Pool</strong></div>
+      </div>
+      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted)">ResumeProfile → recruiter/talent-pool/</div>
+    </div>
+
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--t);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0">2</div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:2px">I generate my skill gap for "Backend Django"</div>
+        <div style="font-size:12px;color:var(--muted)">→ "Docker missing in 80% of candidates" appears in your <strong style="color:var(--text)">Skill Shortage Heatmap</strong></div>
+      </div>
+      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted)">SkillGapReport → analytics/skill-shortage/</div>
+    </div>
+
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0">3</div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:2px">My salary prediction = ₹4.2L–₹6.8L</div>
+        <div style="font-size:12px;color:var(--muted)">→ Aggregated with other candidates → your <strong style="color:var(--text)">Salary Benchmark</strong>: "Market rate: ₹4–7L"</div>
+      </div>
+      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted)">SalaryPrediction → analytics/salary-benchmark/</div>
+    </div>
+
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#000;flex-shrink:0">4</div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:2px">My Readiness Score = 67</div>
+        <div style="font-size:12px;color:var(--muted)">→ I rank 3rd in your <strong style="color:var(--text)">Candidate Leaderboard</strong> for Backend Django roles in Ahmedabad</div>
+      </div>
+      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted)">ReadinessScore → analytics/candidates/?role=backend</div>
+    </div>
+
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--b);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">5</div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:2px">I apply to "Backend Python Dev" at AddWeb Solution</div>
+        <div style="font-size:12px;color:var(--muted)">→ Your <strong style="color:var(--text)">Applicant Pipeline</strong> shows: Kartik Shah · 67 readiness · 78% match · Applied today</div>
+      </div>
+      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted)">SavedJob (status=applied) → recruiter/candidates/</div>
+    </div>
+
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--pk);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">6</div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:2px">Weekly trends show LangChain ↑ 41%</div>
+        <div style="font-size:12px;color:var(--muted)">→ Your <strong style="color:var(--text)">Hiring Forecast</strong>: "Add LangChain to your JD now — demand rising fast"</div>
+      </div>
+      <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted)">SkillTrend → analytics/forecast/</div>
+    </div>
+
+  </div>
+
+  <div class="link-box">
+    <h3>The one-sentence summary for your mate</h3>
+    <p>"Everything I do as a user — upload resume, generate gap, take mock interview, apply to jobs — feeds your recruiter dashboard in real time. You don't manually compile candidate data. You just open the analytics page and the system has already ranked, scored, and analysed every candidate for you. <strong>My journey is your intelligence.</strong>"</p>
+  </div>
+
+  <div class="sl">What we built together — one platform, two views</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem">
+    <div class="box what">
+      <div class="box-label">My side (Job Seeker)</div>
+      <p>Register → Upload Resume → See Gap → Find Jobs → Predict Salary → Get Readiness Score → Practice Interview → Track Market Trends</p>
+    </div>
+    <div class="box link">
+      <div class="box-label">Your side (Recruiter)</div>
+      <p>Talent Pool → Skill Shortage Heatmap → Salary Benchmark → Candidate Rankings → Applicant Pipeline → Hiring Forecast</p>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="show('s8',null)">← Market Trends</button>
+    <button class="btn btn-primary" onclick="show('intro',null)">Back to Start ↺</button>
+  </div>
+</div>
+
+<script>
+const tabOrder = ['intro','s1','s2','s3','s4','s5','s6','s7','s8','link'];
+const stepNames = ['Intro','Register','Resume','Gap','Jobs','Salary','Readiness','Interview','Trends','Connection'];
+
+function show(tabId, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+
+  const idx = tabOrder.indexOf(tabId);
+  const buttons = document.querySelectorAll('nav button');
+  if (buttons[idx]) buttons[idx].classList.add('active');
+
+  const pct = idx === 0 ? 0 : Math.round((idx / (tabOrder.length - 1)) * 100);
+  document.getElementById('progress').style.width = pct + '%';
+  document.getElementById('stepcount').textContent = idx === 0 ? 'Step 0 of 8' : `Step ${idx} of 8`;
+
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/Kartik-hub16/AI_Resume_Generator.git
+git push -u origin main

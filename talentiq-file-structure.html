@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalentIQ — Complete File Structure</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070e;--s1:#0e0e1c;--s2:#15152a;--s3:#1c1c32;
+  --border:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.11);
+  --text:#eaeaf5;--muted:#666685;
+  --v:#7b6fff;--t:#00cfa8;--a:#f5a623;--r:#ff6b6b;--g:#1ecb7b;--b:#4f8fff;--pk:#e865c8;
+}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;line-height:1.7;min-height:100vh}
+
+/* NAV */
+nav{display:flex;gap:5px;flex-wrap:wrap;padding:1rem 2rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(7,7,14,.97);backdrop-filter:blur(14px);z-index:100}
+nav button{font-family:'JetBrains Mono',monospace;font-size:10px;padding:5px 13px;border-radius:4px;border:1px solid var(--b2);background:transparent;color:var(--muted);cursor:pointer;transition:all .18s;white-space:nowrap}
+nav button.active,nav button:hover{background:var(--v);color:#fff;border-color:var(--v)}
+
+.tab{display:none;max-width:1060px;margin:0 auto;padding:2.5rem 2rem 5rem}
+.tab.active{display:block}
+
+/* HERO */
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t);text-transform:uppercase;letter-spacing:.15em;display:block;margin-bottom:.75rem}
+h1{font-size:clamp(1.9rem,4vw,2.9rem);font-weight:800;line-height:1.08;background:linear-gradient(130deg,#fff 15%,var(--v) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.9rem}
+h2{font-size:19px;font-weight:700;margin-bottom:.85rem}
+h3{font-size:14px;font-weight:600;margin-bottom:4px}
+p.lead{font-size:14px;color:var(--muted);max-width:700px;line-height:1.85;margin-bottom:2rem}
+
+.sl{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:1rem;margin-top:2rem;display:flex;align-items:center;gap:10px}
+.sl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* BADGES */
+.badge{display:inline-block;font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:3px;font-weight:600;margin-left:6px;vertical-align:middle}
+.bg{background:rgba(30,203,123,.12);color:var(--g)}
+.ba{background:rgba(245,166,35,.12);color:var(--a)}
+.bp{background:rgba(123,111,255,.12);color:var(--v)}
+.bt{background:rgba(0,207,168,.12);color:var(--t)}
+.br{background:rgba(255,107,107,.12);color:var(--r)}
+.bb{background:rgba(79,143,255,.12);color:var(--b)}
+.bpk{background:rgba(232,101,200,.12);color:var(--pk)}
+
+/* FILE TREE */
+.tree{background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+.tree-header{background:var(--s2);padding:.75rem 1.25rem;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.tree-header .dots{display:flex;gap:5px}
+.tree-header .dot{width:10px;height:10px;border-radius:50%}
+.tree-header .title{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-left:6px}
+.tree-body{padding:1.25rem 1.5rem;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2;overflow-x:auto}
+
+/* FILE LINES */
+.f-root{color:#fff;font-weight:600;font-size:13px}
+.f-dir {color:var(--b);font-weight:500}
+.f-py  {color:var(--g)}
+.f-js  {color:var(--a)}
+.f-jsx {color:var(--t)}
+.f-cfg {color:var(--muted)}
+.f-md  {color:var(--pk)}
+.f-env {color:var(--r)}
+.f-yml {color:var(--v)}
+.f-css {color:#c678dd}
+.indent1{padding-left:1.25rem}
+.indent2{padding-left:2.5rem}
+.indent3{padding-left:3.75rem}
+.indent4{padding-left:5rem}
+.indent5{padding-left:6.25rem}
+.comment{color:var(--muted);font-size:11px;margin-left:12px}
+
+/* FILE EXPLAIN TABLE */
+.tbl{background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:var(--s2)}
+th{padding:9px 13px;text-align:left;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 13px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.7}
+td:first-child{font-family:'JetBrains Mono',monospace;color:var(--t);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+
+/* HIGHLIGHT */
+.hl{background:linear-gradient(135deg,rgba(123,111,255,.09),rgba(0,207,168,.05));border:1px solid rgba(123,111,255,.25);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+.hl h3{color:var(--v);margin-bottom:6px}
+.hl p{font-size:13px;color:var(--muted);line-height:1.85}
+
+.card{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:1.5rem}
+
+hr.dv{border:none;border-top:1px solid var(--border);margin:2rem 0}
+</style>
+</head>
+<body>
+
+<nav>
+  <button class="active" onclick="show('overview')">📁 Full Structure</button>
+  <button onclick="show('backend')">🐍 Django Backend</button>
+  <button onclick="show('frontend')">⚛️ React Frontend</button>
+  <button onclick="show('ml')">🤖 ML Layer</button>
+  <button onclick="show('config')">⚙️ Config Files</button>
+  <button onclick="show('explain')">📖 Every File Explained</button>
+</nav>
+
+<!-- ══════════ FULL STRUCTURE ══════════ -->
+<div class="tab active" id="overview">
+  <span class="eyebrow">Production-Grade · Monorepo</span>
+  <h1>TalentIQ — Complete File Structure</h1>
+  <p class="lead">Full production-grade monorepo. Django backend + React frontend + ML models + config files. Every file has a purpose. Nothing is filler.</p>
+
+  <div class="hl">
+    <h3>How to read this structure</h3>
+    <p>The project lives in one root folder called <strong>talentiq/</strong>. Inside: <strong>backend/</strong> (Django), <strong>frontend/</strong> (React), <strong>ml/</strong> (Jupyter notebooks + trained models), and <strong>docker/</strong> + config files at root. Each Django app is one feature. Each React page is one screen. ML models are .pkl files served by Django views.</p>
+  </div>
+
+  <div class="tree">
+    <div class="tree-header">
+      <div class="dots">
+        <div class="dot" style="background:#ff5f56"></div>
+        <div class="dot" style="background:#ffbd2e"></div>
+        <div class="dot" style="background:#27c93f"></div>
+      </div>
+      <span class="title">talentiq/ — root monorepo</span>
+    </div>
+    <div class="tree-body">
+<div class="f-root">talentiq/</div>
+
+<div class="indent1 f-dir">├── backend/                        <span class="comment"># Django project root</span></div>
+<div class="indent2 f-dir">│   ├── config/                     <span class="comment"># Django project settings package</span></div>
+<div class="indent3 f-py"> │   │   ├── __init__.py</div>
+<div class="indent3 f-py"> │   │   ├── settings/</div>
+<div class="indent4 f-py">  │   │   │   ├── __init__.py</div>
+<div class="indent4 f-py">  │   │   │   ├── base.py             <span class="comment"># shared settings</span></div>
+<div class="indent4 f-py">  │   │   │   ├── development.py      <span class="comment"># local dev settings</span></div>
+<div class="indent4 f-py">  │   │   │   └── production.py       <span class="comment"># production settings</span></div>
+<div class="indent3 f-py"> │   │   ├── urls.py                 <span class="comment"># root URL conf</span></div>
+<div class="indent3 f-py"> │   │   ├── wsgi.py</div>
+<div class="indent3 f-py"> │   │   └── asgi.py</div>
+
+<div class="indent2 f-dir">│   ├── apps/                       <span class="comment"># all Django apps here</span></div>
+
+<div class="indent3 f-dir">│   │   ├── accounts/               <span class="comment"># User auth + profiles</span></div>
+<div class="indent4 f-py">  │   │   │   ├── __init__.py</div>
+<div class="indent4 f-py">  │   │   │   ├── models.py           <span class="comment"># User, UserProfile</span></div>
+<div class="indent4 f-py">  │   │   │   ├── serializers.py      <span class="comment"># RegisterSerializer, UserSerializer</span></div>
+<div class="indent4 f-py">  │   │   │   ├── views.py            <span class="comment"># RegisterView, ProfileView, MeView</span></div>
+<div class="indent4 f-py">  │   │   │   ├── urls.py             <span class="comment"># /api/auth/*</span></div>
+<div class="indent4 f-py">  │   │   │   ├── permissions.py      <span class="comment"># IsSeeker, IsRecruiter, IsOwner</span></div>
+<div class="indent4 f-py">  │   │   │   ├── signals.py          <span class="comment"># auto-create UserProfile on User save</span></div>
+<div class="indent4 f-py">  │   │   │   ├── admin.py</div>
+<div class="indent4 f-py">  │   │   │   ├── apps.py</div>
+<div class="indent4 f-py">  │   │   │   └── tests.py</div>
+
+<div class="indent3 f-dir">│   │   ├── resume/                 <span class="comment"># Resume upload + parsing</span></div>
+<div class="indent4 f-py">  │   │   │   ├── __init__.py</div>
+<div class="indent4 f-py">  │   │   │   ├── models.py           <span class="comment"># ResumeProfile, ParsedSkill</span></div>
+<div class="indent4 f-py">  │   │   │   ├── serializers.py</div>
+<div class="indent4 f-py">  │   │   │   ├── views.py            <span class="comment"># UploadView, ParseView, ProfileView</span></div>
+<div class="indent4 f-py">  │   │   │   ├── urls.py             <span class="comment"># /api/resume/*</span></div>
+<div class="indent4 f-py">  │   │   │   ├── parser.py           <span class="comment"># PyPDF2 + spaCy parsing logic</span></div>
+<div class="indent4 f-py">  │   │   │   ├── skill_extractor.py  <span class="comment"># skill taxonomy matcher</span></div>
+<div class="indent4 f-py">  │   │   │   ├── admin.py</div>
+<div class="indent4 f-py">  │   │   │   ├── apps.py</div>
+<div class="indent4 f-py">  │   │   │   └── tests.py</div>
+
+<div class="indent3 f-dir">│   │   ├── jobs/                   <span class="comment"># Job scraper + listings</span></div>
+<div class="indent4 f-py">  │   │   │   ├── __init__.py</div>
+<div class="indent4 f-py">  │   │   │   ├── models.py           <span class="comment"># JobListing, SkillTrend</span></div>
+<div class="indent4 f-py">  │   │   │   ├── serializers.py</div>
+<div class="indent4 f-py">  │   │   │   ├── views.py            <span class="comment"># JobListView, JobDetailView, SearchView</span></div>
+<div class="indent4 f-py">  │   │   │   ├── urls.py             <span class="comment"># /api/jobs/*</span></div>
+<div class="indent4 f-py">  │   │   │   ├── scrapers/</div>
+<div class="indent5 f-py">   │   │   │   │   ├── __init__.py</div>
+<div class="indent5 f-py">   │   │   │   │   ├── base_scraper.py  <span class="comment"># rate limit, retry, headers</span></div>
+<div class="indent5 f-py">   │   │   │   │   ├── indeed_scraper.py</div>
+<div class="indent5 f-py">   │   │   │   │   ├── naukri_scraper.py</div>
+<div class="indent5 f-py">   │   │   │   │   └── skill_parser.py  <span class="comment"># extract skills from JD text</span></div>
+<div class="indent4 f-py">  │   │   │   ├── management/</div>
+<div class="indent5 f-py">   │   │   │   │   └── commands/</div>
+<div class="indent5 f-py">   │   │   │   │       ├── scrape_jobs.py   <span class="comment"># python manage.py scrape_jobs</span></div>
+<div class="indent5 f-py">   │   │   │   │       └── update_trends.py <span class="comment"># weekly skill trend update</span></div>
+<div class="indent4 f-py">  │   │   │   ├── filters.py          <span class="comment"># django-filter for job search</span></div>
+<div class="indent4 f-py">  │   │   │   ├── admin.py</div>
+<div class="indent4 f-py">  │   │   │   ├── apps.py</div>
+<div class="indent4 f-py">  │   │   │   └── tests.py</div>
+
+<div class="indent3 f-dir">│   │   ├── gap_analysis/           <span class="comment"># Skill gap engine</span></div>
+<div class="indent4 f-py">  │   │   │   ├── __init__.py</div>
+<div class="indent4 f-py">  │   │   │   ├── models.py           <span class="comment"># SkillGapReport, LearningResource</span></div>
+<div class="indent4 f-py">  │   │   │   ├── serializers.py</div>
+<div class="indent4 f-py">  │   │   │   ├── views.py            <span class="comment"># GenerateGapView, GapHistoryView</span></div>
+<div class="indent4 f-py">  │   │   │   ├── urls.py             <span class="comment"># /api/gap/*</span></div>
+<div class="indent4 f-py">  │   │   │   ├── engine.py           <span class="comment"># core Pandas gap computation logic</span></div>
+<div class="indent4 f-py">  │   │   │   ├── chart_builder.py    <span class="comment"># Plotly + Seaborn chart generation</span></div>
+<div class="indent4 f-py">  │   │   │   ├── resource_seeder.py  <span class="comment"># seed learning resources into DB</span></div>
+<div class="indent4 f-py">  │   │   │   ├── admin.py</div>
+<div class="indent4 f-py">  │   │   │   ├── apps.py</div>
+<div class="indent4 f-py">  │   │   │   └── tests.py</div>
+
+<div class="indent3 f-dir">│   │   ├── recommendations/        <span class="comment"># Job recommendation engine</span></div>
+<div class="indent4 f-py">  │   │   │   ├── __init__.py</div>
+<div class="indent4 f-py">  │   │   │   ├── models.py           <span class="comment"># SavedJob, JobApplication</span></div>
+<div class="indent4 f-py">  │   │   │   ├── serializers.py</div>
+<div class="indent4 f-py">  │   │   │   ├── views.py            <span class="comment"># RecommendView, SaveJobView, ApplyView</span></div>
+<div class="indent4 f-py">  │   │   │   ├── urls.py             <span class="comment"># /api/recommend/*</span></div>
+<div class="indent4 f-py">  │   │   │   ├── engine.py           <span class="comment"># TF-IDF + cosine similarity logic</span></div>
+<div class="indent4 f-py">  │   │   │   ├── admin.py</div>
+<div class="indent4 f-py">  │   │   │   ├── apps.py</div>
+<div class="indent4 f-py">  │   │   │   └── tests.py</div>
+
+<div class="indent3 f-dir">│   │   ├── salary/                 <span class="comment"># Salary prediction ML</span></div>
+<div class="indent4 f-py">  │   │   │   ├── __init__.py</div>
+<div class="indent4 f-py">  │   │   │   ├── models.py           <span class="comment"># SalaryPrediction</span></div>
+<div class="indent4 f-py">  │   │   │   ├── serializers.py</div>
+<div class="indent4 f-py">  │   │   │   ├── views.py            <span class="comment"># PredictSalaryView, SalaryHistoryView</span></div>
+<div class="indent4 f-py">  │   │   │   ├── urls.py             <span class="comment"># /api/salary/*</span></div>
+<div class="indent4 f-py">  │   │   │   ├── predictor.py        <span class="comment"># loads .pkl, runs inference</span></div>
+<div class="indent4 f-py">  │   │   │   ├── feature_builder.py  <span class="comment"># builds feature dict from user profile</span></div>
+<div class="indent4 f-py">  │   │   │   ├── admin.py</div>
+<div class="indent4 f-py">  │   │   │   ├── apps.py</div>
+<div class="indent4 f-py">  │   │   │   └── tests.py</div>
+
+<div class="indent3 f-dir">│   │   ├── interview/              <span class="comment"># AI interview simulator</span></div>
+<div class="indent4 f-py">  │   │   │   ├── __init__.py</div>
+<div class="indent4 f-py">  │   │   │   ├── models.py           <span class="comment"># Question, InterviewSession, InterviewAnswer</span></div>
+<div class="indent4 f-py">  │   │   │   ├── serializers.py</div>
+<div class="indent4 f-py">  │   │   │   ├── views.py            <span class="comment"># StartSessionView, SubmitAnswerView, ResultsView</span></div>
+<div class="indent4 f-py">  │   │   │   ├── urls.py             <span class="comment"># /api/interview/*</span></div>
+<div class="indent4 f-py">  │   │   │   ├── scorer.py           <span class="comment"># VADER + spaCy + RF scoring pipeline</span></div>
+<div class="indent4 f-py">  │   │   │   ├── question_bank.py    <span class="comment"># seed questions into DB by role</span></div>
+<div class="indent4 f-py">  │   │   │   ├── feedback_engine.py  <span class="comment"># generates text feedback from scores</span></div>
+<div class="indent4 f-py">  │   │   │   ├── admin.py</div>
+<div class="indent4 f-py">  │   │   │   ├── apps.py</div>
+<div class="indent4 f-py">  │   │   │   └── tests.py</div>
+
+<div class="indent3 f-dir">│   │   ├── readiness/              <span class="comment"># Readiness score engine</span></div>
+<div class="indent4 f-py">  │   │   │   ├── __init__.py</div>
+<div class="indent4 f-py">  │   │   │   ├── models.py           <span class="comment"># ReadinessScore (time-series per user)</span></div>
+<div class="indent4 f-py">  │   │   │   ├── serializers.py</div>
+<div class="indent4 f-py">  │   │   │   ├── views.py            <span class="comment"># CurrentScoreView, ScoreHistoryView</span></div>
+<div class="indent4 f-py">  │   │   │   ├── urls.py             <span class="comment"># /api/readiness/*</span></div>
+<div class="indent4 f-py">  │   │   │   ├── calculator.py       <span class="comment"># weighted composite formula</span></div>
+<div class="indent4 f-py">  │   │   │   ├── admin.py</div>
+<div class="indent4 f-py">  │   │   │   ├── apps.py</div>
+<div class="indent4 f-py">  │   │   │   └── tests.py</div>
+
+<div class="indent3 f-dir">│   │   ├── analytics/              <span class="comment"># Recruiter dashboard analytics</span></div>
+<div class="indent4 f-py">  │   │   │   ├── __init__.py</div>
+<div class="indent4 f-py">  │   │   │   ├── models.py           <span class="comment"># SkillTrendSnapshot, MarketReport</span></div>
+<div class="indent4 f-py">  │   │   │   ├── serializers.py</div>
+<div class="indent4 f-py">  │   │   │   ├── views.py            <span class="comment"># TalentPoolView, MarketTrendsView, ForecastView</span></div>
+<div class="indent4 f-py">  │   │   │   ├── urls.py             <span class="comment"># /api/analytics/*</span></div>
+<div class="indent4 f-py">  │   │   │   ├── aggregator.py       <span class="comment"># Pandas aggregations for recruiter views</span></div>
+<div class="indent4 f-py">  │   │   │   ├── forecaster.py       <span class="comment"># Polynomial regression skill demand forecast</span></div>
+<div class="indent4 f-py">  │   │   │   ├── networkx_builder.py <span class="comment"># skill co-occurrence graph</span></div>
+<div class="indent4 f-py">  │   │   │   ├── admin.py</div>
+<div class="indent4 f-py">  │   │   │   ├── apps.py</div>
+<div class="indent4 f-py">  │   │   │   └── tests.py</div>
+
+<div class="indent3 f-dir">│   │   └── notifications/          <span class="comment"># Email + in-app notifications</span></div>
+<div class="indent4 f-py">  │   │       ├── __init__.py</div>
+<div class="indent4 f-py">  │   │       ├── models.py           <span class="comment"># Notification (user, message, read, created_at)</span></div>
+<div class="indent4 f-py">  │   │       ├── serializers.py</div>
+<div class="indent4 f-py">  │   │       ├── views.py            <span class="comment"># NotificationListView, MarkReadView</span></div>
+<div class="indent4 f-py">  │   │       ├── urls.py             <span class="comment"># /api/notifications/*</span></div>
+<div class="indent4 f-py">  │   │       ├── email_service.py    <span class="comment"># Nodemailer-equivalent: Django email + templates</span></div>
+<div class="indent4 f-py">  │   │       ├── apps.py</div>
+<div class="indent4 f-py">  │   │       └── admin.py</div>
+
+<div class="indent2 f-dir">│   ├── core/                       <span class="comment"># shared utilities across apps</span></div>
+<div class="indent3 f-py"> │   │   ├── __init__.py</div>
+<div class="indent3 f-py"> │   │   ├── exceptions.py           <span class="comment"># custom DRF exception handlers</span></div>
+<div class="indent3 f-py"> │   │   ├── pagination.py           <span class="comment"># custom pagination classes</span></div>
+<div class="indent3 f-py"> │   │   ├── mixins.py               <span class="comment"># TimestampMixin, SoftDeleteMixin</span></div>
+<div class="indent3 f-py"> │   │   ├── validators.py           <span class="comment"># PDF file type validator, skill name validator</span></div>
+<div class="indent3 f-py"> │   │   └── utils.py                <span class="comment"># shared helper functions</span></div>
+
+<div class="indent2 f-dir">│   ├── ml_models/                  <span class="comment"># trained .pkl files served by Django</span></div>
+<div class="indent3 f-cfg">│   │   ├── salary_rf_model.pkl</div>
+<div class="indent3 f-cfg">│   │   ├── salary_poly_model.pkl</div>
+<div class="indent3 f-cfg">│   │   ├── shortlist_rf_model.pkl</div>
+<div class="indent3 f-cfg">│   │   ├── interview_rf_model.pkl</div>
+<div class="indent3 f-cfg">│   │   ├── interview_svm_model.pkl</div>
+<div class="indent3 f-cfg">│   │   ├── skill_vectorizer.pkl     <span class="comment"># TF-IDF vectorizer for recommendations</span></div>
+<div class="indent3 f-cfg">│   │   └── label_encoders.pkl       <span class="comment"># encoders for categorical features</span></div>
+
+<div class="indent2 f-dir">│   ├── media/                      <span class="comment"># user uploaded files (gitignored)</span></div>
+<div class="indent3 f-cfg">│   │   └── resumes/                <span class="comment"># uploaded PDFs stored here</span></div>
+
+<div class="indent2 f-dir">│   ├── static/                     <span class="comment"># Django static files</span></div>
+<div class="indent3 f-cfg">│   │   └── charts/                 <span class="comment"># pre-rendered Seaborn PNGs</span></div>
+
+<div class="indent2 f-cfg">│   ├── manage.py</div>
+<div class="indent2 f-cfg">│   ├── requirements.txt</div>
+<div class="indent2 f-env">│   └── .env                        <span class="comment"># SECRET_KEY, DB_URL, API keys — NEVER commit</span></div>
+
+<br>
+<div class="indent1 f-dir">├── frontend/                       <span class="comment"># React SPA</span></div>
+<div class="indent2 f-dir">│   ├── public/</div>
+<div class="indent3 f-cfg">│   │   ├── index.html</div>
+<div class="indent3 f-cfg">│   │   ├── favicon.ico</div>
+<div class="indent3 f-cfg">│   │   └── manifest.json</div>
+<div class="indent2 f-dir">│   ├── src/</div>
+
+<div class="indent3 f-dir">│   │   ├── api/                    <span class="comment"># all Axios calls in one place</span></div>
+<div class="indent4 f-js">  │   │   │   ├── axiosConfig.js      <span class="comment"># base URL, JWT interceptors, refresh logic</span></div>
+<div class="indent4 f-js">  │   │   │   ├── authAPI.js          <span class="comment"># login, register, refresh, me</span></div>
+<div class="indent4 f-js">  │   │   │   ├── resumeAPI.js        <span class="comment"># upload, getProfile, updateProfile</span></div>
+<div class="indent4 f-js">  │   │   │   ├── jobsAPI.js          <span class="comment"># search, getById, saveJob, apply</span></div>
+<div class="indent4 f-js">  │   │   │   ├── gapAPI.js           <span class="comment"># generateGap, getHistory, getResources</span></div>
+<div class="indent4 f-js">  │   │   │   ├── recommendAPI.js     <span class="comment"># getRecommendations, getSaved</span></div>
+<div class="indent4 f-js">  │   │   │   ├── salaryAPI.js        <span class="comment"># predict, getHistory</span></div>
+<div class="indent4 f-js">  │   │   │   ├── interviewAPI.js     <span class="comment"># startSession, submitAnswer, getResults</span></div>
+<div class="indent4 f-js">  │   │   │   ├── readinessAPI.js     <span class="comment"># getCurrent, getHistory</span></div>
+<div class="indent4 f-js">  │   │   │   └── analyticsAPI.js     <span class="comment"># recruiter-only endpoints</span></div>
+
+<div class="indent3 f-dir">│   │   ├── context/                <span class="comment"># React Context providers</span></div>
+<div class="indent4 f-jsx">  │   │   │   ├── AuthContext.jsx     <span class="comment"># token, user, role, login, logout</span></div>
+<div class="indent4 f-jsx">  │   │   │   └── NotificationContext.jsx <span class="comment"># unread count, notifications list</span></div>
+
+<div class="indent3 f-dir">│   │   ├── hooks/                  <span class="comment"># custom React hooks</span></div>
+<div class="indent4 f-js">  │   │   │   ├── useAuth.js          <span class="comment"># returns {user, token, login, logout}</span></div>
+<div class="indent4 f-js">  │   │   │   ├── useGapAnalysis.js   <span class="comment"># fetches + manages gap state</span></div>
+<div class="indent4 f-js">  │   │   │   ├── useRecommendations.js</div>
+<div class="indent4 f-js">  │   │   │   ├── useSalaryPredict.js</div>
+<div class="indent4 f-js">  │   │   │   ├── useInterview.js     <span class="comment"># session state machine</span></div>
+<div class="indent4 f-js">  │   │   │   └── useReadiness.js</div>
+
+<div class="indent3 f-dir">│   │   ├── components/             <span class="comment"># reusable UI components</span></div>
+<div class="indent4 f-dir">  │   │   │   ├── common/</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── Navbar.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── Sidebar.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── Button.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── Card.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── Badge.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── Modal.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── Loader.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── EmptyState.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   └── PrivateRoute.jsx  <span class="comment"># redirects if not logged in</span></div>
+<div class="indent4 f-dir">  │   │   │   ├── charts/             <span class="comment"># all Plotly chart wrappers</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── GapBarChart.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── SalaryBoxPlot.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── ReadinessGauge.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── TrendLineChart.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── SkillRadarChart.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── HeatmapChart.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   └── NetworkGraph.jsx  <span class="comment"># skill co-occurrence graph</span></div>
+<div class="indent4 f-dir">  │   │   │   ├── resume/</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── ResumeUploader.jsx <span class="comment"># drag-drop PDF upload</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── SkillTagCloud.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   └── ProfileCard.jsx</div>
+<div class="indent4 f-dir">  │   │   │   ├── jobs/</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── JobCard.jsx        <span class="comment"># single job listing card</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── JobFilters.jsx     <span class="comment"># role, city, salary, exp filters</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   └── MatchBadge.jsx     <span class="comment"># shows 78% match in green</span></div>
+<div class="indent4 f-dir">  │   │   │   ├── interview/</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── QuestionCard.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── AnswerInput.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── ScoreCard.jsx      <span class="comment"># per-answer score breakdown</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   └── SessionSummary.jsx <span class="comment"># end-of-session radar chart</span></div>
+<div class="indent4 f-dir">  │   │   │   └── recruiter/</div>
+<div class="indent5 f-jsx">   │   │   │       ├── TalentPoolCard.jsx</div>
+<div class="indent5 f-jsx">   │   │   │       ├── CandidateRow.jsx</div>
+<div class="indent5 f-jsx">   │   │   │       └── MarketInsightCard.jsx</div>
+
+<div class="indent3 f-dir">│   │   ├── pages/                  <span class="comment"># one file per screen/route</span></div>
+<div class="indent4 f-jsx">  │   │   │   ├── auth/</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── Login.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── Register.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   └── ForgotPassword.jsx</div>
+<div class="indent4 f-jsx">  │   │   │   ├── seeker/             <span class="comment"># job seeker screens</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── Dashboard.jsx      <span class="comment"># readiness gauge + quick links</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── ResumeProfile.jsx  <span class="comment"># upload + parsed profile view</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── GapAnalysis.jsx    <span class="comment"># gap chart + learning roadmap</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── JobFeed.jsx        <span class="comment"># recommended + filtered jobs</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── JobDetail.jsx      <span class="comment"># single job + apply button</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── SavedJobs.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── SalaryPredictor.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── InterviewSimulator.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── InterviewResults.jsx</div>
+<div class="indent5 f-jsx">   │   │   │   │   ├── MarketTrends.jsx   <span class="comment"># skill trend forecast charts</span></div>
+<div class="indent5 f-jsx">   │   │   │   │   └── Settings.jsx</div>
+<div class="indent4 f-jsx">  │   │   │   └── recruiter/          <span class="comment"># recruiter-only screens</span></div>
+<div class="indent5 f-jsx">   │   │   │       ├── RecruiterDashboard.jsx</div>
+<div class="indent5 f-jsx">   │   │   │       ├── TalentPool.jsx</div>
+<div class="indent5 f-jsx">   │   │   │       ├── CandidateDetail.jsx</div>
+<div class="indent5 f-jsx">   │   │   │       ├── MarketAnalytics.jsx</div>
+<div class="indent5 f-jsx">   │   │   │       └── HiringForecast.jsx</div>
+
+<div class="indent3 f-dir">│   │   ├── layouts/</div>
+<div class="indent4 f-jsx">  │   │   │   ├── SeekerLayout.jsx    <span class="comment"># sidebar + topbar for job seekers</span></div>
+<div class="indent4 f-jsx">  │   │   │   ├── RecruiterLayout.jsx <span class="comment"># different sidebar for recruiters</span></div>
+<div class="indent4 f-jsx">  │   │   │   └── AuthLayout.jsx      <span class="comment"># centered card layout for login/register</span></div>
+
+<div class="indent3 f-dir">│   │   ├── utils/</div>
+<div class="indent4 f-js">  │   │   │   ├── formatters.js       <span class="comment"># formatSalary, formatDate, formatSkills</span></div>
+<div class="indent4 f-js">  │   │   │   ├── validators.js       <span class="comment"># form validation helpers</span></div>
+<div class="indent4 f-js">  │   │   │   └── constants.js        <span class="comment"># ROLES, SKILL_CATEGORIES, CITY_TIERS</span></div>
+
+<div class="indent3 f-dir">│   │   ├── styles/</div>
+<div class="indent4 f-css">  │   │   │   ├── globals.css         <span class="comment"># CSS variables, reset, typography</span></div>
+<div class="indent4 f-css">  │   │   │   ├── components.css      <span class="comment"># shared component styles</span></div>
+<div class="indent4 f-css">  │   │   │   └── charts.css          <span class="comment"># Plotly chart container styles</span></div>
+
+<div class="indent3 f-jsx">│   │   ├── App.jsx                 <span class="comment"># routes + layout switcher by role</span></div>
+<div class="indent3 f-js"> │   │   └── main.jsx                <span class="comment"># React entry point, context providers wrap</span></div>
+
+<div class="indent2 f-cfg">│   ├── package.json</div>
+<div class="indent2 f-cfg">│   ├── vite.config.js              <span class="comment"># or CRA — Vite recommended for speed</span></div>
+<div class="indent2 f-env">│   └── .env                        <span class="comment"># VITE_API_BASE_URL=http://localhost:8000</span></div>
+
+<br>
+<div class="indent1 f-dir">├── ml/                             <span class="comment"># all ML work — Jupyter + training scripts</span></div>
+<div class="indent2 f-dir">│   ├── notebooks/                  <span class="comment"># one notebook per model</span></div>
+<div class="indent3 f-cfg">│   │   ├── 01_salary_prediction.ipynb</div>
+<div class="indent3 f-cfg">│   │   ├── 02_resume_shortlist.ipynb</div>
+<div class="indent3 f-cfg">│   │   ├── 03_job_recommender.ipynb</div>
+<div class="indent3 f-cfg">│   │   ├── 04_interview_scorer.ipynb</div>
+<div class="indent3 f-cfg">│   │   ├── 05_skill_trend_forecast.ipynb</div>
+<div class="indent3 f-cfg">│   │   └── 06_deep_learning_lstm.ipynb <span class="comment"># Unit 6 — bonus LSTM model</span></div>
+<div class="indent2 f-dir">│   ├── data/                       <span class="comment"># raw + cleaned datasets</span></div>
+<div class="indent3 f-cfg">│   │   ├── raw/                    <span class="comment"># original Kaggle CSVs</span></div>
+<div class="indent3 f-cfg">│   │   └── processed/              <span class="comment"># cleaned DataFrames saved as .csv</span></div>
+<div class="indent2 f-dir">│   ├── scripts/                    <span class="comment"># standalone training scripts</span></div>
+<div class="indent3 f-py"> │   │   ├── train_salary_model.py</div>
+<div class="indent3 f-py"> │   │   ├── train_shortlist_model.py</div>
+<div class="indent3 f-py"> │   │   ├── train_interview_scorer.py</div>
+<div class="indent3 f-py"> │   │   └── export_models.py        <span class="comment"># saves .pkl to backend/ml_models/</span></div>
+<div class="indent2 f-dir">│   └── evaluation/                 <span class="comment"># model evaluation reports</span></div>
+<div class="indent3 f-cfg">│       ├── salary_metrics.json      <span class="comment"># R², MAE, MSE values</span></div>
+<div class="indent3 f-cfg">│       └── classifier_reports.json  <span class="comment"># confusion matrix, accuracy per model</span></div>
+
+<br>
+<div class="indent1 f-dir">├── docker/                         <span class="comment"># containerisation</span></div>
+<div class="indent2 f-yml">│   ├── Dockerfile.backend</div>
+<div class="indent2 f-yml">│   ├── Dockerfile.frontend</div>
+<div class="indent2 f-cfg">│   └── nginx.conf                  <span class="comment"># serves React build + proxies /api to Django</span></div>
+
+<div class="indent1 f-dir">├── .github/</div>
+<div class="indent2 f-dir">│   └── workflows/</div>
+<div class="indent3 f-yml">│       ├── ci.yml                  <span class="comment"># run pytest on every push</span></div>
+<div class="indent3 f-yml">│       └── deploy.yml              <span class="comment"># auto-deploy to Railway on merge to main</span></div>
+
+<div class="indent1 f-yml">├── docker-compose.yml              <span class="comment"># one command runs everything</span></div>
+<div class="indent1 f-env">├── .env.example                    <span class="comment"># template — copy to .env and fill values</span></div>
+<div class="indent1 f-cfg">├── .gitignore</div>
+<div class="indent1 f-md"> └── README.md                       <span class="comment"># architecture diagram + setup + demo GIF</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DJANGO BACKEND ══════════ -->
+<div class="tab" id="backend">
+  <span class="eyebrow">Django Structure Deep Dive</span>
+  <h1>Backend — Every App Explained</h1>
+  <p class="lead">9 Django apps. Each app owns exactly one feature. Each has the same structure: models → serializers → views → urls → business logic file.</p>
+
+  <div class="sl">The "one app per feature" rule</div>
+  <div class="hl">
+    <h3>Why separate apps instead of one big app?</h3>
+    <p>Each Django app is independently testable, independently deployable (if you ever split to microservices), and maps cleanly to one DRF router prefix. When your professor opens the code, they immediately see: <strong>accounts/ = auth, resume/ = parsing, jobs/ = scraping, gap_analysis/ = ML gap, salary/ = ML salary, interview/ = ML interview, readiness/ = composite score, analytics/ = recruiter, notifications/ = email.</strong> Clean separation = professional code = better viva marks.</p>
+  </div>
+
+  <div class="sl">API endpoint map — every URL</div>
+  <div class="tbl"><table>
+    <thead><tr><th>App</th><th>URL Prefix</th><th>Key Endpoints</th><th>Auth Required</th></tr></thead>
+    <tbody>
+      <tr><td>accounts</td><td>/api/auth/</td><td>POST /register/ · POST /login/ · POST /refresh/ · GET /me/ · PATCH /me/</td><td>login/register: No. Others: Yes</td></tr>
+      <tr><td>resume</td><td>/api/resume/</td><td>POST /upload/ · GET /profile/ · PATCH /profile/ · DELETE /profile/</td><td>Yes — IsSeeker</td></tr>
+      <tr><td>jobs</td><td>/api/jobs/</td><td>GET /listings/?role=&city=&salary_min= · GET /listings/{id}/ · GET /search/?q=</td><td>GET: No. POST save: Yes</td></tr>
+      <tr><td>gap_analysis</td><td>/api/gap/</td><td>POST /generate/ (body: target_role) · GET /history/ · GET /resources/{skill}/</td><td>Yes — IsSeeker</td></tr>
+      <tr><td>recommendations</td><td>/api/recommend/</td><td>GET /jobs/ · POST /save/{job_id}/ · DELETE /save/{job_id}/ · GET /saved/</td><td>Yes — IsSeeker</td></tr>
+      <tr><td>salary</td><td>/api/salary/</td><td>POST /predict/ · GET /history/ · GET /market/?role=&city=</td><td>Yes</td></tr>
+      <tr><td>interview</td><td>/api/interview/</td><td>POST /session/start/ · POST /session/{id}/answer/ · GET /session/{id}/results/ · GET /history/</td><td>Yes — IsSeeker</td></tr>
+      <tr><td>readiness</td><td>/api/readiness/</td><td>GET /current/ · GET /history/ · POST /compute/ (triggers recalc)</td><td>Yes — IsSeeker</td></tr>
+      <tr><td>analytics</td><td>/api/analytics/</td><td>GET /talent-pool/ · GET /trends/ · GET /forecast/?skill= · GET /candidates/?role=</td><td>Yes — IsRecruiter</td></tr>
+      <tr><td>notifications</td><td>/api/notifications/</td><td>GET /list/ · PATCH /{id}/read/ · DELETE /{id}/</td><td>Yes</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sl">Business logic files — what goes where</div>
+  <div class="tbl"><table>
+    <thead><tr><th>File</th><th>App</th><th>What It Contains</th></tr></thead>
+    <tbody>
+      <tr><td>parser.py</td><td>resume/</td><td>PyPDF2 text extraction + spaCy NER pipeline. Input: PDF file path. Output: dict of {name, skills, experience, education, companies}</td></tr>
+      <tr><td>skill_extractor.py</td><td>resume/</td><td>Loads master skills taxonomy (500+ skills list from DB). Matches parsed text against taxonomy. Returns ranked list of confirmed skills.</td></tr>
+      <tr><td>base_scraper.py</td><td>jobs/scrapers/</td><td>Base class with rate limiting (time.sleep), retry logic (3 attempts), rotating User-Agent headers, request error handling. All scrapers inherit this.</td></tr>
+      <tr><td>indeed_scraper.py</td><td>jobs/scrapers/</td><td>BeautifulSoup parser for Indeed India. Extracts: title, company, salary, skills from JD, location, experience. Saves to JobListing model.</td></tr>
+      <tr><td>engine.py</td><td>gap_analysis/</td><td>Core Pandas gap logic. Loads jobs for target role → flattens skills → value_counts → set diff with user skills → returns ranked gap DataFrame.</td></tr>
+      <tr><td>chart_builder.py</td><td>gap_analysis/</td><td>Plotly bar chart JSON for gap. Seaborn heatmap PNG for skill correlation. NetworkX graph JSON for skill relationships. Returns JSON/base64 strings.</td></tr>
+      <tr><td>engine.py</td><td>recommendations/</td><td>TF-IDF vectorises user skills + job skill sets. sklearn cosine_similarity. Returns top-10 job IDs with match scores.</td></tr>
+      <tr><td>predictor.py</td><td>salary/</td><td>Loads salary_rf_model.pkl with joblib. Builds feature array from user profile. Returns predicted salary range with confidence interval.</td></tr>
+      <tr><td>scorer.py</td><td>interview/</td><td>VADER sentiment → polarity score. spaCy keyword overlap. Flesch readability. Word count analysis. RF classifier inference. Returns quality label + per-metric scores.</td></tr>
+      <tr><td>calculator.py</td><td>readiness/</td><td>Queries gap coverage %, interview session avg score, exp match %, edu level score. Applies weighted formula. Saves ReadinessScore row. Returns 0–100.</td></tr>
+      <tr><td>forecaster.py</td><td>analytics/</td><td>Reads SkillTrend time series from DB. Fits Polynomial Regression per skill. Predicts demand in 4, 8, 12 weeks. Returns forecast dict with confidence.</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ══════════ REACT FRONTEND ══════════ -->
+<div class="tab" id="frontend">
+  <span class="eyebrow">React Structure Deep Dive</span>
+  <h1>Frontend — Every File Explained</h1>
+  <p class="lead">Clean separation: api/ handles all HTTP calls, context/ holds global state, hooks/ encapsulates logic, components/ are reusable UI, pages/ are full screens.</p>
+
+  <div class="sl">The routing map — every screen</div>
+  <div class="tbl"><table>
+    <thead><tr><th>Route</th><th>Component</th><th>Who Sees It</th><th>Key Hooks Used</th></tr></thead>
+    <tbody>
+      <tr><td>/login</td><td>Login.jsx</td><td>Anyone</td><td>useState, useNavigate, useAuth</td></tr>
+      <tr><td>/register</td><td>Register.jsx</td><td>Anyone</td><td>useState, useNavigate</td></tr>
+      <tr><td>/dashboard</td><td>Dashboard.jsx</td><td>Seeker</td><td>useReadiness, useAuth, useEffect</td></tr>
+      <tr><td>/resume</td><td>ResumeProfile.jsx</td><td>Seeker</td><td>useState (upload), useEffect (fetch parsed profile)</td></tr>
+      <tr><td>/gap</td><td>GapAnalysis.jsx</td><td>Seeker</td><td>useGapAnalysis, useState (target role)</td></tr>
+      <tr><td>/jobs</td><td>JobFeed.jsx</td><td>Seeker</td><td>useRecommendations, useReducer (filters)</td></tr>
+      <tr><td>/jobs/:id</td><td>JobDetail.jsx</td><td>Seeker</td><td>useParams, useEffect</td></tr>
+      <tr><td>/salary</td><td>SalaryPredictor.jsx</td><td>Seeker</td><td>useState (inputs), useSalaryPredict</td></tr>
+      <tr><td>/interview</td><td>InterviewSimulator.jsx</td><td>Seeker</td><td>useInterview (session state machine)</td></tr>
+      <tr><td>/interview/results/:id</td><td>InterviewResults.jsx</td><td>Seeker</td><td>useParams, useEffect</td></tr>
+      <tr><td>/trends</td><td>MarketTrends.jsx</td><td>Seeker</td><td>useEffect, useState (selected skill)</td></tr>
+      <tr><td>/saved</td><td>SavedJobs.jsx</td><td>Seeker</td><td>useEffect, useState</td></tr>
+      <tr><td>/recruiter</td><td>RecruiterDashboard.jsx</td><td>Recruiter only</td><td>useEffect, useState</td></tr>
+      <tr><td>/recruiter/talent</td><td>TalentPool.jsx</td><td>Recruiter only</td><td>useReducer (filters), useEffect</td></tr>
+      <tr><td>/recruiter/forecast</td><td>HiringForecast.jsx</td><td>Recruiter only</td><td>useState (role selector)</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sl">Custom hooks — where all logic lives</div>
+  <div class="tbl"><table>
+    <thead><tr><th>Hook File</th><th>What It Manages</th><th>Returns</th></tr></thead>
+    <tbody>
+      <tr><td>useAuth.js</td><td>Token storage in context, login/logout actions, role detection</td><td>{user, token, role, login(token), logout()}</td></tr>
+      <tr><td>useGapAnalysis.js</td><td>Target role state, gap fetch, loading state, chart data</td><td>{gap, charts, loading, generateGap(role), resources}</td></tr>
+      <tr><td>useRecommendations.js</td><td>Fetch recommended jobs, filter state, save/unsave actions</td><td>{jobs, loading, filters, setFilters, saveJob, unsaveJob}</td></tr>
+      <tr><td>useSalaryPredict.js</td><td>Input form state, API call, prediction result, history</td><td>{prediction, loading, predict(inputs), history}</td></tr>
+      <tr><td>useInterview.js</td><td>Session state machine: idle→started→answering→submitted→results</td><td>{session, currentQ, submitAnswer, startSession, results}</td></tr>
+      <tr><td>useReadiness.js</td><td>Current score fetch, history fetch, trigger recompute</td><td>{score, history, loading, refresh()}</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sl">App.jsx — role-based routing logic</div>
+  <div class="card" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#a8b4c8;line-height:2">
+    <span style="color:var(--muted)">// App.jsx — the routing brain</span><br>
+    <span style="color:var(--v)">const</span> { role } = useAuth();<br><br>
+    &lt;Routes&gt;<br>
+    &nbsp;&nbsp;<span style="color:var(--muted)">// Public routes</span><br>
+    &nbsp;&nbsp;&lt;Route path="/login" element={&lt;Login /&gt;} /&gt;<br>
+    &nbsp;&nbsp;&lt;Route path="/register" element={&lt;Register /&gt;} /&gt;<br><br>
+    &nbsp;&nbsp;<span style="color:var(--muted)">// Seeker routes — wrapped in PrivateRoute + SeekerLayout</span><br>
+    &nbsp;&nbsp;&lt;Route element={&lt;PrivateRoute role="seeker" /&gt;}&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;Route element={&lt;SeekerLayout /&gt;}&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Route path="/dashboard" element={&lt;Dashboard /&gt;} /&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--muted)">// ... all seeker routes</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;/Route&gt;<br>
+    &nbsp;&nbsp;&lt;/Route&gt;<br><br>
+    &nbsp;&nbsp;<span style="color:var(--muted)">// Recruiter routes — different layout, different sidebar</span><br>
+    &nbsp;&nbsp;&lt;Route element={&lt;PrivateRoute role="recruiter" /&gt;}&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;Route element={&lt;RecruiterLayout /&gt;}&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Route path="/recruiter" element={&lt;RecruiterDashboard /&gt;} /&gt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&lt;/Route&gt;<br>
+    &nbsp;&nbsp;&lt;/Route&gt;<br>
+    &lt;/Routes&gt;
+  </div>
+</div>
+
+<!-- ══════════ ML LAYER ══════════ -->
+<div class="tab" id="ml">
+  <span class="eyebrow">ML Directory Deep Dive</span>
+  <h1>ML Layer — Notebooks to Production</h1>
+  <p class="lead">Train in Jupyter notebooks → export .pkl → Django loads and serves. One notebook per model. Every metric documented.</p>
+
+  <div class="sl">Notebook → Django pipeline</div>
+  <div class="tbl"><table>
+    <thead><tr><th>Notebook</th><th>Trains</th><th>Exports to</th><th>Used by Django App</th><th>Syllabus</th></tr></thead>
+    <tbody>
+      <tr><td>01_salary_prediction.ipynb</td><td>Linear Reg → Poly Reg → Random Forest Regressor. Compare R², MAE, MSE.</td><td>salary_rf_model.pkl + label_encoders.pkl</td><td>salary/predictor.py</td><td>Units 3&4</td></tr>
+      <tr><td>02_resume_shortlist.ipynb</td><td>Random Forest Classifier on resume features → shortlist probability</td><td>shortlist_rf_model.pkl</td><td>recommendations/engine.py</td><td>Unit 5</td></tr>
+      <tr><td>03_job_recommender.ipynb</td><td>TF-IDF vectoriser + cosine similarity. kNN as alternative. Compare precision@10.</td><td>skill_vectorizer.pkl</td><td>recommendations/engine.py</td><td>Unit 5</td></tr>
+      <tr><td>04_interview_scorer.ipynb</td><td>RF + SVM classifier on answer features. Full confusion matrix. Sensitivity/specificity.</td><td>interview_rf_model.pkl + interview_svm_model.pkl</td><td>interview/scorer.py</td><td>Unit 5</td></tr>
+      <tr><td>05_skill_trend_forecast.ipynb</td><td>Polynomial Regression on skill frequency time series. Forecast 4/8/12 weeks.</td><td>Used inline in analytics/forecaster.py</td><td>analytics/forecaster.py</td><td>Unit 4</td></tr>
+      <tr><td>06_deep_learning_lstm.ipynb</td><td>LSTM on scraped skill demand sequences. Transfer learning with pre-trained embeddings.</td><td>lstm_forecast_model.h5</td><td>analytics/forecaster.py (bonus)</td><td>Unit 6</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sl">export_models.py — the bridge</div>
+  <div class="card" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#a8b4c8;line-height:2">
+    <span style="color:var(--muted)"># ml/scripts/export_models.py — run after training to deploy models</span><br>
+    <span style="color:var(--v)">import</span> joblib, shutil<br><br>
+    <span style="color:var(--muted)"># Export all trained models to Django's ml_models/ directory</span><br>
+    models_to_export = {<br>
+    &nbsp;&nbsp;<span style="color:var(--t)">'salary_rf_model'</span>: salary_rf,<br>
+    &nbsp;&nbsp;<span style="color:var(--t)">'shortlist_rf_model'</span>: shortlist_rf,<br>
+    &nbsp;&nbsp;<span style="color:var(--t)">'interview_rf_model'</span>: interview_rf,<br>
+    &nbsp;&nbsp;<span style="color:var(--t)">'interview_svm_model'</span>: interview_svm,<br>
+    &nbsp;&nbsp;<span style="color:var(--t)">'skill_vectorizer'</span>: tfidf_vectorizer,<br>
+    &nbsp;&nbsp;<span style="color:var(--t)">'label_encoders'</span>: encoders_dict,<br>
+    }<br>
+    <span style="color:var(--v)">for</span> name, model <span style="color:var(--v)">in</span> models_to_export.items():<br>
+    &nbsp;&nbsp;path = <span style="color:var(--t)">f'../backend/ml_models/{name}.pkl'</span><br>
+    &nbsp;&nbsp;joblib.dump(model, path)<br>
+    &nbsp;&nbsp;<span style="color:var(--v)">print</span>(<span style="color:var(--t)">f'✓ Exported {name}'</span>)
+  </div>
+</div>
+
+<!-- ══════════ CONFIG FILES ══════════ -->
+<div class="tab" id="config">
+  <span class="eyebrow">Configuration Files</span>
+  <h1>Config Files — Every One Explained</h1>
+  <p class="lead">The files that make the project run, deploy, and stay secure.</p>
+
+  <div class="sl">.env.example — copy this, fill values, rename to .env</div>
+  <div class="card" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#a8b4c8;line-height:2.1">
+    <span style="color:var(--muted)"># Backend .env — backend/.env</span><br>
+    <span style="color:var(--r)">SECRET_KEY</span>=your-django-secret-key-here<br>
+    <span style="color:var(--r)">DEBUG</span>=True<br>
+    <span style="color:var(--r)">DATABASE_URL</span>=postgresql://user:password@localhost:5432/talentiq<br>
+    <span style="color:var(--r)">ALLOWED_HOSTS</span>=localhost,127.0.0.1<br>
+    <span style="color:var(--r)">CORS_ALLOWED_ORIGINS</span>=http://localhost:3000<br>
+    <span style="color:var(--muted)"># Email (for notifications)</span><br>
+    <span style="color:var(--r)">EMAIL_HOST</span>=smtp.gmail.com<br>
+    <span style="color:var(--r)">EMAIL_PORT</span>=587<br>
+    <span style="color:var(--r)">EMAIL_HOST_USER</span>=your@gmail.com<br>
+    <span style="color:var(--r)">EMAIL_HOST_PASSWORD</span>=your-app-password<br>
+    <span style="color:var(--muted)"># ML Models directory</span><br>
+    <span style="color:var(--r)">ML_MODELS_DIR</span>=ml_models/<br><br>
+    <span style="color:var(--muted)"># Frontend .env — frontend/.env</span><br>
+    <span style="color:var(--r)">VITE_API_BASE_URL</span>=http://localhost:8000<br>
+    <span style="color:var(--r)">VITE_APP_NAME</span>=TalentIQ
+  </div>
+
+  <div class="sl">docker-compose.yml — one command to run everything</div>
+  <div class="card" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#a8b4c8;line-height:2.1">
+    version: <span style="color:var(--t)">'3.8'</span><br>
+    services:<br>
+    &nbsp;&nbsp;<span style="color:var(--v)">backend</span>:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;build: {context: ./backend, dockerfile: ../docker/Dockerfile.backend}<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;ports: [<span style="color:var(--t)">"8000:8000"</span>]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;env_file: ./backend/.env<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;depends_on: [db]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;volumes: [./backend:/app, ./backend/media:/app/media]<br><br>
+    &nbsp;&nbsp;<span style="color:var(--v)">frontend</span>:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;build: {context: ./frontend, dockerfile: ../docker/Dockerfile.frontend}<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;ports: [<span style="color:var(--t)">"3000:80"</span>]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;depends_on: [backend]<br><br>
+    &nbsp;&nbsp;<span style="color:var(--v)">db</span>:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;image: postgres:16<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;environment: {POSTGRES_DB: talentiq, POSTGRES_USER: admin, POSTGRES_PASSWORD: secret}<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;volumes: [pg_data:/var/lib/postgresql/data]<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;ports: [<span style="color:var(--t)">"5432:5432"</span>]<br><br>
+    volumes:<br>
+    &nbsp;&nbsp;pg_data:
+  </div>
+
+  <div class="sl">requirements.txt — backend</div>
+  <div class="card" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#a8b4c8;line-height:2.1">
+    <span style="color:var(--muted)"># Core Django</span><br>
+    django==5.0.6 · djangorestframework==3.15.2 · djangorestframework-simplejwt==5.3.1<br>
+    django-cors-headers==4.3.1 · django-filter==24.2 · psycopg2-binary==2.9.9<br><br>
+    <span style="color:var(--muted)"># ML & Data</span><br>
+    pandas==2.2.2 · numpy==1.26.4 · scikit-learn==1.5.0 · joblib==1.4.2<br>
+    plotly==5.22.0 · seaborn==0.13.2 · matplotlib==3.9.0 · networkx==3.3<br>
+    tensorflow==2.16.1 · keras==3.3.3<br><br>
+    <span style="color:var(--muted)"># NLP</span><br>
+    spacy==3.7.4 · vaderSentiment==3.3.2 · textblob==0.18.0 · PyPDF2==3.0.1<br><br>
+    <span style="color:var(--muted)"># Scraping</span><br>
+    beautifulsoup4==4.12.3 · requests==2.32.3 · lxml==5.2.2<br><br>
+    <span style="color:var(--muted)"># Utils</span><br>
+    python-dotenv==1.0.1 · pillow==10.3.0 · gunicorn==22.0.0
+  </div>
+</div>
+
+<!-- ══════════ EVERY FILE EXPLAINED ══════════ -->
+<div class="tab" id="explain">
+  <span class="eyebrow">File Reference</span>
+  <h1>Every Important File — What It Does</h1>
+  <p class="lead">Quick reference for every non-obvious file in the project. If you know what a file does, you can explain it in a viva.</p>
+
+  <div class="sl">Django backend — key files</div>
+  <div class="tbl"><table>
+    <thead><tr><th>File Path</th><th>What It Does</th><th>Why It Exists</th></tr></thead>
+    <tbody>
+      <tr><td>config/settings/base.py</td><td>All shared Django settings — INSTALLED_APPS, MIDDLEWARE, REST_FRAMEWORK config, JWT settings, CORS</td><td>Split settings prevent dev config leaking into production</td></tr>
+      <tr><td>config/settings/production.py</td><td>Overrides: DEBUG=False, ALLOWED_HOSTS=Railway domain, STATIC_ROOT, database from DATABASE_URL env var</td><td>Production needs different security settings than local dev</td></tr>
+      <tr><td>accounts/signals.py</td><td>Django signal: when a User is created → auto-create a UserProfile for them with default role='seeker'</td><td>Every User automatically gets a Profile — no manual creation needed</td></tr>
+      <tr><td>accounts/permissions.py</td><td>Custom DRF permission classes: IsSeeker (role=='seeker'), IsRecruiter (role=='recruiter'), IsOwner (obj.user==request.user)</td><td>Role-based access control — recruiter can't access seeker endpoints and vice versa</td></tr>
+      <tr><td>jobs/scrapers/base_scraper.py</td><td>Abstract base class with: rate_limit() method (time.sleep), retry_request() with 3 attempts + backoff, rotating User-Agent list, error logging</td><td>DRY principle — both Indeed and Naukri scrapers inherit this so rate limiting is not duplicated</td></tr>
+      <tr><td>jobs/management/commands/scrape_jobs.py</td><td>python manage.py scrape_jobs — runs both scrapers, saves results to DB, logs count of new listings added</td><td>Management commands run independently of the web server — can be scheduled via cron or Railway cron job</td></tr>
+      <tr><td>gap_analysis/engine.py</td><td>Takes (user_skills: list, target_role: str) → loads job listings from DB → Pandas operations → returns ranked gap DataFrame as dict</td><td>Business logic separated from Django view — testable independently, reusable by other views</td></tr>
+      <tr><td>salary/predictor.py</td><td>On startup, loads salary_rf_model.pkl with joblib into module-level variable (one load, not per-request). predict(features) method runs inference.</td><td>Loading .pkl on every request would be slow. Module-level loading means it's loaded once when Django starts.</td></tr>
+      <tr><td>interview/scorer.py</td><td>Pipeline: text → VADER sentiment → spaCy keyword match → Flesch score → word count → feature array → RF.predict() → quality label + individual scores</td><td>All scoring logic in one place — unit testable, not mixed into view code</td></tr>
+      <tr><td>readiness/calculator.py</td><td>Queries all component scores for user → applies weighted formula → creates ReadinessScore DB row → returns score dict</td><td>Saves score to DB on every computation to enable historical trend chart</td></tr>
+      <tr><td>analytics/networkx_builder.py</td><td>Loads all job listings → builds co-occurrence matrix (which skills appear together) → creates NetworkX graph → exports as JSON for React</td><td>NetworkX graph shows which skills cluster together — recruiter insight that's not available anywhere else</td></tr>
+      <tr><td>core/exceptions.py</td><td>Custom DRF exception handler — returns consistent JSON error format: {error: "message", code: "ERROR_CODE", status: 400}</td><td>Without this, DRF returns different error formats for different error types — inconsistent for React to handle</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sl">React frontend — key files</div>
+  <div class="tbl"><table>
+    <thead><tr><th>File Path</th><th>What It Does</th><th>Why It Exists</th></tr></thead>
+    <tbody>
+      <tr><td>api/axiosConfig.js</td><td>Creates axios instance with baseURL from env. Request interceptor: adds Authorization header. Response interceptor: catches 401 → calls refresh token → retries original request.</td><td>Without this, every component would manually add auth headers. Interceptors do it automatically for every request.</td></tr>
+      <tr><td>context/AuthContext.jsx</td><td>Stores token + user + role in React state. Provides login(token), logout(), isAuthenticated. Wraps entire app so any component can access auth state.</td><td>Global auth state that any component can access without prop drilling 5 levels deep.</td></tr>
+      <tr><td>components/common/PrivateRoute.jsx</td><td>Checks if user is authenticated AND has correct role. If not → redirects to /login. Wraps all protected routes in App.jsx.</td><td>Without this, anyone could navigate to /dashboard by typing the URL directly.</td></tr>
+      <tr><td>hooks/useInterview.js</td><td>Manages interview session as state machine: idle → started → question_1 → question_2 → ... → completed. Handles API calls for start/submit/next question.</td><td>Interview has complex state transitions — custom hook keeps all this logic out of the component.</td></tr>
+      <tr><td>components/charts/ReadinessGauge.jsx</td><td>Plotly gauge chart (0–100) with color zones: red (0–40), amber (40–70), green (70–100). Receives score as prop, renders via react-plotly.js.</td><td>The signature visual of TalentIQ — appears on dashboard and is the first thing users see.</td></tr>
+      <tr><td>layouts/SeekerLayout.jsx</td><td>Renders sidebar with seeker nav links + topbar with user name + notification bell. All seeker pages render inside this layout's Outlet.</td><td>Consistent layout across all seeker screens without duplicating Navbar in every page component.</td></tr>
+      <tr><td>utils/constants.js</td><td>ROLES = {SEEKER, RECRUITER}. SKILL_CATEGORIES = [Frontend, Backend, ML, DevOps...]. CITY_TIERS = {Metro: 1, Tier2: 2}.</td><td>Magic strings scattered everywhere cause bugs. Constants in one place are easy to update.</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<script>
+function show(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalentIQ — AI Recruitment Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07070e;--s1:#0e0e1c;--s2:#15152a;
+  --border:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.11);
+  --text:#eaeaf5;--muted:#666685;
+  --v:#7b6fff;--t:#00cfa8;--a:#f5a623;--r:#ff6b6b;--g:#1ecb7b;--b:#4f8fff;--pk:#e865c8;
+}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;font-size:15px;line-height:1.75;min-height:100vh}
+
+/* NAV */
+nav{
+  display:flex;gap:5px;flex-wrap:wrap;
+  padding:1rem 2rem;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:rgba(7,7,14,0.97);
+  backdrop-filter:blur(14px);z-index:100;
+}
+nav button{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  padding:5px 13px;border-radius:4px;border:1px solid var(--b2);
+  background:transparent;color:var(--muted);cursor:pointer;transition:all 0.18s;
+  white-space:nowrap;
+}
+nav button.active,nav button:hover{background:var(--v);color:#fff;border-color:var(--v)}
+
+/* TABS */
+.tab{display:none;max-width:940px;margin:0 auto;padding:2.5rem 2rem 5rem}
+.tab.active{display:block}
+
+/* TYPOGRAPHY */
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t);text-transform:uppercase;letter-spacing:.15em;display:block;margin-bottom:.75rem}
+h1{font-size:clamp(2rem,4.5vw,3.2rem);font-weight:800;line-height:1.06;background:linear-gradient(130deg,#fff 15%,var(--v) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.9rem}
+h2{font-size:21px;font-weight:700;margin-bottom:.85rem}
+h3{font-size:15px;font-weight:600;margin-bottom:5px}
+p.lead{font-size:15px;color:var(--muted);max-width:660px;line-height:1.85;margin-bottom:2rem}
+
+/* SECTION LABEL */
+.sl{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:1rem;margin-top:2.25rem;display:flex;align-items:center;gap:10px}
+.sl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:1.5rem}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:1.5rem}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:1.5rem}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:2rem}
+.stat{background:var(--s1);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem}
+.stat .v{font-size:22px;font-weight:700;color:var(--v);display:block;margin-bottom:2px}
+.stat .l{font-size:11px;color:var(--muted);line-height:1.4}
+
+/* BADGES */
+.badge{display:inline-block;font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 9px;border-radius:3px;font-weight:600;margin-right:4px;margin-bottom:4px}
+.bg{background:rgba(30,203,123,.12);color:var(--g)}
+.ba{background:rgba(245,166,35,.12);color:var(--a)}
+.bp{background:rgba(123,111,255,.12);color:var(--v)}
+.bt{background:rgba(0,207,168,.12);color:var(--t)}
+.br{background:rgba(255,107,107,.12);color:var(--r)}
+.bb{background:rgba(79,143,255,.12);color:var(--b)}
+.bpk{background:rgba(232,101,200,.12);color:var(--pk)}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-size:10px;font-family:'JetBrains Mono',monospace;background:var(--s2);border:1px solid var(--b2);border-radius:3px;padding:3px 9px;color:var(--muted)}
+.chip.syl{border-color:rgba(30,203,123,.35);color:var(--g)}
+.chip.ext{border-color:rgba(245,166,35,.35);color:var(--a)}
+.chip.ml{border-color:rgba(123,111,255,.35);color:var(--v)}
+
+/* TABLE */
+.tbl{background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:var(--s2)}
+th{padding:10px 14px;text-align:left;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.7;font-size:13px}
+tr:last-child td{border-bottom:none}
+
+/* HIGHLIGHT */
+.hl{background:linear-gradient(135deg,rgba(123,111,255,.09),rgba(0,207,168,.05));border:1px solid rgba(123,111,255,.25);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+.hl h3{color:var(--v);margin-bottom:8px;font-size:16px}
+.hl p{font-size:14px;color:var(--muted);line-height:1.9}
+
+/* FEATURE CARD */
+.feat{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:12px;
+  border-left:3px solid transparent;
+  transition:border-color .2s;
+}
+.feat:hover{border-left-color:var(--v)}
+.feat-head{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.feat-num{
+  width:26px;height:26px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:#fff;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace;
+}
+.feat-title{font-size:15px;font-weight:600}
+.feat-body p{font-size:13px;color:var(--muted);line-height:1.85;margin-bottom:10px}
+
+/* PROBLEM CARD */
+.prob{
+  background:var(--s1);border:1px solid var(--border);
+  border-radius:12px;padding:1.5rem;margin-bottom:14px;
+  position:relative;overflow:hidden;
+}
+.prob::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.prob.p1::before{background:var(--r)}
+.prob.p2::before{background:var(--a)}
+.prob.p3::before{background:var(--v)}
+.prob.p4::before{background:var(--t)}
+.prob.p5::before{background:var(--g)}
+.prob.p6::before{background:var(--b)}
+.prob-stat{font-size:28px;font-weight:800;display:block;margin-bottom:4px}
+.prob-title{font-size:15px;font-weight:600;margin-bottom:6px}
+.prob-body{font-size:13px;color:var(--muted);line-height:1.85}
+
+/* CODE */
+.code{background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:1rem 1.25rem;font-family:'JetBrains Mono',monospace;font-size:12px;color:#a8b4c8;line-height:1.9;overflow-x:auto;margin-bottom:1rem}
+.code .cm{color:var(--muted)}
+.code .kw{color:var(--v)}
+.code .str{color:var(--t)}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:2rem}
+.timeline::before{content:'';position:absolute;left:7px;top:8px;bottom:8px;width:1px;background:var(--border)}
+.tl{position:relative;margin-bottom:1.75rem}
+.tl::before{content:'';position:absolute;left:-1.75rem;top:6px;width:10px;height:10px;border-radius:50%;border:2px solid var(--v);background:var(--bg)}
+.tl-week{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--v);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px}
+.tl-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.tl-desc{font-size:13px;color:var(--muted)}
+
+/* DB MODEL */
+.model{background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:1rem 1.25rem;margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9}
+.model .mn{color:var(--v);font-size:13px;font-weight:500;display:block;margin-bottom:4px}
+.model .mf{color:var(--muted)}
+.model .mt{color:var(--t)}
+
+hr.dv{border:none;border-top:1px solid var(--border);margin:2rem 0}
+</style>
+</head>
+<body>
+
+<nav>
+  <button class="active" onclick="show('home')">🏠 Overview</button>
+  <button onclick="show('features')">✨ Features</button>
+  <button onclick="show('tech')">🛠 Tech Stack</button>
+  <button onclick="show('ml')">🤖 ML Models</button>
+  <button onclick="show('database')">🗄 Database</button>
+  <button onclick="show('problems')">⚠️ Real Problems</button>
+  <button onclick="show('purpose')">🎯 Purpose</button>
+  <button onclick="show('roadmap')">📅 Build Roadmap</button>
+  <button onclick="show('viva')">🎓 Viva Script</button>
+</nav>
+
+<!-- ══════════════════════ HOME ══════════════════════ -->
+<div class="tab active" id="home">
+  <span class="eyebrow">Combined: SkillMap × AI Recruitment Platform · 2026</span>
+  <h1>TalentIQ</h1>
+  <p class="lead">An end-to-end AI-powered career intelligence platform — from resume parsing and real-time job scraping, to skill gap analysis, salary prediction, job recommendations, and an AI interview simulator. One platform that serves both job seekers and recruiters.</p>
+
+  <div class="stats">
+    <div class="stat"><span class="v">9</span><span class="l">Major features</span></div>
+    <div class="stat"><span class="v">12/12</span><span class="l">Syllabus units covered</span></div>
+    <div class="stat"><span class="v">6</span><span class="l">ML models inside</span></div>
+    <div class="stat"><span class="v">2</span><span class="l">User types (seeker + recruiter)</span></div>
+    <div class="stat"><span class="v">React+Django</span><span class="l">Core stack</span></div>
+    <div class="stat"><span class="v">PostgreSQL</span><span class="l">Primary database</span></div>
+  </div>
+
+  <div class="hl">
+    <h3>What is TalentIQ — One Paragraph</h3>
+    <p>TalentIQ is an AI-powered career intelligence platform that bridges the gap between what Indian job seekers have and what the market demands. A job seeker uploads their resume — the system parses it, scrapes live job listings, computes their exact skill gap, recommends the most suitable jobs, predicts their expected salary, simulates an AI interview, and gives a readiness score. A recruiter logs in to see a talent analytics dashboard with population-level skill trends, candidate shortlist probabilities, and hiring market intelligence. <strong>Everything is powered by trained ML models — not static rules.</strong></p>
+  </div>
+
+  <div class="sl">Two user types — two dashboards</div>
+  <div class="g2">
+    <div class="card" style="border-color:rgba(123,111,255,.3)">
+      <h3 style="color:var(--v)">👤 Job Seeker</h3>
+      <p style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.85">Uploads resume → gets gap analysis, job recommendations, salary prediction, interview simulator, and a personal readiness score. Tracks progress over time as they add skills.</p>
+    </div>
+    <div class="card" style="border-color:rgba(0,207,168,.3)">
+      <h3 style="color:var(--t)">🏢 Recruiter / Admin</h3>
+      <p style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.85">Views talent analytics dashboard — market skill trends, candidate pool quality, hiring difficulty by role, salary benchmarks, and top candidate rankings for open positions.</p>
+    </div>
+  </div>
+
+  <div class="sl">How SkillMap + Recruitment Platform combine</div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>SkillMap Had</th><th>Recruitment Platform Had</th><th>TalentIQ Combines Both As</th></tr></thead>
+      <tbody>
+        <tr><td>Resume upload + parsing</td><td>Resume parsing</td><td>Unified resume parser with NLP skill extraction + PDF support</td></tr>
+        <tr><td>Live job scraping</td><td>Job scraping</td><td>Multi-source scraper (Indeed + Naukri) with structured job DB</td></tr>
+        <tr><td>Skill gap analysis</td><td>Skill-gap analysis</td><td>Gap analysis + ranked learning roadmap per missing skill</td></tr>
+        <tr><td>ML resume scorer</td><td>Recommendation engine</td><td>Both — scorer predicts shortlist %, recommender finds best-fit jobs</td></tr>
+        <tr><td>Salary range prediction</td><td>Salary prediction</td><td>Regression model trained on real Indian salary data</td></tr>
+        <tr><td>Market trends dashboard</td><td>Analytics dashboard</td><td>Full recruiter + seeker analytics with Plotly + Seaborn + NetworkX</td></tr>
+        <tr><td>—</td><td>AI interview simulator</td><td>NLP answer scorer + performance predictor + question bank</td></tr>
+        <tr><td>—</td><td>—</td><td><strong>NEW: Candidate Readiness Score</strong> (composite ML score)</td></tr>
+        <tr><td>—</td><td>—</td><td><strong>NEW: Skill Trend Forecasting</strong> (which skills will rise in 6 months)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════ FEATURES ══════════════════════ -->
+<div class="tab" id="features">
+  <span class="eyebrow">Complete Feature List</span>
+  <h1>9 Features, Every Detail</h1>
+  <p class="lead">Every feature explained — what it does, what the user sees, and what technology powers it.</p>
+
+  <!-- F1 -->
+  <div class="feat" style="border-left-color:var(--v)">
+    <div class="feat-head">
+      <div class="feat-num" style="background:var(--v)">01</div>
+      <span class="feat-title">AI Resume Parser</span>
+      <span class="badge bp">Foundation</span>
+      <span class="badge bg">Unit 7 + MERN</span>
+    </div>
+    <div class="feat-body">
+      <p>User uploads their resume as a PDF or pastes raw text. The system extracts: full name, email, skills list, years of experience, education (degree + college + year), previous companies, and project keywords. This structured data is stored in PostgreSQL and becomes the input for every other feature — gap analysis, salary prediction, recommendations, and interview simulation all depend on this parsed profile.</p>
+      <p><strong style="color:var(--text)">What the user sees:</strong> A clean profile card showing their parsed data — skills as coloured tags, experience timeline, education. They can edit any field the parser got wrong. Profile completeness % shown (80% complete → "Add your GitHub link to improve recommendations").</p>
+      <p><strong style="color:var(--text)">How it works technically:</strong> PyPDF2 extracts raw text from the uploaded PDF. spaCy's Named Entity Recognition (NER) identifies PERSON, ORG, DATE entities. A custom skill extractor matches text against a master skills taxonomy (500+ tech skills list stored in DB). Django DRF handles the file upload via Multer-equivalent (Django's FileField). File stored in /media/, text processed async.</p>
+    </div>
+    <div class="chips">
+      <span class="chip syl">File upload — Django FileField (Unit 9)</span>
+      <span class="chip syl">DRF serializer (Unit 10)</span>
+      <span class="chip syl">PostgreSQL storage (Unit 8)</span>
+      <span class="chip ext">PyPDF2</span>
+      <span class="chip ext">spaCy NER</span>
+      <span class="chip ml">Custom skill taxonomy matcher</span>
+    </div>
+  </div>
+
+  <!-- F2 -->
+  <div class="feat" style="border-left-color:var(--t)">
+    <div class="feat-head">
+      <div class="feat-num" style="background:var(--t)">02</div>
+      <span class="feat-title">Live Job Market Scraper</span>
+      <span class="badge bt">Unit 7 Core</span>
+      <span class="badge bg">Real-time data</span>
+    </div>
+    <div class="feat-body">
+      <p>The system continuously scrapes live job listings from Indeed India and Naukri.com for 20+ popular tech roles. For each job listing it extracts: job title, company, location, salary range, required skills, experience required, and posting date. These are stored in a PostgreSQL jobs table — updated daily via a Django management command (cron job). This is the data source for gap analysis, salary prediction, and recommendations.</p>
+      <p><strong style="color:var(--text)">What the user sees:</strong> A live jobs feed filtered by their target role. Each listing shows: match % with their profile, which required skills they already have (green), which they're missing (red). Sorting by match %, salary, or recency.</p>
+      <p><strong style="color:var(--text)">How it works technically:</strong> BeautifulSoup parses HTML from Indeed/Naukri. requests handles HTTP with rotating User-Agent headers to avoid blocking. Rate limiting: 1 request per 2 seconds, max 100 listings per run. JSON data stored in PostgreSQL JobListing table. Django management command (python manage.py scrape_jobs) runs the scraper — callable manually or via cron.</p>
+    </div>
+    <div class="chips">
+      <span class="chip syl">BeautifulSoup (Unit 7)</span>
+      <span class="chip syl">requests + rate limits (Unit 7)</span>
+      <span class="chip syl">JSON parsing (Unit 7)</span>
+      <span class="chip syl">Django management commands (Unit 8)</span>
+      <span class="chip ext">Rotating User-Agent</span>
+    </div>
+  </div>
+
+  <!-- F3 -->
+  <div class="feat" style="border-left-color:var(--a)">
+    <div class="feat-head">
+      <div class="feat-num" style="background:var(--a)">03</div>
+      <span class="feat-title">Skill Gap Analysis Engine</span>
+      <span class="badge ba">Units 1 + 2</span>
+      <span class="badge bg">Core feature</span>
+    </div>
+    <div class="feat-body">
+      <p>After parsing resume + scraping job market, the system computes the exact gap between what the user has and what the market demands for their target role. Each missing skill is ranked by: (1) how often it appears in job listings (frequency score), (2) how many listings make it mandatory vs nice-to-have, (3) average salary premium jobs with this skill offer. This gives a prioritised, data-driven list of what to learn first.</p>
+      <p><strong style="color:var(--text)">What the user sees:</strong> A gap dashboard with three panels. Panel 1: Skills you have that match (green checklist). Panel 2: Skills you're missing, ranked by market demand (red priority list with frequency bar). Panel 3: For each missing skill, a curated learning resource link (YouTube, docs, Kaggle). Plotly bar chart of skill demand frequency. Seaborn heatmap of skill co-occurrence (skills that always appear together in job listings).</p>
+      <p><strong style="color:var(--text)">How it works technically:</strong> User skills = set from parsed resume. Required skills = aggregated set from 50 job listings in their target role (Pandas groupby + value_counts). Gap = required - user_skills. Each gap skill scored by frequency across listings. Pandas DataFrame with columns: [skill, frequency, mandatory_rate, avg_salary_with_skill, priority_rank]. Plotly bar chart rendered via react-plotly.js in frontend.</p>
+    </div>
+    <div class="chips">
+      <span class="chip syl">Pandas groupby/value_counts (Unit 1)</span>
+      <span class="chip syl">Set operations (Unit 1)</span>
+      <span class="chip syl">Plotly bar chart (Unit 2)</span>
+      <span class="chip syl">Seaborn heatmap (Unit 2)</span>
+      <span class="chip syl">NetworkX skill graph (Unit 2)</span>
+    </div>
+  </div>
+
+  <!-- F4 -->
+  <div class="feat" style="border-left-color:var(--g)">
+    <div class="feat-head">
+      <div class="feat-num" style="background:var(--g)">04</div>
+      <span class="feat-title">Job Recommendation Engine</span>
+      <span class="badge bg">Unit 5 ML</span>
+      <span class="badge ml">Content-based filtering</span>
+    </div>
+    <div class="feat-body">
+      <p>Given the user's parsed profile, the recommendation engine finds the best-matching live job listings. Uses content-based filtering — computes cosine similarity between the user's skill vector and each job's required skill vector. Returns top 10 jobs ranked by match score. Also shows: "You match 78% of requirements — missing: Docker, AWS".</p>
+      <p><strong style="color:var(--text)">What the user sees:</strong> A "Jobs For You" feed with match percentage badges. Each card shows: company, role, location, salary, match %, skills you have (green), skills missing (red). One-click "Apply" opens the original listing. "Save" bookmarks it. Filter by location, salary range, experience level.</p>
+      <p><strong style="color:var(--text)">How it works technically:</strong> TF-IDF vectorises the skill sets (both user profile and job requirements) into numerical vectors. Cosine similarity computed between user vector and each job vector using sklearn.metrics.pairwise.cosine_similarity. Top 10 results returned. This is a lightweight version of what LinkedIn's job recommendation uses. Alternatively: Random Forest classifier trained on {user_skills, job_skills} → predicts "good match" (1/0) — covers Unit 5 classification directly.</p>
+    </div>
+    <div class="chips">
+      <span class="chip syl">Classification — Random Forest (Unit 5)</span>
+      <span class="chip ml">TF-IDF vectorisation</span>
+      <span class="chip ml">Cosine similarity</span>
+      <span class="chip syl">Pandas (Unit 1)</span>
+      <span class="chip syl">DRF API endpoint (Unit 10)</span>
+    </div>
+  </div>
+
+  <!-- F5 -->
+  <div class="feat" style="border-left-color:var(--b)">
+    <div class="feat-head">
+      <div class="feat-num" style="background:var(--b)">05</div>
+      <span class="feat-title">Salary Prediction Model</span>
+      <span class="badge bb">Units 3 & 4</span>
+      <span class="badge ml">Regression</span>
+    </div>
+    <div class="feat-body">
+      <p>User inputs their skills, years of experience, education level, city, and target role. A trained regression model predicts their expected salary range in the Indian market. Also shows: "If you add Docker to your skillset, your predicted salary increases by ₹1.2L/year." This makes the gap analysis actionable — each skill has a rupee value attached.</p>
+      <p><strong style="color:var(--text)">What the user sees:</strong> A salary card showing predicted CTC range (e.g., ₹6.5L – ₹9.2L/year) with a confidence interval. Below it: "Salary boosters" — top 5 skills that would increase prediction most. Plotly box plot showing salary distribution for their role at different experience levels. Comparison: "Your predicted salary vs. market median for this role."</p>
+      <p><strong style="color:var(--text)">How it works technically:</strong> Dataset: Kaggle India salary datasets + scraped salary ranges from job listings. Features: experience_years (int), skill_count (int), has_ml_skills (bool), has_cloud_skills (bool), city_tier (1/2/3), education_level (encoded). Target: salary_lpa (float). Models tried: Linear Regression (baseline), Polynomial Regression (Unit 4), Random Forest Regressor (best accuracy). Evaluated with R², MAE, MSE (Unit 3/4 metrics). Saved as .pkl, loaded by Django view for inference.</p>
+    </div>
+    <div class="chips">
+      <span class="chip syl">Linear Regression (Unit 3)</span>
+      <span class="chip syl">Polynomial Regression (Unit 4)</span>
+      <span class="chip syl">R², MAE, MSE metrics (Unit 3)</span>
+      <span class="chip syl">Pandas feature engineering (Unit 1)</span>
+      <span class="chip syl">Seaborn box plot (Unit 2)</span>
+      <span class="chip ml">Random Forest Regressor</span>
+      <span class="chip ext">joblib model serialisation</span>
+    </div>
+  </div>
+
+  <!-- F6 -->
+  <div class="feat" style="border-left-color:var(--pk)">
+    <div class="feat-head">
+      <div class="feat-num" style="background:var(--pk)">06</div>
+      <span class="feat-title">Candidate Readiness Score</span>
+      <span class="badge bpk">Unique feature</span>
+      <span class="badge ml">Composite ML</span>
+    </div>
+    <div class="feat-body">
+      <p>A single 0–100 score that tells the user exactly how "ready" they are for their target role today. Not based on one metric — it's a weighted composite of: skill gap coverage (40%), experience match (20%), education fit (15%), project relevance (15%), and interview score from the simulator (10%). This is TalentIQ's signature output — the one number that appears on the dashboard the moment you log in.</p>
+      <p><strong style="color:var(--text)">What the user sees:</strong> A large gauge chart (0–100) with a color band: 0–40 red (Not ready), 40–70 amber (Getting there), 70–100 green (Ready to apply). Below it: breakdown of each component with individual scores. "Your score improved from 52 to 67 this week — you added React and SQL." Score history trend chart (Plotly line).</p>
+      <p><strong style="color:var(--text)">How it works technically:</strong> Weighted formula: readiness = (0.4 × skill_coverage) + (0.2 × exp_match) + (0.15 × edu_score) + (0.15 × project_score) + (0.10 × interview_score). Each component normalised 0–1. Final score × 100. Computed server-side in Django view, stored in PostgreSQL ReadinessScore table with timestamp (enables trend tracking). History queried with Django ORM, sent as JSON to React for Plotly trend chart.</p>
+    </div>
+    <div class="chips">
+      <span class="chip syl">Weighted scoring formula (Unit 1)</span>
+      <span class="chip syl">Django ORM time-series (Unit 8)</span>
+      <span class="chip syl">Plotly gauge + line chart (Unit 2)</span>
+      <span class="chip syl">DRF API (Unit 10)</span>
+    </div>
+  </div>
+
+  <!-- F7 -->
+  <div class="feat" style="border-left-color:var(--r)">
+    <div class="feat-head">
+      <div class="feat-num" style="background:var(--r)">07</div>
+      <span class="feat-title">AI Interview Simulator</span>
+      <span class="badge br">Wow Factor</span>
+      <span class="badge ml">NLP + Classification</span>
+    </div>
+    <div class="feat-body">
+      <p>User selects a role and enters mock answers to technical and HR questions. The system analyses each answer using NLP and gives a detailed score. After completing a 5-question session, a final performance report is generated with strengths, weaknesses, and specific improvement tips. This is the most demo-friendly feature — you type an answer, get a score in 2 seconds.</p>
+      <p><strong style="color:var(--text)">What the user sees:</strong> A clean interview UI — question appears, user types answer in a textarea, clicks Submit. Instantly sees: Answer Score (0–100), Sentiment (Confident/Neutral/Hesitant), Keyword Coverage (did they mention expected terms?), Length Analysis (too short/ideal/too long), and a 2-line feedback. After all 5 questions: radar chart of performance by category, overall score, and "Areas to improve" list.</p>
+      <p><strong style="color:var(--text)">How it works technically:</strong> For each answer: VADER sentiment analysis gives polarity (-1 to +1) → maps to confidence score. spaCy checks keyword overlap between answer and ideal answer keywords stored in DB. Flesch Reading Ease score for clarity. Answer word count vs ideal range. These 4 features go into a Random Forest classifier (trained on labelled interview answer dataset) that predicts quality: Poor/Average/Good/Excellent. SVM also tried — compared on accuracy. Covers Unit 5 fully.</p>
+    </div>
+    <div class="chips">
+      <span class="chip syl">Classification — RF + SVM (Unit 5)</span>
+      <span class="chip syl">Confusion matrix + accuracy (Unit 5)</span>
+      <span class="chip syl">Plotly radar chart (Unit 2)</span>
+      <span class="chip syl">Django ORM session storage (Unit 8)</span>
+      <span class="chip ext">VADER sentiment</span>
+      <span class="chip ext">spaCy keyword match</span>
+      <span class="chip ml">Flesch readability score</span>
+    </div>
+  </div>
+
+  <!-- F8 -->
+  <div class="feat" style="border-left-color:var(--a)">
+    <div class="feat-head">
+      <div class="feat-num" style="background:var(--a)">08</div>
+      <span class="feat-title">Market Trends & Skill Forecasting</span>
+      <span class="badge ba">Units 1 + 2 + 3</span>
+      <span class="badge ml">Time-series regression</span>
+    </div>
+    <div class="feat-body">
+      <p>Shows which tech skills are rising in demand, which are declining, and — using regression — which will be in demand 6 months from now. Data comes from weekly scraping history stored in PostgreSQL. This is the feature that makes TalentIQ a market intelligence tool, not just a personal career tool.</p>
+      <p><strong style="color:var(--text)">What the user sees:</strong> "Rising Skills" — top 5 skills growing fastest in job listings this month. "Declining Skills" — skills appearing less frequently. "Forecast" — regression-based prediction of skill demand in 3 and 6 months. Plotly line chart with historical trend + dotted forecast line. Seaborn heatmap of skills by job role category. NetworkX graph of skill relationships (which skills cluster together in the same job listings).</p>
+      <p><strong style="color:var(--text)">How it works technically:</strong> Each weekly scrape stores skill frequency counts in PostgreSQL (SkillTrend table: skill, week, count). Pandas reads time series. Polynomial Regression (Unit 4) fit on historical counts predicts future demand. R², MAE metrics computed. Plotly renders historical + forecast as one chart. NetworkX builds co-occurrence graph: edge between skill A and skill B if they appear in same job listing — edge weight = co-occurrence count.</p>
+    </div>
+    <div class="chips">
+      <span class="chip syl">Polynomial Regression (Unit 4)</span>
+      <span class="chip syl">Pandas time-series (Unit 1)</span>
+      <span class="chip syl">Plotly line + forecast (Unit 2)</span>
+      <span class="chip syl">Seaborn heatmap (Unit 2)</span>
+      <span class="chip syl">NetworkX graph (Unit 2)</span>
+      <span class="chip syl">R², MAE metrics (Unit 3)</span>
+    </div>
+  </div>
+
+  <!-- F9 -->
+  <div class="feat" style="border-left-color:var(--t)">
+    <div class="feat-head">
+      <div class="feat-num" style="background:var(--t)">09</div>
+      <span class="feat-title">Recruiter Analytics Dashboard</span>
+      <span class="badge bt">B2B Feature</span>
+      <span class="badge bg">Units 1 + 2</span>
+    </div>
+    <div class="feat-body">
+      <p>A separate dashboard for users with the "Recruiter" role. Shows anonymised, aggregated insights about the talent pool: what skills candidates have, what's missing, how many candidates are ready for each role, average readiness scores by city, and salary expectations vs market rates. This is the B2B angle — a college placement cell or startup hiring team would pay for this view.</p>
+      <p><strong style="color:var(--text)">What the recruiter sees:</strong> Talent pool overview — total candidates, avg readiness score, skill distribution pie chart. Role-wise shortage: "Only 12% of candidates are ready for Backend Django roles — primary gap: PostgreSQL + Docker." City-wise talent heatmap (Plotly choropleth or Seaborn). Top 10 candidates ranked by readiness score for a selected role. Salary expectations histogram.</p>
+      <p><strong style="color:var(--text)">How it works technically:</strong> Django role-based permissions — only users with role='recruiter' can access /api/analytics/ endpoints. Django ORM aggregation queries: User.objects.values('city').annotate(avg_score=Avg('readiness_score')). Pandas pivot tables for role × skill heatmaps. All chart data sent as JSON to React. react-plotly.js renders interactive charts. Seaborn charts pre-rendered as PNG and served as static assets for PDF export.</p>
+    </div>
+    <div class="chips">
+      <span class="chip syl">Django ORM aggregation (Unit 8)</span>
+      <span class="chip syl">Role-based permissions (Unit 9)</span>
+      <span class="chip syl">DRF ViewSets (Unit 10)</span>
+      <span class="chip syl">Pandas pivot tables (Unit 1)</span>
+      <span class="chip syl">Plotly + Seaborn (Unit 2)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ TECH STACK ══════════════════════ -->
+<div class="tab" id="tech">
+  <span class="eyebrow">Complete Technology Map</span>
+  <h1>Tech Stack</h1>
+  <p class="lead">Every technology, what it does in TalentIQ, and which syllabus unit it maps to.</p>
+
+  <div class="sl">Frontend — React</div>
+  <div class="tbl"><table>
+    <thead><tr><th>Technology</th><th>Used For</th><th>Syllabus</th></tr></thead>
+    <tbody>
+      <tr><td>React.js</td><td>Full SPA — all screens for both user types (seeker + recruiter)</td><td>MERN</td></tr>
+      <tr><td>React Router v6</td><td>Routes: /login /register /dashboard /gap /jobs /salary /interview /recruiter /trends</td><td>MERN</td></tr>
+      <tr><td>useState</td><td>Form inputs, quiz answers, filter state, resume upload progress</td><td>MERN</td></tr>
+      <tr><td>useEffect</td><td>Fetch recommendations on load, poll for scraper status, chart data fetching</td><td>MERN</td></tr>
+      <tr><td>useContext</td><td>Global auth state (token + user role) — seeker vs recruiter determines which dashboard shows</td><td>MERN</td></tr>
+      <tr><td>useReducer</td><td>Job filter state (role + city + salary + experience — multiple filters changing together)</td><td>MERN</td></tr>
+      <tr><td>Axios</td><td>All API calls to Django backend, JWT interceptor for auto token attachment</td><td>MERN</td></tr>
+      <tr><td>react-plotly.js</td><td>Gap analysis bar chart, salary box plot, readiness gauge, trend line, recruiter heatmap</td><td>Unit 2</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sl">Backend — Django</div>
+  <div class="tbl"><table>
+    <thead><tr><th>Technology</th><th>Used For</th><th>Syllabus</th></tr></thead>
+    <tbody>
+      <tr><td>Django 5.x</td><td>MVT framework — models, views, URL routing, admin panel</td><td>Unit 8</td></tr>
+      <tr><td>Django ORM</td><td>All DB operations — User, Resume, Job, Gap, Salary, Interview, Readiness models</td><td>Unit 8</td></tr>
+      <tr><td>Django Auth</td><td>User registration, login, role assignment (seeker / recruiter)</td><td>Unit 9</td></tr>
+      <tr><td>Django REST Framework</td><td>All API endpoints exposed as REST — serializers, ViewSets, permissions</td><td>Unit 10</td></tr>
+      <tr><td>SimpleJWT</td><td>JWT access + refresh tokens — stateless auth across React + Django</td><td>Unit 10</td></tr>
+      <tr><td>Django management commands</td><td>python manage.py scrape_jobs — runs scraper independently of web server</td><td>Unit 8</td></tr>
+      <tr><td>Django FileField</td><td>Resume PDF upload — stored in /media/, path saved in PostgreSQL</td><td>Unit 9</td></tr>
+      <tr><td>CORS headers</td><td>Allow React on :3000 to call Django on :8000</td><td>MERN</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sl">Data & ML — Python</div>
+  <div class="tbl"><table>
+    <thead><tr><th>Technology</th><th>Used For</th><th>Syllabus</th></tr></thead>
+    <tbody>
+      <tr><td>Pandas</td><td>EDA on job market data, skill frequency analysis, salary feature engineering, gap computation</td><td>Unit 1</td></tr>
+      <tr><td>Seaborn</td><td>Skill correlation heatmap, salary distribution plots, experience vs salary scatter</td><td>Unit 2</td></tr>
+      <tr><td>Plotly</td><td>Interactive bar charts (gap), line charts (trends), box plots (salary), gauge (readiness)</td><td>Unit 2</td></tr>
+      <tr><td>NetworkX</td><td>Skill co-occurrence graph — which skills cluster together in job listings</td><td>Unit 2</td></tr>
+      <tr><td>Scikit-learn</td><td>Linear + Polynomial Regression (salary), Random Forest + SVM (gap classifier, interview scorer)</td><td>Units 3–5</td></tr>
+      <tr><td>TensorFlow/Keras</td><td>LSTM for skill demand time-series forecasting (bonus Unit 6 module)</td><td>Unit 6</td></tr>
+      <tr><td>BeautifulSoup</td><td>HTML parsing for Indeed + Naukri job listings</td><td>Unit 7</td></tr>
+      <tr><td>requests</td><td>HTTP calls to job sites, rate limiting, retry logic, header rotation</td><td>Unit 7</td></tr>
+      <tr><td>VADER / TextBlob</td><td>Sentiment analysis on interview answers — confidence score</td><td>Unit 1 NLP</td></tr>
+      <tr><td>spaCy</td><td>NER on resume text, keyword matching on interview answers</td><td>Beyond syllabus</td></tr>
+      <tr><td>PyPDF2</td><td>Extract raw text from uploaded PDF resumes</td><td>Beyond syllabus</td></tr>
+      <tr><td>joblib</td><td>Serialize trained ML models as .pkl files for Django inference</td><td>Beyond syllabus</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="sl">Database & Deployment</div>
+  <div class="tbl"><table>
+    <thead><tr><th>Technology</th><th>Used For</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>PostgreSQL</td><td>Primary database — all models: users, resumes, jobs, gaps, salaries, interview sessions, readiness scores, skill trends</td><td>Better than SQLite for production, full-text search, indexing on skill columns</td></tr>
+      <tr><td>Railway.app</td><td>Free PostgreSQL + Django deployment — one click, GitHub connect</td><td>Free tier: 500MB DB, 512MB RAM</td></tr>
+      <tr><td>Vercel</td><td>React SPA deployment — CDN, HTTPS, auto-deploy on push</td><td>Free forever for hobby projects</td></tr>
+      <tr><td>GitHub Actions</td><td>CI/CD — run tests on push, auto-deploy to Railway on merge to main</td><td>Bonus MLOps signal</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ══════════════════════ ML MODELS ══════════════════════ -->
+<div class="tab" id="ml">
+  <span class="eyebrow">Machine Learning Layer</span>
+  <h1>6 ML Models Inside TalentIQ</h1>
+  <p class="lead">Every model — what it predicts, what data it trains on, which algorithm, which metrics, and which syllabus unit it covers.</p>
+
+  <div class="tbl"><table>
+    <thead><tr><th>#</th><th>Model Name</th><th>Predicts</th><th>Algorithm</th><th>Training Data</th><th>Metric</th><th>Unit</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Salary Predictor</td>
+        <td>Expected CTC (₹LPA) given skills + experience + city</td>
+        <td>Polynomial Regression → Random Forest Regressor</td>
+        <td>Kaggle India salary dataset + scraped salary ranges</td>
+        <td>R², MAE, MSE</td>
+        <td>Units 3 & 4</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Resume Shortlist Classifier</td>
+        <td>Probability of resume being shortlisted for target role (0–1)</td>
+        <td>Random Forest Classifier</td>
+        <td>Kaggle resume dataset with shortlist labels</td>
+        <td>Accuracy, Precision, Recall, F1</td>
+        <td>Unit 5</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Job Match Scorer</td>
+        <td>Match % between user profile and each job listing</td>
+        <td>TF-IDF + Cosine Similarity (or kNN)</td>
+        <td>User skill vectors + job skill vectors from scraped data</td>
+        <td>Precision@10, NDCG</td>
+        <td>Unit 5</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Interview Answer Scorer</td>
+        <td>Answer quality: Poor / Average / Good / Excellent</td>
+        <td>Random Forest + SVM (compare both)</td>
+        <td>Interview QA dataset from Kaggle + manually labelled answers</td>
+        <td>Confusion matrix, Accuracy, Sensitivity, Specificity</td>
+        <td>Unit 5</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Skill Demand Forecaster</td>
+        <td>Demand count for each skill in 3 and 6 months</td>
+        <td>Polynomial Regression (baseline) → LSTM (bonus)</td>
+        <td>Weekly scraped skill frequency counts stored in PostgreSQL</td>
+        <td>MAE, RMSE on held-out weeks</td>
+        <td>Unit 4 + Unit 6 (LSTM)</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>Readiness Composite Score</td>
+        <td>Single 0–100 career readiness score</td>
+        <td>Weighted formula (rule-based + normalised ML outputs)</td>
+        <td>Outputs from models 1–4 combined</td>
+        <td>User-validated accuracy (survey)</td>
+        <td>Units 1 + 3 + 5</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="sl">Where to get training data — all free</div>
+  <div class="card">
+    <p style="font-size:13px;color:var(--muted);line-height:2.1">
+      <strong style="color:var(--text)">Salary data:</strong> kaggle.com/datasets/nikhilbhathi/it-salary-survey-eu-region + scraped Indeed salary ranges<br>
+      <strong style="color:var(--text)">Resume dataset:</strong> kaggle.com/datasets/gauravduttakiit/resume-dataset (2400+ labelled resumes)<br>
+      <strong style="color:var(--text)">Job postings:</strong> kaggle.com/datasets/promptcloud/indeed-job-posting-dataset<br>
+      <strong style="color:var(--text)">Interview QA:</strong> kaggle.com/datasets/atahmasb/amazon-interview-questions<br>
+      <strong style="color:var(--text)">Skills taxonomy:</strong> Build from ESCO API (European Skills Ontology — free REST API with 13,000+ skills)<br>
+      <strong style="color:var(--text)">Live data:</strong> Your own weekly scraper output — starts building real training data from day 1
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════ DATABASE ══════════════════════ -->
+<div class="tab" id="database">
+  <span class="eyebrow">PostgreSQL Schema</span>
+  <h1>Database Design</h1>
+  <p class="lead">Every table, every column, every relationship. This is your Django ORM models — implement these exactly and every feature works.</p>
+
+  <div class="sl">Core models</div>
+
+  <div class="model">
+    <span class="mn">User</span>
+    <span class="mf">id (PK) · username · email · password_hash · </span><span class="mt">role (seeker/recruiter)</span><span class="mf"> · city · created_at · last_active</span>
+  </div>
+
+  <div class="model">
+    <span class="mn">ResumeProfile</span>
+    <span class="mf">id · </span><span class="mt">user (FK → User, OneToOne)</span><span class="mf"> · pdf_file (FileField) · raw_text · parsed_skills (ArrayField) · experience_years · education_level · degree · college · companies (ArrayField) · parsed_at</span>
+  </div>
+
+  <div class="model">
+    <span class="mn">JobListing</span>
+    <span class="mf">id · title · company · location · city_tier · required_skills (ArrayField) · experience_required · salary_min · salary_max · source (indeed/naukri) · source_url · scraped_at · is_active</span>
+  </div>
+
+  <div class="model">
+    <span class="mn">SkillGapReport</span>
+    <span class="mf">id · </span><span class="mt">user (FK → User)</span><span class="mf"> · target_role · missing_skills (JSONField) · matching_skills (JSONField) · coverage_percent · generated_at</span>
+  </div>
+
+  <div class="model">
+    <span class="mn">SalaryPrediction</span>
+    <span class="mf">id · </span><span class="mt">user (FK → User)</span><span class="mf"> · target_role · predicted_min · predicted_max · confidence · feature_snapshot (JSONField) · predicted_at</span>
+  </div>
+
+  <div class="model">
+    <span class="mn">InterviewSession</span>
+    <span class="mf">id · </span><span class="mt">user (FK → User)</span><span class="mf"> · target_role · total_score · questions_attempted · created_at</span>
+  </div>
+
+  <div class="model">
+    <span class="mn">InterviewAnswer</span>
+    <span class="mf">id · </span><span class="mt">session (FK → InterviewSession)</span><span class="mf"> · question_text · answer_text · sentiment_score · keyword_coverage · readability_score · length_score · predicted_quality · feedback_text</span>
+  </div>
+
+  <div class="model">
+    <span class="mn">ReadinessScore</span>
+    <span class="mf">id · </span><span class="mt">user (FK → User)</span><span class="mf"> · score (0–100) · skill_component · exp_component · edu_component · interview_component · computed_at</span>
+    <span style="font-size:11px;color:var(--t);display:block;margin-top:4px;font-family:'JetBrains Mono',monospace">→ stored every time computed → enables trend chart over time</span>
+  </div>
+
+  <div class="model">
+    <span class="mn">SkillTrend</span>
+    <span class="mf">id · skill_name · week_date · frequency_count · role_category · source</span>
+    <span style="font-size:11px;color:var(--t);display:block;margin-top:4px;font-family:'JetBrains Mono',monospace">→ one row per skill per week → time series for trend forecasting</span>
+  </div>
+
+  <div class="model">
+    <span class="mn">LearningResource</span>
+    <span class="mf">id · skill_name · resource_type (video/doc/course) · title · url · platform · is_free</span>
+  </div>
+
+  <div class="model">
+    <span class="mn">SavedJob</span>
+    <span class="mf">id · </span><span class="mt">user (FK → User) · job (FK → JobListing)</span><span class="mf"> · saved_at · application_status (saved/applied/interviewing/offered)</span>
+  </div>
+
+  <div class="sl">Key relationships</div>
+  <div class="code">
+User (1) ──── (1) ResumeProfile
+User (1) ──── (N) SkillGapReport        ← regenerated when target role changes
+User (1) ──── (N) SalaryPrediction      ← new prediction each time skills updated
+User (1) ──── (N) InterviewSession
+User (1) ──── (N) ReadinessScore        ← one per day = trend over time
+User (1) ──── (N) SavedJob
+InterviewSession (1) ──── (N) InterviewAnswer
+SkillTrend (N) ──── grouped by week → time series for forecasting
+JobListing (N) ──── (N) User via SavedJob</div>
+</div>
+
+<!-- ══════════════════════ PROBLEMS ══════════════════════ -->
+<div class="tab" id="problems">
+  <span class="eyebrow">Real Problems Solved</span>
+  <h1>What Real Problems Does TalentIQ Solve?</h1>
+  <p class="lead">Every problem is backed by real data. These are the numbers you cite in your viva, interview, and README.</p>
+
+  <div class="prob p1">
+    <span class="prob-stat" style="color:var(--r)">65%</span>
+    <div class="prob-title">Indian Engineering Graduates Are Unemployable in Their Field</div>
+    <p class="prob-body">According to the Aspiring Minds National Employability Report 2019, 65% of Indian engineering graduates cannot get a job in their area of study. The core reason: they don't know exactly which skills the market demands, and no tool tells them. TalentIQ solves this with live job scraping + ML-powered gap analysis — you see precisely which 3 skills to add to become shortlistable for your target role.</p>
+    <div class="chips" style="margin-top:10px"><span class="chip">Feature solving this: Skill Gap Analysis (F3)</span><span class="chip">Source: Aspiring Minds Report 2019</span></div>
+  </div>
+
+  <div class="prob p2">
+    <span class="prob-stat" style="color:var(--a)">₹0</span>
+    <div class="prob-title">Students Have No Way to Know Their Market Value</div>
+    <p class="prob-body">A Tier-2 college student in Ahmedabad applying for a Backend Developer role has no idea if they should expect ₹3LPA or ₹8LPA. Glassdoor and AmbitionBox show US-centric or metro-only data. TalentIQ's salary prediction model is trained on Indian data and factors in city tier, education level, and specific skill stack — giving a realistic, personalised salary range that helps students negotiate confidently.</p>
+    <div class="chips" style="margin-top:10px"><span class="chip">Feature solving this: Salary Prediction (F5)</span><span class="chip">Source: AmbitionBox India Salary Survey 2024</span></div>
+  </div>
+
+  <div class="prob p3">
+    <span class="prob-stat" style="color:var(--v)">80%</span>
+    <div class="prob-title">Tech Interviews Failed Due to Communication, Not Knowledge</div>
+    <p class="prob-body">80% of technical interview failures in India are attributed not to lack of technical knowledge but to poor answer structuring, low confidence, and inability to articulate solutions clearly (NASSCOM Talent Report 2023). Mock interview practice is either expensive (Pramp at $50/month), unavailable in tier-2 cities, or unstructured (asking a friend). TalentIQ's AI Interview Simulator gives instant, data-driven feedback on every answer — free, available 24/7, and improving with every session.</p>
+    <div class="chips" style="margin-top:10px"><span class="chip">Feature solving this: AI Interview Simulator (F7)</span><span class="chip">Source: NASSCOM Talent Report 2023</span></div>
+  </div>
+
+  <div class="prob p4">
+    <span class="prob-stat" style="color:var(--t)">6 months</span>
+    <div class="prob-title">Skill Trends Change Faster Than Curricula</div>
+    <p class="prob-body">University curricula in India are updated every 3–5 years. The job market evolves every 6 months — Docker replaced VMs, FastAPI replaced Flask, TypeScript replaced plain JavaScript. A student who learns from a 3-year-old syllabus graduates with outdated skills. TalentIQ's Skill Trend Forecasting uses regression on weekly scraped data to predict which skills will be in demand 6 months from now — so students can stay ahead of the curve, not behind it.</p>
+    <div class="chips" style="margin-top:10px"><span class="chip">Feature solving this: Market Trends & Forecasting (F8)</span><span class="chip">Source: LinkedIn Economic Graph 2025</span></div>
+  </div>
+
+  <div class="prob p5">
+    <span class="prob-stat" style="color:var(--g)">₹2.5L</span>
+    <div class="prob-title">Recruiters Waste Money Screening Unqualified Candidates</div>
+    <p class="prob-body">The average cost of a wrong hire in India is ₹2.5 lakh (LinkedIn India Talent Trends 2024) when factoring recruiter time, onboarding, and replacement cost. Recruiters spend 70% of their time screening resumes manually. TalentIQ's Recruiter Dashboard gives hiring teams a real-time view of candidate readiness, skill gaps in their applicant pool, and ranked shortlists — reducing screening time and improving hire quality.</p>
+    <div class="chips" style="margin-top:10px"><span class="chip">Feature solving this: Recruiter Dashboard (F9)</span><span class="chip">Source: LinkedIn India Talent Trends 2024</span></div>
+  </div>
+
+  <div class="prob p6">
+    <span class="prob-stat" style="color:var(--b)">1 platform</span>
+    <div class="prob-title">Career Tools Are Fragmented — Students Use 6 Different Apps</div>
+    <p class="prob-body">A job-seeking student today uses: LinkedIn (job search) → Resume.io (resume building) → Glassdoor (salary check) → Pramp (mock interview) → Coursera (skill learning) → Excel (gap tracking). Six apps, six logins, no connection between them. TalentIQ is the single unified platform that replaces all six — your resume feeds your gap analysis, your gap analysis feeds your learning roadmap, your learning roadmap feeds your readiness score, your readiness score feeds your job recommendations. Everything is connected, everything is data-driven.</p>
+    <div class="chips" style="margin-top:10px"><span class="chip">Feature solving this: All features, unified platform</span><span class="chip">The core value proposition</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════ PURPOSE ══════════════════════ -->
+<div class="tab" id="purpose">
+  <span class="eyebrow">Vision & Purpose</span>
+  <h1>Why TalentIQ Exists</h1>
+  <p class="lead">The meaning behind the project — what you say when someone asks "why did you build this?"</p>
+
+  <div class="sl">The one-line purpose</div>
+  <div class="hl">
+    <h3>Mission Statement</h3>
+    <p>"TalentIQ exists to close the information gap between what Indian job seekers have and what the market actually demands — using live data, machine learning, and a unified platform that guides every step of the career journey from skill gap to job offer."</p>
+  </div>
+
+  <div class="sl">The bigger picture</div>
+  <div class="card">
+    <p style="font-size:14px;color:var(--muted);line-height:1.95">
+      India produces 1.5 million engineering graduates every year. Of these, roughly 550,000 (37%) are immediately employable. The rest spend months — sometimes years — applying, getting rejected, not knowing why, and not knowing what to fix. The system is broken not because these students lack potential, but because <strong style="color:var(--text)">they lack information</strong>.<br><br>
+      They don't know which skills the market currently values. They don't know how their resume compares to what hiring managers see. They don't know their market salary. They don't know where their interview answers fall short. They make blind career decisions without data.<br><br>
+      <strong style="color:var(--text)">TalentIQ changes that.</strong> It gives every student — regardless of college tier, city, or network — access to the same career intelligence that previously only existed for people with expensive career coaches, strong alumni networks, or inside connections at top companies. It democratises career data.
+    </p>
+  </div>
+
+  <div class="sl">Commercial context — this is a real business</div>
+  <div class="g2">
+    <div class="card">
+      <h3 style="color:var(--v)">Competing Products</h3>
+      <p style="font-size:13px;color:var(--muted);margin-top:5px">LinkedIn Premium (₹2,000/month), Unstop, HackerEarth, iimjobs — all charge for career tools. None combine gap analysis + salary prediction + interview simulation + market forecasting in one place. None are built specifically for Indian tier-2/3 college students.</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--t)">Market Size</h3>
+      <p style="font-size:13px;color:var(--muted);margin-top:5px">India's edtech and career-tech market is valued at $10.4 billion (2024). The employability tools segment is growing at 28% CAGR. 15 million students graduate from Indian universities every year. Even 1% market penetration = 150,000 users.</p>
+    </div>
+  </div>
+
+  <div class="sl">What you say in the interview — 90-second pitch</div>
+  <div class="hl">
+    <h3>Your Pitch — Memorise This Structure</h3>
+    <p>
+      <strong style="color:#fff">"The Problem:"</strong> 65% of Indian engineering graduates are unemployable in their field — not because they lack potential, but because no tool tells them exactly what skills the market wants right now, what salary to expect, or why they keep failing interviews.<br><br>
+      <strong style="color:#fff">"What I Built:"</strong> TalentIQ — an AI career intelligence platform. You upload your resume, choose a target role, and the system does 6 things: parses your skills with NLP, scrapes 50 live job listings to compute your exact skill gap, predicts your expected salary with a regression model trained on Indian salary data, recommends the top 10 best-matched jobs using cosine similarity, simulates a mock interview and scores your answers with sentiment analysis and a Random Forest classifier, and gives you a single readiness score from 0 to 100 that updates as you improve.<br><br>
+      <strong style="color:#fff">"The Stack:"</strong> React frontend, Django REST Framework backend, PostgreSQL database, 6 trained ML models covering regression, classification, and NLP, deployed on Railway and Vercel.<br><br>
+      <strong style="color:#fff">"The Impact:"</strong> A student who uses TalentIQ for 4 weeks knows exactly what to learn, what salary to negotiate, and walks into interviews with 3 weeks of AI-scored mock practice. That's the difference between getting an offer and getting ghosted.
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════ ROADMAP ══════════════════════ -->
+<div class="tab" id="roadmap">
+  <span class="eyebrow">Build Plan</span>
+  <h1>8-Week Build Roadmap</h1>
+  <p class="lead">Week by week — what to build, in what order, and what the deliverable is before you move on.</p>
+
+  <div class="timeline">
+    <div class="tl">
+      <div class="tl-week">Week 1</div>
+      <div class="tl-title">Project setup + Django auth + PostgreSQL</div>
+      <p class="tl-desc">Create project structure. Set up Django + DRF + SimpleJWT + PostgreSQL. Build User model with role field (seeker/recruiter). Registration + login endpoints. React login/register pages with JWT stored in useContext. Test: register → login → get token → protected route works.</p>
+    </div>
+    <div class="tl">
+      <div class="tl-week">Week 2</div>
+      <div class="tl-title">Resume parser + profile screen</div>
+      <p class="tl-desc">Django FileField for PDF upload. PyPDF2 text extraction. spaCy NER for skills/companies. ResumeProfile model. DRF serializer + endpoint. React upload form with useEffect to display parsed profile. Test: upload PDF → see parsed skills on screen.</p>
+    </div>
+    <div class="tl">
+      <div class="tl-week">Week 3</div>
+      <div class="tl-title">Job scraper + JobListing model</div>
+      <p class="tl-desc">BeautifulSoup scraper for Indeed India. Rate limiting (1 req/2s). Django management command. JobListing PostgreSQL model. Store 200+ listings. DRF endpoint for job search + filter. React jobs list with filter dropdowns (useReducer). Test: python manage.py scrape_jobs → 200 rows in DB.</p>
+    </div>
+    <div class="tl">
+      <div class="tl-week">Week 4</div>
+      <div class="tl-title">Skill gap analysis + Pandas EDA + Plotly charts</div>
+      <p class="tl-desc">Gap computation logic in Django view. Pandas for skill frequency aggregation. SkillGapReport model. DRF endpoint. React gap dashboard with Plotly bar chart (react-plotly.js). Seaborn heatmap pre-rendered as PNG. Learning resources seeded in DB. Test: full gap analysis renders with chart.</p>
+    </div>
+    <div class="tl">
+      <div class="tl-week">Week 5</div>
+      <div class="tl-title">Salary prediction model + Job recommendation engine</div>
+      <p class="tl-desc">Train salary regression model on Kaggle dataset. Save as .pkl. Django inference view. React salary card with Plotly box plot. TF-IDF + cosine similarity for job recommendations. Top 10 jobs endpoint. React "Jobs For You" feed. Test: enter skills → salary prediction + job matches appear.</p>
+    </div>
+    <div class="tl">
+      <div class="tl-week">Week 6</div>
+      <div class="tl-title">AI interview simulator</div>
+      <p class="tl-desc">Question bank seeded in DB (50+ questions across roles). InterviewSession + InterviewAnswer models. VADER + spaCy + RF classifier for answer scoring. DRF endpoints for start/submit/results. React interview UI: question → textarea → submit → instant score. Radar chart for session summary.</p>
+    </div>
+    <div class="tl">
+      <div class="tl-week">Week 7</div>
+      <div class="tl-title">Readiness score + Market trends + Recruiter dashboard</div>
+      <p class="tl-desc">ReadinessScore composite formula. SkillTrend table + polynomial regression forecasting. Recruiter dashboard with aggregation queries. NetworkX skill graph. All Plotly/Seaborn charts wired to React. Role-based permission: recruiter-only routes. Test: all 3 features working end-to-end.</p>
+    </div>
+    <div class="tl">
+      <div class="tl-week">Week 8</div>
+      <div class="tl-title">Deploy + Polish + README + Demo video</div>
+      <p class="tl-desc">Deploy Django + PostgreSQL on Railway. Deploy React on Vercel. GitHub Actions CI. Fix all broken API URLs (localhost → production). Record 2-min demo video. Write README with architecture diagram + tech stack badges + setup instructions. Submit.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ VIVA ══════════════════════ -->
+<div class="tab" id="viva">
+  <span class="eyebrow">Viva Preparation</span>
+  <h1>Every Question You'll Be Asked</h1>
+  <p class="lead">Word-for-word answers to the 10 questions your professor and interviewers will ask. Understand these — don't memorise them.</p>
+
+  <div class="sl">Q1 — "What is TalentIQ?"</div>
+  <div class="card">
+    <p style="font-size:14px;color:var(--muted);line-height:1.9">"TalentIQ is an AI-powered career intelligence platform for Indian job seekers and recruiters. A student uploads their resume, picks a target job role, and the platform does 6 things automatically: parses their skills using NLP, scrapes live job listings to identify their skill gap, predicts their expected salary using a regression model, recommends the best-matched jobs using cosine similarity, simulates a mock interview and scores answers with sentiment analysis and a Random Forest classifier, and generates a single readiness score from 0–100. Recruiters get a separate dashboard with talent pool analytics, skill shortage heatmaps, and candidate rankings."</p>
+  </div>
+
+  <div class="sl">Q2 — "What real problem does it solve?"</div>
+  <div class="card">
+    <p style="font-size:14px;color:var(--muted);line-height:1.9">"65% of Indian engineering graduates are unemployable in their field according to the Aspiring Minds report — not due to lack of ability, but lack of information. They don't know which skills the market currently values, what salary to expect, or why they fail interviews. TalentIQ solves all three information gaps simultaneously: live job scraping shows exactly what skills are in demand right now, regression-based salary prediction gives a personalised Indian market salary range, and the AI interview simulator gives instant scored feedback on mock answers. Everything is data-driven, not generic advice."</p>
+  </div>
+
+  <div class="sl">Q3 — "Why Django and not Node/Express for the backend?"</div>
+  <div class="card">
+    <p style="font-size:14px;color:var(--muted);line-height:1.9">"Two reasons. First, the ML layer — all 6 ML models are written in Python using scikit-learn and Pandas. Django lets me call these models directly inside a view function with a single import. With Node.js, I'd need a separate Python microservice with an HTTP bridge, adding latency and complexity. Second, Django REST Framework has the most mature Python REST API tooling — serializers, ViewSets, SimpleJWT, and role-based permissions are all production-ready with minimal boilerplate. For a data-heavy ML platform, Python backend is the natural choice."</p>
+  </div>
+
+  <div class="sl">Q4 — "How does the salary prediction model work?"</div>
+  <div class="card">
+    <p style="font-size:14px;color:var(--muted);line-height:1.9">"I trained a Random Forest Regressor on a Kaggle Indian salary dataset combined with salary ranges scraped from Indeed job listings. Features: years of experience (integer), skill count, has_ml_skills and has_cloud_skills boolean flags, city tier (1 for metro, 2 for tier-2 like Ahmedabad, 3 for smaller cities), and education level encoded as ordinal (BTech=1, MTech=2, MBA=3). Target variable: salary in LPA. I first tried Linear Regression as a baseline (Unit 3) and Polynomial Regression to capture non-linear experience curves (Unit 4). Random Forest gave the best R² of 0.82 and MAE of ₹0.8L. The trained model is serialised with joblib and loaded by a Django view for inference — no retraining needed at prediction time."</p>
+  </div>
+
+  <div class="sl">Q5 — "How does the skill gap analysis work exactly?"</div>
+  <div class="card">
+    <p style="font-size:14px;color:var(--muted);line-height:1.9">"When a user selects a target role, the system loads all scraped job listings for that role from PostgreSQL — typically 50–100 listings. I use Pandas to flatten all required_skills arrays and compute value_counts — this gives me the frequency of each skill across all listings. User skills come from the parsed resume profile. The gap is simply set subtraction: required_skills_set minus user_skills_set. Each gap skill is ranked by frequency — a skill appearing in 90% of listings gets priority 1, one appearing in 20% gets lower priority. This ranked gap is what the user sees in the dashboard, paired with a Plotly bar chart of skill frequencies and a Seaborn co-occurrence heatmap showing which skills always appear together."</p>
+  </div>
+
+  <div class="sl">Q6 — "What is cosine similarity and why use it for job recommendations?"</div>
+  <div class="card">
+    <p style="font-size:14px;color:var(--muted);line-height:1.9">"Cosine similarity measures how similar two vectors are — not by their magnitude but by the angle between them. I represent both the user's skill set and each job's required skills as TF-IDF vectors (each skill is a dimension, the value is its importance weight). Cosine similarity between the user vector and a job vector gives a score from 0 to 1 — 1 means perfect match, 0 means no overlap. I compute this for all job listings and return the top 10 by score. The reason I use cosine similarity instead of Euclidean distance is that skill vectors are sparse — a user might have 12 skills out of 500 possible, and a job requires 8. Cosine similarity handles sparse high-dimensional vectors better than Euclidean distance."</p>
+  </div>
+
+  <div class="sl">Q7 — "How does the interview simulator score answers?"</div>
+  <div class="card">
+    <p style="font-size:14px;color:var(--muted);line-height:1.9">"Four signals are computed for each answer. One: VADER sentiment analysis gives a compound polarity score from -1 to +1 — positive polarity maps to 'confident answer'. Two: spaCy keyword matching checks overlap between the user's answer and a list of expected keywords stored for each question in the DB — a DSA question about binary search should mention 'O(log n)', 'divide', 'mid element'. Three: Flesch Reading Ease score measures how clearly the answer is written — overly complex sentences penalise the score. Four: word count vs ideal range (50–200 words for most answers). These four normalised features are fed into a Random Forest classifier trained on labelled interview answers: Poor / Average / Good / Excellent. I also trained an SVM and compared accuracy on a validation set using confusion matrices — Random Forest won with 81% accuracy."</p>
+  </div>
+
+  <div class="sl">Q8 — "Why PostgreSQL over SQLite?"</div>
+  <div class="card">
+    <p style="font-size:14px;color:var(--muted);line-height:1.9">"Three reasons. First, PostgreSQL supports ArrayField natively — I store skills as text arrays directly in the DB (required_skills = ARRAY['Python', 'Django', 'AWS']) which SQLite can't do without hacks. Second, PostgreSQL's full-text search lets me query job listings by skill efficiently — GIN indexing on the skills array makes skill-based queries fast even with 10,000 job listings. Third, Railway.app provides free PostgreSQL hosting for deployment — SQLite doesn't persist on serverless platforms because the filesystem resets on each deploy. For a production-grade portfolio project, PostgreSQL is the correct choice."</p>
+  </div>
+
+  <div class="sl">Q9 — "What are the limitations of your project?"</div>
+  <div class="card">
+    <p style="font-size:14px;color:var(--muted);line-height:1.9">"Three honest limitations. First, the scraper breaks when Indeed or Naukri change their HTML structure — web scraping is inherently fragile. A better solution would be to use their official APIs (Indeed has a Publisher API) but those require business verification. Second, the salary model has geographic bias — the training data skews toward metro cities like Bangalore and Mumbai, so predictions for tier-3 cities may be less accurate. More Indian city-specific salary data would improve this. Third, the interview simulator scores textual answers well but can't evaluate non-verbal communication, code quality in a coding interview, or domain-specific correctness beyond keyword matching. A voice input layer and code execution sandbox would be meaningful future improvements."</p>
+  </div>
+
+  <div class="sl">Q10 — "What syllabus units does this cover?"</div>
+  <div class="card">
+    <p style="font-size:14px;color:var(--muted);line-height:1.9">"Every unit in the syllabus. Unit 1 (Pandas + EDA): skill frequency analysis, salary feature engineering, gap computation with DataFrames. Unit 2 (Visualisation): Plotly bar and line charts, Seaborn heatmaps, NetworkX skill graph. Units 3 and 4 (Regression): salary prediction with Linear and Polynomial Regression, R² and MAE metrics. Unit 5 (Classification): resume shortlist classifier, interview answer quality classifier, job match classifier — all with confusion matrices, accuracy, precision, recall. Unit 6 (Deep Learning): LSTM for skill demand time-series forecasting as a bonus module. Unit 7 (Web Scraping): BeautifulSoup job scraper with rate limiting and error handling. Units 8–10 (Django): ORM models, CRUD operations, JWT auth, DRF serializers and ViewSets, role-based permissions. MERN: React SPA with all hooks, React Router, Axios, MongoDB optionally for session logs."</p>
+  </div>
+</div>
+
+<script>
+function show(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

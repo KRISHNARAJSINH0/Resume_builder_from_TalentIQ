@@ -1,0 +1,2 @@
+// API: analyticsAPI
+export default {};

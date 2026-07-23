@@ -1,0 +1,1 @@
+name: Deploy\non:\n  push:\n    branches: [main]\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - name: Deploy\n        run: echo 'Deploying...'\n

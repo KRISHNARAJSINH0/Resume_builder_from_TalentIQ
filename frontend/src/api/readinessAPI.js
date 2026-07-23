@@ -1,0 +1,2 @@
+// API: readinessAPI
+export default {};

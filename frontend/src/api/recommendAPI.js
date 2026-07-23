@@ -1,0 +1,2 @@
+// API: recommendAPI
+export default {};
