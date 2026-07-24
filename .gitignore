@@ -1,1 +1,9 @@
-*.pyc\n__pycache__/\ndb.sqlite3\n.env\nnode_modules/\ndist/\n.DS_Store\nmedia/resumes/*\nstatic/charts/*\n
+*.pyc
+__pycache__/
+db.sqlite3
+.env
+node_modules/
+dist/
+.DS_Store
+media/resumes/*
+static/charts/*

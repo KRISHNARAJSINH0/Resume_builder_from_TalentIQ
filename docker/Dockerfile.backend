@@ -1,1 +1,7 @@
-# Dockerfile for Django Backend\nFROM python:3.11\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install -r requirements.txt\nCOPY . .\nCMD [\"python\", \"manage.py\", \"runserver\", \"0.0.0.0:8000\"]\n
+# Dockerfile for Django Backend
+FROM python:3.11
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
