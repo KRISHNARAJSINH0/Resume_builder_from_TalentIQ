@@ -9,14 +9,20 @@ export async function getBackendUrl() {
   if (cachedApiBase) return cachedApiBase;
 
   const hostname = window.location.hostname;
-  const ports = [8010, 8009, 8008, 8000, 8011, 8001];
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+
+  // Skip port probing in production or when not on localhost
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.');
+  if (!isLocalhost) {
+    cachedApiBase = envUrl || '';
+    return cachedApiBase;
+  }
 
   // Try VITE_API_BASE_URL first
-  const envUrl = import.meta.env.VITE_API_BASE_URL;
   if (envUrl) {
     try {
       const response = await fetch(`${envUrl}/api/resume/`);
-      if (response.ok) {
+      if (response.ok || response.status === 401 || response.status === 403) {
         cachedApiBase = envUrl;
         return envUrl;
       }
@@ -24,6 +30,8 @@ export async function getBackendUrl() {
       // Ignore and proceed to probe ports
     }
   }
+
+  const ports = [8010, 8009, 8008, 8000, 8011, 8001];
 
   // Probe other ports in parallel
   const probes = ports.map(async (port) => {
@@ -33,7 +41,7 @@ export async function getBackendUrl() {
       const id = setTimeout(() => controller.abort(), 150);
       const response = await fetch(`${url}/api/resume/`, { signal: controller.signal });
       clearTimeout(id);
-      if (response.ok) {
+      if (response.ok || response.status === 401 || response.status === 403) {
         return url;
       }
     } catch (e) {
