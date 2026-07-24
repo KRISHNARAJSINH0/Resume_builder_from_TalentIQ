@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import ResumePreview from './ResumePreview';
 import { downloadResumeAsPDF } from '../../utils/pdfDownloader';
 import {
   FileText, BarChart2, GitBranch, Target, MessageSquare,
   Globe, PieChart, Printer, RotateCcw, Copy,
   CheckCircle2, AlertTriangle, ExternalLink, ChevronRight,
-  Award, Clock, TrendingUp, Zap, Download, Loader,
+  Award, Clock, TrendingUp, Zap, Download, Loader, QrCode,
 } from 'lucide-react';
+
 
 const TABS = [
   { id: 0, label: 'Resume', icon: FileText, color: 'var(--v)' },
@@ -22,10 +24,23 @@ export default function ResumeOutput({
   resumeData, gapData, interviewPrepData, portfolioData,
   activeTab, setActiveTab, onRestart, onPrint,
   onJobMatch, jobMatchData, jobMatchLoading,
+  publicResumeId,
 }) {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfStatus, setPdfStatus] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('modern');
+  const [copied, setCopied] = useState(false);
+
+  const qrUrl = publicResumeId
+    ? `${window.location.origin}/resume/${publicResumeId}`
+    : `${window.location.origin}/resume/${resumeData?.resumeId}`;
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(qrUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
 
   const handleDownloadPDF = async () => {
     // Ensure the Resume tab (id=0) is visible so html2canvas can capture it
@@ -114,8 +129,109 @@ export default function ResumeOutput({
       <div>
         {activeTab === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Quick Export & Share Options */}
+            <div className="grid-cols-2" style={{ gap: '20px' }}>
+              {/* Option 1: Download PDF */}
+              <div className="card glass" style={{ borderLeft: '4px solid var(--v)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                    <div style={{ background: 'var(--v-glow)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px' }}>
+                      <FileText size={18} style={{ color: 'var(--v)' }} />
+                    </div>
+                    <h3 style={{ fontSize: '15px', fontWeight: 700 }}>ATS-Optimized PDF</h3>
+                  </div>
+                  <p style={{ color: 'var(--muted)', fontSize: '12px', lineHeight: 1.6, marginBottom: '15px' }}>
+                    Download a clean, print-ready, high-resolution PDF formatted to pass ATS scanners using your selected style template.
+                  </p>
+                </div>
+                <button
+                  onClick={handleDownloadPDF}
+                  className="btn btn-primary"
+                  style={{ gap: '8px', opacity: pdfLoading ? 0.7 : 1, width: '100%', padding: '10px' }}
+                  disabled={pdfLoading}
+                >
+                  {pdfLoading ? (
+                    <>
+                      <Loader size={14} style={{ animation: 'spin 0.8s linear infinite' }} />
+                      {pdfStatus || 'Generating...'}
+                    </>
+                  ) : (
+                    <>
+                      <Download size={14} />
+                      Download PDF Resume
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Option 2: Scan QR & Share Link */}
+              <div className="card glass" style={{ borderLeft: '4px solid var(--t)', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{
+                    background: '#fff',
+                    padding: '8px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100px',
+                    height: '100px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    flexShrink: 0,
+                    margin: '0 auto',
+                  }}>
+                    <QRCodeSVG
+                      value={qrUrl}
+                      size={84}
+                      bgColor="#ffffff"
+                      fgColor="#000000"
+                      level="M"
+                    />
+                  </div>
+                  <div style={{ flex: 1, minWidth: '160px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      <QrCode size={16} style={{ color: 'var(--t)' }} />
+                      <h3 style={{ fontSize: '15px', fontWeight: 700 }}>Scan & Share Profile</h3>
+                    </div>
+                    <p style={{ color: 'var(--muted)', fontSize: '11px', lineHeight: 1.5, marginBottom: '12px' }}>
+                      Scan this QR code with a phone to view your live, interactive resume online, or copy the direct public link below.
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={handleCopyLink}
+                        className="btn btn-secondary"
+                        style={{ flex: 1, padding: '8px 10px', fontSize: '11px', gap: '6px' }}
+                      >
+                        {copied ? (
+                          <>
+                            <CheckCircle2 size={12} style={{ color: 'var(--g)' }} />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={12} />
+                            Copy Link
+                          </>
+                        )}
+                      </button>
+                      <a
+                        href={qrUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-secondary"
+                        style={{ padding: '8px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Template Selector Bar */}
             <div style={{
+
               display: 'flex',
               flexDirection: 'column',
               gap: '12px',
