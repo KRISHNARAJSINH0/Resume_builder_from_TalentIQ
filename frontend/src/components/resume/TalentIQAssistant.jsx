@@ -76,15 +76,17 @@ function inlineBold(text) {
 // ─── Typing Indicator ──────────────────────────────────────────────────────
 function TypingDots() {
   return (
-    <div style={{ display: 'flex', gap: '4px', alignItems: 'center', padding: '4px 0' }}>
+    <div style={{ display: 'flex', gap: '5px', alignItems: 'center', padding: '6px 2px' }}>
       {[0, 1, 2].map(i => (
         <div key={i} style={{
-          width: '6px', height: '6px', borderRadius: '50%',
-          background: 'var(--v)',
-          animation: 'bounce 1.2s ease infinite',
-          animationDelay: `${i * 0.2}s`,
+          width: '7px', height: '7px', borderRadius: '50%',
+          background: i === 0 ? '#0ea5e9' : i === 1 ? '#6366f1' : '#06b6d4',
+          animation: 'bounce 1.3s ease infinite',
+          animationDelay: `${i * 0.18}s`,
+          boxShadow: `0 0 8px ${i === 0 ? 'rgba(14,165,233,0.6)' : i === 1 ? 'rgba(99,102,241,0.6)' : 'rgba(6,182,212,0.6)'}`,
         }} />
       ))}
+      <span style={{ fontSize: '10px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', marginLeft: '4px', letterSpacing:'0.05em' }}>thinking...</span>
     </div>
   );
 }
@@ -256,40 +258,50 @@ function AssistantBubble({ role, content, showThemePicker, currentThemeId, onApp
       display: 'flex', gap: '8px',
       flexDirection: isAI ? 'row' : 'row-reverse',
       animation: 'assistantFadeIn 0.25s ease',
+      alignItems: 'flex-start',
     }}>
       {/* Avatar */}
       <div style={{
-        width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+        width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: isAI ? 'linear-gradient(135deg, var(--v), var(--t))' : 'var(--s3)',
-        border: `1px solid ${isAI ? 'rgba(123,111,255,0.35)' : 'var(--border)'}`,
-        boxShadow: isAI ? '0 0 10px rgba(123,111,255,0.2)' : 'none',
-        alignSelf: 'flex-start',
+        background: isAI
+          ? 'linear-gradient(135deg, #0ea5e9, #6366f1)'
+          : 'linear-gradient(135deg, rgba(14,165,233,0.2), rgba(99,102,241,0.2))',
+        border: `1.5px solid ${isAI ? 'rgba(14,165,233,0.5)' : 'rgba(99,102,241,0.3)'}`,
+        boxShadow: isAI ? '0 4px 12px rgba(14,165,233,0.3)' : 'none',
         marginTop: '2px',
       }}>
         {isAI
-          ? <Sparkles size={12} style={{ color: '#fff' }} />
-          : <User size={12} style={{ color: 'var(--muted)' }} />}
+          ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
+              <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
+              <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>
+            </svg>
+          : <User size={13} style={{ color: '#6366f1' }} />}
       </div>
 
       <div style={{ maxWidth: '88%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {/* Text bubble */}
+        {/* Role label */}
+        <div style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--muted)', fontWeight: 600, letterSpacing: '0.08em', marginBottom: '-4px', paddingLeft: isAI ? '2px' : '0', textAlign: isAI ? 'left' : 'right' }}>
+          {isAI ? 'BRAIN AI' : 'YOU'}
+        </div>
+        {/* Bubble */}
         <div style={{
-          background: isAI
-            ? 'linear-gradient(135deg, rgba(21,21,42,0.95), rgba(28,28,50,0.95))'
-            : 'rgba(123,111,255,0.14)',
-          border: `1px solid ${isAI ? 'rgba(123,111,255,0.15)' : 'rgba(123,111,255,0.3)'}`,
-          borderRadius: isAI ? '4px 14px 14px 14px' : '14px 4px 14px 14px',
-          padding: '10px 13px',
+          background: isAI ? 'var(--s1)' : 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+          border: `1px solid ${isAI ? 'var(--border)' : 'transparent'}`,
+          borderRadius: isAI ? '2px 16px 16px 16px' : '16px 2px 16px 16px',
+          padding: '11px 14px',
           fontSize: '12.5px',
-          lineHeight: '1.65',
-          color: isAI ? 'var(--muted)' : 'var(--text)',
+          lineHeight: '1.7',
+          color: isAI ? 'var(--text)' : '#fff',
           wordBreak: 'break-word',
+          boxShadow: isAI
+            ? '0 2px 12px rgba(14,165,233,0.06)'
+            : '0 4px 16px rgba(14,165,233,0.35)',
         }}>
           {isAI ? renderMarkdown(content) : content}
         </div>
 
-        {/* Theme Picker — appended below the AI bubble when detected */}
         {isAI && showThemePicker && (
           <ThemePicker
             currentThemeId={currentThemeId}
@@ -432,6 +444,21 @@ export default function TalentIQAssistant({ resumeContext = {} }) {
   const hasResume = phase === 'results';
   const activeTheme = UI_THEMES[themeId];
 
+  // Brain SVG logo
+  const BrainLogo = ({ size = 20, color = '#fff' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
+      <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
+      <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>
+      <path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/>
+      <path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/>
+      <path d="M3.477 10.896a4 4 0 0 1 .585-.396"/>
+      <path d="M19.938 10.5a4 4 0 0 1 .585.396"/>
+      <path d="M6 18a4 4 0 0 1-1.967-.516"/>
+      <path d="M19.967 17.484A4 4 0 0 1 18 18"/>
+    </svg>
+  );
+
   return (
     <>
       {/* ── Floating Action Button ──────────────────────────────────── */}
@@ -442,11 +469,24 @@ export default function TalentIQAssistant({ resumeContext = {} }) {
         title="TalentIQ Resume Assistant"
         aria-label="Open TalentIQ Resume Assistant"
       >
-        <div className="assistant-fab-inner">
-          {isOpen ? <X size={20} style={{ color: '#fff' }} /> : <Sparkles size={20} style={{ color: '#fff' }} />}
+        <div className="assistant-fab-inner" style={{
+          background: 'linear-gradient(135deg, #0ea5e9 0%, #6366f1 60%, #0284c7 100%)',
+          boxShadow: isOpen ? '0 0 0 8px rgba(14,165,233,0.15), 0 8px 32px rgba(14,165,233,0.4)' : undefined,
+        }}>
+          {isOpen
+            ? <X size={20} style={{ color: '#fff' }} />
+            : <BrainLogo size={22} color="#fff" />}
         </div>
         {hasNew && !isOpen && <span className="assistant-fab-badge" />}
-        {!isOpen && <span className="assistant-fab-label">AI Assistant</span>}
+        {!isOpen && (
+          <span className="assistant-fab-label" style={{
+            background: 'linear-gradient(135deg, rgba(14,165,233,0.15), rgba(99,102,241,0.12))',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(14,165,233,0.3)',
+            color: 'var(--text)',
+            fontWeight: 700,
+          }}>✦ AI Career Coach</span>
+        )}
       </button>
 
       {/* ── Chat Panel ─────────────────────────────────────────────── */}
@@ -454,29 +494,43 @@ export default function TalentIQAssistant({ resumeContext = {} }) {
         className={`assistant-panel ${isOpen ? 'open' : ''} ${isMinimized ? 'minimized' : ''}`}
         role="dialog"
         aria-label="TalentIQ Resume Assistant"
+        style={{ borderRadius: '20px' }}
       >
-        {/* Header */}
-        <div className="assistant-panel-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Gradient Header */}
+        <div className="assistant-panel-header" style={{
+          background: 'linear-gradient(135deg, rgba(14,165,233,0.12) 0%, rgba(99,102,241,0.10) 100%)',
+          borderBottom: '1px solid rgba(14,165,233,0.15)',
+          padding: '14px 16px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '11px' }}>
+            {/* New Brain Logo */}
             <div style={{
-              width: '32px', height: '32px', borderRadius: '10px', flexShrink: 0,
-              background: 'linear-gradient(135deg, var(--v), var(--t))',
+              width: '36px', height: '36px', borderRadius: '12px', flexShrink: 0,
+              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 0 15px rgba(123,111,255,0.35)',
+              boxShadow: '0 4px 16px rgba(14,165,233,0.40)',
             }}>
-              <Sparkles size={16} style={{ color: '#fff' }} />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>
+                <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/>
+                <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/>
+              </svg>
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--text)', lineHeight: 1.2 }}>
-                TalentIQ Assistant
+              <div style={{ fontWeight: 800, fontSize: '13.5px', color: 'var(--text)', lineHeight: 1.15, letterSpacing: '-0.01em' }}>
+                TalentIQ <span style={{ background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>Brain</span>
               </div>
-              <div style={{ fontSize: '10px', color: 'var(--t)', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                {loading ? 'Thinking...' : (
-                  <>
-                    <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: 'var(--g)' }} />
-                    {activeTheme?.emoji} {activeTheme?.name}
-                  </>
-                )}
+              <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
+                {loading
+                  ? <span style={{ color: '#0ea5e9', display:'flex', alignItems:'center', gap:'5px' }}>
+                      <span style={{ width:6, height:6, borderRadius:'50%', background:'#0ea5e9', display:'inline-block', animation:'pulse 1s ease infinite' }} />
+                      Thinking...
+                    </span>
+                  : <span style={{ color: 'var(--g)', display:'flex', alignItems:'center', gap:'5px' }}>
+                      <span style={{ width:6, height:6, borderRadius:'50%', background:'var(--g)', display:'inline-block' }} />
+                      AI Career Coach · Online
+                    </span>
+                }
               </div>
             </div>
           </div>
@@ -547,7 +601,7 @@ export default function TalentIQAssistant({ resumeContext = {} }) {
                   }}>
                     <Sparkles size={12} style={{ color: '#fff' }} />
                   </div>
-                  <div style={{ background: 'rgba(21,21,42,0.95)', border: '1px solid rgba(123,111,255,0.15)', borderRadius: '4px 14px 14px 14px', padding: '10px 13px' }}>
+                  <div style={{ background: 'var(--s1)', border: '1px solid var(--border)', borderRadius: '4px 14px 14px 14px', padding: '10px 13px' }}>
                     <TypingDots />
                   </div>
                 </div>
@@ -606,8 +660,9 @@ export default function TalentIQAssistant({ resumeContext = {} }) {
             </div>
 
             {/* Footer */}
-            <div style={{ padding: '6px 14px', fontSize: '9.5px', color: 'rgba(136,136,165,0.6)', fontFamily: 'var(--font-mono)', textAlign: 'center', borderTop: '1px solid var(--border)' }}>
-              Powered by Groq · Context-aware · Press Enter to send
+            <div style={{ padding: '8px 14px', fontSize: '9px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', textAlign: 'center', borderTop: '1px solid rgba(14,165,233,0.1)', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px', opacity:0.7 }}>
+              <span style={{ width:5, height:5, borderRadius:'50%', background:'#0ea5e9', display:'inline-block' }} />
+              Powered by Groq AI · Press Enter to send
             </div>
           </>
         )}

@@ -56,7 +56,11 @@ export default function ResumeChat({
       const parts = [c.name.trim()];
       if (c.issuer.trim()) parts.push(c.issuer.trim());
       const line = parts.join(' — ');
-      return c.issue_date.trim() ? `• ${line} (${c.issue_date.trim()})` : `• ${line}`;
+      let entry = c.issue_date.trim() ? `• ${line} (${c.issue_date.trim()})` : `• ${line}`;
+      // Use manually entered credential_url first, then fall back to the uploaded file URL
+      const link = (c.credential_url && c.credential_url.trim()) ? c.credential_url.trim() : (c.url || '');
+      if (link) entry += ` – ${link}`;
+      return entry;
     });
 
     let finalAnswer = inputValue.trim();
@@ -138,6 +142,8 @@ export default function ResumeChat({
           id: Math.random().toString(36).substring(2, 9),
           filename: file.name,
           url: data.url,
+          // Pre-fill credential_url with the backend file URL so it's included automatically
+          credential_url: data.url || '',
           name: parseResult.name || file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " "),
           issuer: parseResult.issuer || "",
           issue_date: parseResult.issue_date || "",
@@ -351,7 +357,7 @@ export default function ResumeChat({
                             Remove
                           </button>
                         </div>
-                        <div className="grid-cols-3" style={{ gap: '8px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                           <div>
                             <label style={{ fontSize: '10px', color: 'var(--muted)', display: 'block', marginBottom: '3px' }}>Certificate Name</label>
                             <input
@@ -380,6 +386,16 @@ export default function ResumeChat({
                               style={{ fontSize: '11px', padding: '5px 8px', background: 'var(--s1)' }}
                             />
                           </div>
+                          <div>
+                            <label style={{ fontSize: '10px', color: 'var(--muted)', display: 'block', marginBottom: '3px' }}>🔗 Credential Link (optional)</label>
+                            <input
+                              className="form-input"
+                              value={cert.credential_url || ''}
+                              placeholder="https://credly.com/badges/..."
+                              onChange={e => updateCertField(idx, 'credential_url', e.target.value)}
+                              style={{ fontSize: '11px', padding: '5px 8px', background: 'var(--s1)' }}
+                            />
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -393,7 +409,7 @@ export default function ResumeChat({
                   className="form-input"
                   placeholder={
                     isCertQuestion
-                      ? 'List your certificates or write description here (or just upload files above)...'
+                      ? 'e.g. AWS Cloud Practitioner – https://credly.com/badges/xyz\nOr just type names if no link available'
                       : currentQ.placeholder || 'Type your answer...'
                   }
                   value={inputValue}
@@ -454,7 +470,7 @@ export default function ResumeChat({
 // ─────────────────────────────────────────────────────────────────────────────
 function WorkExperienceForm({ onSubmit, isOptional, onSkip, defaultRole }) {
   const [items, setItems] = useState([
-    { role: defaultRole || '', company: '', start_date: '', end_date: '', is_current: true, description: '' }
+    { role: defaultRole || '', company: '', start_date: '', end_date: '', is_current: false, description: '' }
   ]);
   const [error, setError] = useState('');
 
@@ -589,17 +605,43 @@ function WorkExperienceForm({ onSubmit, isOptional, onSkip, defaultRole }) {
               />
             </div>
             <div>
-              <label style={{ fontSize: '11px', color: 'var(--text)', fontWeight: 600, display: 'block', marginBottom: '4px' }}>
-                End Date {!item.is_current && <span style={{ color: 'var(--r)' }}>*</span>}
-              </label>
-              <input
-                type="date"
-                className="form-input"
-                disabled={item.is_current}
-                value={item.is_current ? '' : item.end_date}
-                onChange={e => updateItem(index, 'end_date', e.target.value)}
-                style={{ fontSize: '12px', padding: '6px 10px', opacity: item.is_current ? 0.5 : 1 }}
-              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <label style={{ fontSize: '11px', color: 'var(--text)', fontWeight: 600 }}>
+                  End Date {!item.is_current && <span style={{ color: 'var(--r)' }}>*</span>}
+                </label>
+                {item.is_current && (
+                  <span 
+                    onClick={() => updateItem(index, 'is_current', false)}
+                    style={{ fontSize: '10px', color: 'var(--v)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}
+                  >
+                    Set Date
+                  </span>
+                )}
+              </div>
+              <div
+                onClick={() => {
+                  if (item.is_current) {
+                    updateItem(index, 'is_current', false);
+                  }
+                }}
+                style={{ cursor: item.is_current ? 'pointer' : 'default' }}
+                title={item.is_current ? 'Click to uncheck "I currently work here" and enter End Date' : ''}
+              >
+                <input
+                  type="date"
+                  className="form-input"
+                  disabled={item.is_current}
+                  value={item.is_current ? '' : item.end_date}
+                  onChange={e => updateItem(index, 'end_date', e.target.value)}
+                  style={{
+                    fontSize: '12px',
+                    padding: '6px 10px',
+                    opacity: item.is_current ? 0.5 : 1,
+                    pointerEvents: item.is_current ? 'none' : 'auto',
+                    cursor: item.is_current ? 'pointer' : 'text'
+                  }}
+                />
+              </div>
             </div>
           </div>
 
@@ -612,7 +654,7 @@ function WorkExperienceForm({ onSubmit, isOptional, onSkip, defaultRole }) {
               style={{ accentColor: 'var(--v)', cursor: 'pointer' }}
             />
             <label htmlFor={`current-job-${index}`} style={{ fontSize: '11px', color: 'var(--muted)', cursor: 'pointer' }}>
-              I currently work here
+              I currently work here (Present)
             </label>
           </div>
 
@@ -1067,26 +1109,30 @@ function ChatBubble({ role, text }) {
         width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: isAI
-          ? 'linear-gradient(135deg, var(--v), var(--t))'
-          : 'var(--s3)',
-        border: `1px solid ${isAI ? 'rgba(123,111,255,0.3)' : 'var(--border)'}`,
+          ? 'linear-gradient(135deg, #0ea5e9, #6366f1)'
+          : 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+        border: isAI ? '1.5px solid rgba(14,165,233,0.4)' : '1.5px solid rgba(14,165,233,0.5)',
+        boxShadow: '0 2px 10px rgba(14,165,233,0.25)',
       }}>
         {isAI
           ? <Sparkles size={13} style={{ color: '#fff' }} />
-          : <User size={13} style={{ color: 'var(--muted)' }} />}
+          : <User size={13} style={{ color: '#fff' }} />}
       </div>
 
       <div style={{
         maxWidth: '75%',
-        background: isAI ? 'var(--s2)' : 'rgba(123,111,255,0.12)',
-        border: `1px solid ${isAI ? 'var(--border)' : 'rgba(123,111,255,0.25)'}`,
+        background: isAI ? 'var(--s1)' : 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+        border: `1px solid ${isAI ? 'var(--border)' : 'transparent'}`,
         borderRadius: isAI ? '4px 12px 12px 12px' : '12px 4px 12px 12px',
         padding: '10px 14px',
         fontSize: '13px',
         lineHeight: '1.6',
-        color: isAI ? 'var(--muted)' : 'var(--text)',
+        color: isAI ? 'var(--text)' : '#ffffff',
         wordBreak: 'break-word',
         whiteSpace: 'pre-line',
+        boxShadow: isAI
+          ? '0 2px 8px rgba(14,165,233,0.06)'
+          : '0 4px 16px rgba(14,165,233,0.35)',
       }}>
         {formattedText}
       </div>
