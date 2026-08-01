@@ -1,9 +1,13 @@
 // TalentIQ Resume Intelligence Engine — Groq API Layer
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || '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';
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL = 'llama-3.3-70b-versatile';
 
 export async function groqChat(messages, temperature = 0.7, maxTokens = 2048) {
+  if (!GROQ_API_KEY) {
+    throw new Error('Groq API Key is missing. Please set VITE_GROQ_API_KEY in your environment variables.');
+  }
+
   const res = await fetch(GROQ_URL, {
     method: 'POST',
     headers: {
@@ -126,8 +130,6 @@ export async function enhanceProjects(projects, skills, profession) {
     },
   ], 0.5, 400);
 }
-
-
 
 /** Phase 6: Skill Gap Analysis */
 export async function analyzeSkillGap(currentSkills, profession) {
@@ -283,72 +285,12 @@ Example output:
 
 /**
  * TalentIQ Resume Assistant — Conversational AI
- * Injects the system prompt + live resume context, then sends the full
- * conversation history to Groq so the model has persistent memory.
- *
- * @param {Array}  conversationHistory  [{role:'user'|'assistant', content:'...'}]
- * @param {Object} resumeContext        Live resume data from useResumeBuilder
  */
 export async function assistantChat(conversationHistory, resumeContext = {}) {
   const contextSummary = buildContextSummary(resumeContext);
 
   const systemPrompt = `You are TalentIQ Resume Assistant, an AI helper integrated inside a Resume Builder platform.
-
-Your purpose is to help users create better resumes, understand resume-related issues, and get personalized career suggestions.
-
-You are NOT the resume generator itself.
-You are NOT allowed to automatically change resume data unless explicitly requested by the user.
-Your role is to act as an intelligent assistant that helps users use the platform effectively.
-
----
-
-## Available Context (Live Resume Data)
-${contextSummary}
-
----
-
-## Theme Assistance
-When users ask about themes, analyze their profile and recommend the most suitable theme.
-- For Software Developer → Modern Professional (Better ATS compatibility, cleaner layout)
-- For Freshers → ATS Classic (Focuses on skills and projects, preferred by recruiters)
-- For Designers → Creative Portfolio (Visual-first, showcases creativity)
-- For Healthcare → Professional Medical (Clean, structured, ATS-friendly)
-
-## Resume Validation
-Always check for: Missing fields, Invalid dates, Empty sections, Grammar mistakes, Weak descriptions, Duplicate skills, Missing contact information, ATS formatting problems.
-When issues are found, explain: What is wrong, Why it matters, How to fix it.
-
-## ATS Guidance
-When analyzing ATS compatibility:
-- Identify missing keywords
-- Flag poor formatting issues
-- Point out weak content areas
-- Suggest section structure improvements
-- Recommend keyword optimization
-
-## Resume Content Assistance
-Help users write: Professional Summary, Career Objective, Project Descriptions, Internship Descriptions, Achievements, Skills Section.
-Content must be ATS optimized, professional, personalized, and specific. Avoid generic statements.
-
-## Career Suggestions
-Suggest: Skills to learn, Certifications, Projects, Career paths — based on the user's current resume.
-
-## Interview Guidance
-Use their resume context to generate: HR Questions, Technical Questions, Project-Based Questions, Resume-Based Questions.
-
-## Skill Gap Analysis
-If a job description is provided, compare resume skills vs job requirements and provide missing skills, important keywords, improvement suggestions.
-
-## Response Behavior
-- Be concise and practical.
-- Give actionable suggestions.
-- Use resume context whenever available.
-- Use markdown formatting (bold, bullet points) for clarity.
-- Never invent experience, add fake achievements, or create misleading information.
-- Never automatically modify resume data without confirmation.
-- If information is missing, ask the user for the required details.
-
-Your goal: "Help users improve their resume and career readiness while keeping the existing Resume Builder workflow unchanged."`;
+Your purpose is to help users create better resumes, understand resume-related issues, and get personalized career suggestions.`;
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -358,40 +300,10 @@ Your goal: "Help users improve their resume and career readiness while keeping t
   return groqChat(messages, 0.65, 1024);
 }
 
-/** Build a concise text summary of the current resume context */
 function buildContextSummary(ctx) {
-  if (!ctx || Object.keys(ctx).length === 0) {
-    return 'No resume data available yet. The user has not started building their resume.';
-  }
-
+  if (!ctx || Object.keys(ctx).length === 0) return 'No resume data available yet.';
   const lines = [];
-
-  if (ctx.phase) lines.push(`Current Phase: ${ctx.phase}`);
   if (ctx.profession?.label) lines.push(`Profession: ${ctx.profession.label}`);
-
-  if (ctx.resumeData) {
-    const r = ctx.resumeData;
-    if (r.name) lines.push(`Candidate Name: ${r.name}`);
-    if (r.email) lines.push(`Email: ${r.email}`);
-    if (r.phone) lines.push(`Phone: ${r.phone}`);
-    if (r.summary) lines.push(`Professional Summary: ${r.summary}`);
-    if (r.skills?.length) lines.push(`Skills: ${Array.isArray(r.skills) ? r.skills.join(', ') : r.skills}`);
-    if (r.experience) lines.push(`Experience: ${typeof r.experience === 'string' ? r.experience.slice(0, 300) : JSON.stringify(r.experience).slice(0, 300)}`);
-    if (r.education) lines.push(`Education: ${typeof r.education === 'string' ? r.education.slice(0, 200) : JSON.stringify(r.education).slice(0, 200)}`);
-    if (r.projects) lines.push(`Projects: ${typeof r.projects === 'string' ? r.projects.slice(0, 200) : JSON.stringify(r.projects).slice(0, 200)}`);
-    if (r.certifications) lines.push(`Certifications: ${typeof r.certifications === 'string' ? r.certifications.slice(0, 200) : JSON.stringify(r.certifications).slice(0, 200)}`);
-    if (r.atsScore != null) lines.push(`ATS Score: ${r.atsScore}/100`);
-    if (r.theme) lines.push(`Current Resume Theme: ${r.theme}`);
-  }
-
-  if (ctx.gapData?.missingSkills?.length) {
-    lines.push(`Missing Skills (from gap analysis): ${ctx.gapData.missingSkills.map(s => s.name || s).join(', ')}`);
-  }
-
-  if (ctx.answers && Object.keys(ctx.answers).length > 0) {
-    lines.push(`Partial Answers Collected: ${Object.entries(ctx.answers).map(([k, v]) => `${k}: ${String(v).slice(0, 60)}`).join(' | ')}`);
-  }
-
   return lines.length > 0 ? lines.join('\n') : 'Resume data is being collected.';
 }
 
