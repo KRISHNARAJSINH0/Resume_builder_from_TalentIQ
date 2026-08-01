@@ -109,14 +109,17 @@ REST_FRAMEWORK = {
 }
 
 # ── CORS ────────────────────────────────────────────────────────────────────
-cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS')
-if cors_origins:
-    CORS_ALLOWED_ORIGINS = cors_origins.split(',')
-    CORS_ALLOW_ALL_ORIGINS = False
-else:
-    CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https:\/\/.*\.vercel\.app$",
-]
+# Allow all origins — production.py restricts to specific Vercel origins
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
