@@ -1,8 +1,10 @@
 let cachedApiBase = null;
 
+const DEFAULT_RENDER_BACKEND = 'https://talentiq-backend-fu05.onrender.com';
+
 /**
  * Dynamically resolves the active Django backend URL.
- * Checks VITE_API_BASE_URL first, trims trailing slashes, and handles localhost probing.
+ * Checks VITE_API_BASE_URL first, then falls back to default Render backend in production.
  */
 export async function getBackendUrl() {
   if (cachedApiBase) return cachedApiBase;
@@ -15,10 +17,10 @@ export async function getBackendUrl() {
     envUrl = envUrl.slice(0, -1);
   }
 
-  // Skip port probing in production or when not on localhost
+  // Skip port probing in production (on Vercel / non-localhost)
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.');
   if (!isLocalhost) {
-    cachedApiBase = envUrl || '';
+    cachedApiBase = envUrl || DEFAULT_RENDER_BACKEND;
     return cachedApiBase;
   }
 
@@ -37,7 +39,7 @@ export async function getBackendUrl() {
 
   const ports = [8010, 8009, 8008, 8000, 8011, 8001];
 
-  // Probe other ports in parallel
+  // Probe other ports in parallel on localhost
   const probes = ports.map(async (port) => {
     const url = `http://${hostname}:${port}`;
     try {
@@ -59,7 +61,7 @@ export async function getBackendUrl() {
     cachedApiBase = activeUrl;
     return activeUrl;
   } catch (e) {
-    // Default fallback
+    // Default fallback for local dev
     cachedApiBase = envUrl || `http://${hostname}:8000`;
     return cachedApiBase;
   }
