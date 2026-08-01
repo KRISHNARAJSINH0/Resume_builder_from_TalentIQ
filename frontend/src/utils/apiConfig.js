@@ -2,14 +2,18 @@ let cachedApiBase = null;
 
 /**
  * Dynamically resolves the active Django backend URL.
- * It checks the VITE_API_BASE_URL first, then probes common Django ports
- * (8010, 8009, 8008, 8000) to find the active running port.
+ * Checks VITE_API_BASE_URL first, trims trailing slashes, and handles localhost probing.
  */
 export async function getBackendUrl() {
   if (cachedApiBase) return cachedApiBase;
 
   const hostname = window.location.hostname;
-  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  let envUrl = import.meta.env.VITE_API_BASE_URL;
+
+  // Clean trailing slash if provided in environment variable
+  if (envUrl && envUrl.endsWith('/')) {
+    envUrl = envUrl.slice(0, -1);
+  }
 
   // Skip port probing in production or when not on localhost
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.');
@@ -18,7 +22,7 @@ export async function getBackendUrl() {
     return cachedApiBase;
   }
 
-  // Try VITE_API_BASE_URL first
+  // Try VITE_API_BASE_URL first on localhost
   if (envUrl) {
     try {
       const response = await fetch(`${envUrl}/api/resume/`);
@@ -38,7 +42,7 @@ export async function getBackendUrl() {
     const url = `http://${hostname}:${port}`;
     try {
       const controller = new AbortController();
-      const id = setTimeout(() => controller.abort(), 150);
+      const id = setTimeout(() => controller.abort(), 200);
       const response = await fetch(`${url}/api/resume/`, { signal: controller.signal });
       clearTimeout(id);
       if (response.ok || response.status === 401 || response.status === 403) {
