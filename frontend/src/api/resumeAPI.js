@@ -1,17 +1,16 @@
 // TalentIQ Resume Intelligence Engine — Groq API Layer
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+// Routes through backend proxy so the API key stays secure on Render
+import { getBackendUrl } from '../utils/apiConfig';
+
 const MODEL = 'llama-3.3-70b-versatile';
 
 export async function groqChat(messages, temperature = 0.7, maxTokens = 2048) {
-  if (!GROQ_API_KEY) {
-    throw new Error('Groq API Key is missing. Please set VITE_GROQ_API_KEY in your environment variables.');
-  }
+  const backendUrl = await getBackendUrl();
+  const proxyUrl = `${backendUrl}/api/resume/groq-proxy/`;
 
-  const res = await fetch(GROQ_URL, {
+  const res = await fetch(proxyUrl, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${GROQ_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -24,12 +23,13 @@ export async function groqChat(messages, temperature = 0.7, maxTokens = 2048) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `Groq API error ${res.status}`);
+    throw new Error(err?.error?.message || `AI error ${res.status}`);
   }
 
   const data = await res.json();
   return data.choices[0].message.content;
 }
+
 
 /** Parse a JSON block from LLM output robustly */
 export function parseJSON(raw) {

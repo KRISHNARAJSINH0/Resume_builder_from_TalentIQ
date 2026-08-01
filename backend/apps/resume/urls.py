@@ -35,10 +35,14 @@ from .views import (
     CertificateUploadView,
     ResumeDownloadPDFView,
 )
+from .groq_proxy import groq_proxy
 
 urlpatterns = [
     # ── Health check ──────────────────────────────────────────────────────────
     path('', ResumeHealthView.as_view(), name='resume-health'),
+
+    # ── Groq AI Proxy (keeps API key server-side) ─────────────────────────────
+    path('groq-proxy/', groq_proxy, name='groq-proxy'),
 
     # ── Download PDF (ReportLab text-based PDF) ────────────────────────────────
     path('download-pdf/<str:resume_id>/', ResumeDownloadPDFView.as_view(), name='resume-download-pdf'),
