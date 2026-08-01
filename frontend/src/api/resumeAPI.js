@@ -1,16 +1,18 @@
 // TalentIQ Resume Intelligence Engine — Groq API Layer
-// Routes through backend proxy so the API key stays secure on Render
-import { getBackendUrl } from '../utils/apiConfig';
-
+// VITE_GROQ_API_KEY is injected at build time from Vercel environment variables
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL = 'llama-3.3-70b-versatile';
 
 export async function groqChat(messages, temperature = 0.7, maxTokens = 2048) {
-  const backendUrl = await getBackendUrl();
-  const proxyUrl = `${backendUrl}/api/resume/groq-proxy/`;
+  if (!GROQ_API_KEY) {
+    throw new Error('Invalid API Key');
+  }
 
-  const res = await fetch(proxyUrl, {
+  const res = await fetch(GROQ_URL, {
     method: 'POST',
     headers: {
+      'Authorization': `Bearer ${GROQ_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -29,6 +31,7 @@ export async function groqChat(messages, temperature = 0.7, maxTokens = 2048) {
   const data = await res.json();
   return data.choices[0].message.content;
 }
+
 
 
 /** Parse a JSON block from LLM output robustly */
