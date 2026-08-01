@@ -92,19 +92,15 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ── Media Files (profile photos, QR codes) ─────────────────────────────────
-# In production, switch MEDIA_ROOT to a persistent volume or cloud bucket.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# ── REST Framework ──────────────────────────────────────────────────────────
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        # Individual views override this as needed (public vs authenticated)
         'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_RENDERER_CLASSES': [
@@ -119,4 +115,8 @@ if cors_origins:
     CORS_ALLOW_ALL_ORIGINS = False
 else:
     CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https:\/\/.*\.vercel\.app$",
+]
 CORS_ALLOW_CREDENTIALS = True
