@@ -42,12 +42,61 @@ export default function ResumeOutput({
   const shareUrl = `${window.location.origin}/resume/${resumeIdForQr}${hashString}`;
 
 
+  const [showQrModal, setShowQrModal] = useState(false);
+
   const handleCopyLink = () => {
     navigator.clipboard.writeText(qrUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${resumeData?.name || 'TalentIQ'} Resume`,
+          text: `Check out my online resume on TalentIQ!`,
+          url: qrUrl,
+        });
+      } catch (e) {
+        // User cancelled share
+      }
+    } else {
+      handleCopyLink();
+    }
+  };
+
+  const handleWhatsAppShare = () => {
+    const text = encodeURIComponent(`Hi! Check out my live interactive resume on TalentIQ:\n${qrUrl}`);
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+  };
+
+  const handleDownloadQr = () => {
+    try {
+      const svgEl = document.getElementById('qr-code-svg-large') || document.getElementById('qr-code-svg-main');
+      if (!svgEl) return;
+      const svgData = new XMLSerializer().serializeToString(svgEl);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = 360;
+        canvas.height = 360;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 30, 30, 300, 300);
+        const pngFile = canvas.toDataURL('image/png');
+        const downloadLink = document.createElement('a');
+        const candidateName = (resumeData?.name || 'TalentIQ_Resume').replace(/\s+/g, '_');
+        downloadLink.download = `${candidateName}_QR.png`;
+        downloadLink.href = pngFile;
+        downloadLink.click();
+      };
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    } catch (e) {
+      console.error('Failed to download QR image:', e);
+    }
+  };
 
   const handleDownloadPDF = async () => {
     // Ensure the Resume tab (id=0) is visible so html2canvas can capture it
@@ -66,8 +115,145 @@ export default function ResumeOutput({
       setPdfStatus('');
     }
   };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+      {/* ── ENLARGED QR CODE MODAL ───────────────────────────────────────────── */}
+      {showQrModal && (
+        <div
+          onClick={() => setShowQrModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99999,
+            background: 'rgba(5, 5, 12, 0.88)',
+            backdropFilter: 'blur(10px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#0e0e1c',
+              border: '1px solid rgba(123, 111, 255, 0.3)',
+              borderRadius: '16px',
+              padding: '32px 28px',
+              maxWidth: '420px',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(123, 111, 255, 0.2)',
+              position: 'relative',
+              animation: 'popIn 0.2s ease-out',
+            }}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setShowQrModal(false)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#fff',
+                fontSize: '18px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              ×
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <QrCode size={20} style={{ color: '#7b6fff' }} />
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>Scan Resume QR Code</h3>
+            </div>
+            <p style={{ color: '#8888a5', fontSize: '12px', textAlign: 'center', marginBottom: '20px' }}>
+              Scan from any mobile device camera to view full interactive resume online
+            </p>
+
+            {/* High Resolution Enlarged QR Container */}
+            <div style={{
+              background: '#ffffff',
+              padding: '16px',
+              borderRadius: '16px',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '20px',
+            }}>
+              <QRCodeSVG
+                id="qr-code-svg-large"
+                value={qrUrl}
+                size={240}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                level="M"
+              />
+            </div>
+
+            {/* Action Buttons inside Modal */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={handleDownloadQr}
+                  className="btn btn-primary"
+                  style={{ flex: 1, padding: '10px', fontSize: '12px', gap: '6px', justifyContent: 'center' }}
+                >
+                  <Download size={14} /> Download QR PNG
+                </button>
+                <button
+                  onClick={handleWhatsAppShare}
+                  className="btn btn-secondary"
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    fontSize: '12px',
+                    gap: '6px',
+                    justifyContent: 'center',
+                    background: 'rgba(37, 211, 102, 0.15)',
+                    borderColor: 'rgba(37, 211, 102, 0.4)',
+                    color: '#25D366',
+                  }}
+                >
+                  <Share2 size={14} /> WhatsApp
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={handleShare}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, padding: '10px', fontSize: '12px', gap: '6px', justifyContent: 'center' }}
+                >
+                  <Share2 size={14} /> Share Link
+                </button>
+                <button
+                  onClick={handleCopyLink}
+                  className="btn btn-secondary"
+                  style={{ flex: 1, padding: '10px', fontSize: '12px', gap: '6px', justifyContent: 'center' }}
+                >
+                  {copied ? <CheckCircle2 size={14} style={{ color: 'var(--g)' }} /> : <Copy size={14} />}
+                  {copied ? 'Copied!' : 'Copy URL'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex-between" style={{ flexWrap: 'wrap', gap: '10px' }}>
         <div>
@@ -78,7 +264,6 @@ export default function ResumeOutput({
           </p>
         </div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-
           <button onClick={onRestart} className="btn btn-secondary" style={{ gap: '6px' }}>
             <RotateCcw size={13} /> New Resume
           </button>
@@ -172,71 +357,96 @@ export default function ResumeOutput({
               </div>
 
               {/* Option 2: Scan QR & Share Link */}
-              <div className="card glass" style={{ borderLeft: '4px solid var(--t)', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div className="card glass" style={{ borderLeft: '4px solid var(--t)', padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <div style={{
-                    background: '#fff',
-                    padding: '8px',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100px',
-                    height: '100px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                    flexShrink: 0,
-                    margin: '0 auto',
-                  }}>
+                  
+                  {/* Clickable QR Box with Zoom Overlay */}
+                  <div
+                    onClick={() => setShowQrModal(true)}
+                    title="Click to Enlarge QR Code"
+                    style={{
+                      background: '#fff',
+                      padding: '8px',
+                      borderRadius: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '110px',
+                      height: '110px',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.2), 0 0 15px rgba(123, 111, 255, 0.25)',
+                      flexShrink: 0,
+                      margin: '0 auto',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      transition: 'transform 0.15s ease, boxShadow 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  >
                     <QRCodeSVG
+                      id="qr-code-svg-main"
                       value={qrUrl}
-                      size={84}
+                      size={94}
                       bgColor="#ffffff"
                       fgColor="#000000"
                       level="M"
                     />
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '4px',
+                      background: 'rgba(14, 14, 28, 0.88)',
+                      color: '#7b6fff',
+                      fontSize: '9px',
+                      fontWeight: 700,
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                    }}>
+                      <Eye size={10} /> Click to Zoom
+                    </div>
                   </div>
+
                   <div style={{ flex: 1, minWidth: '160px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                       <QrCode size={16} style={{ color: 'var(--t)' }} />
                       <h3 style={{ fontSize: '15px', fontWeight: 700 }}>Scan & Share Profile</h3>
                     </div>
                     <p style={{ color: 'var(--muted)', fontSize: '11px', lineHeight: 1.5, marginBottom: '12px' }}>
-                      Scan this QR code with a phone to view your live, interactive resume online, or copy the direct public link below.
+                      Click the QR code to enlarge, scan with any phone camera, or share the interactive profile link directly.
                     </p>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => setShowQrModal(true)}
+                        className="btn btn-secondary"
+                        style={{ flex: 1, padding: '7px 8px', fontSize: '11px', gap: '4px', minWidth: '85px' }}
+                      >
+                        <Eye size={12} style={{ color: 'var(--t)' }} />
+                        Enlarge QR
+                      </button>
+                      <button
+                        onClick={handleShare}
+                        className="btn btn-secondary"
+                        style={{ flex: 1, padding: '7px 8px', fontSize: '11px', gap: '4px', minWidth: '75px' }}
+                      >
+                        <Share2 size={12} style={{ color: 'var(--a)' }} />
+                        Share
+                      </button>
                       <button
                         onClick={handleCopyLink}
                         className="btn btn-secondary"
-                        style={{ flex: 1, padding: '8px 10px', fontSize: '11px', gap: '6px' }}
+                        style={{ padding: '7px 8px', fontSize: '11px', gap: '4px' }}
                       >
-                        {copied ? (
-                          <>
-                            <CheckCircle2 size={12} style={{ color: 'var(--g)' }} />
-                            Copied!
-                          </>
-                        ) : (
-                          <>
-                            <Copy size={12} />
-                            Copy Link
-                          </>
-                        )}
+                        {copied ? <CheckCircle2 size={12} style={{ color: 'var(--g)' }} /> : <Copy size={12} />}
                       </button>
-                      <a
-                        href={qrUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="btn btn-secondary"
-                        style={{ padding: '8px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
-                      >
-                        <ExternalLink size={12} />
-                      </a>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>
 
-            {/* Template Selector Bar */}
             <div style={{
 
               display: 'flex',

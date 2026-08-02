@@ -61,7 +61,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
             ) : <p style={{ fontSize: '13px', color: '#222', lineHeight: 1.6 }}>{d.experience}</p>}
           </ClassicSection>
         )}
-        {(d.projectsEnhanced || d.projects) && <ClassicSection title="Key Accomplishments & Projects"><p style={{ fontSize: '13px', color: '#222', lineHeight: 1.7, whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></ClassicSection>}
+        {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+          <ClassicSection title="Key Accomplishments & Projects">
+            {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#222" linkColor="#0056b3" /> : <p style={{ fontSize: '13px', color: '#222', lineHeight: 1.7, whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+          </ClassicSection>
+        )}
         {d.education && <ClassicSection title="Education"><p style={{ fontSize: '13px', color: '#222', lineHeight: 1.6, whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></ClassicSection>}
         {d.certifications && <ClassicSection title="Certifications"><CertificationList text={d.certifications} classic /></ClassicSection>}
         {d.achievements && <ClassicSection title="Honors & Awards"><p style={{ fontSize: '13px', color: '#222', lineHeight: 1.6, whiteSpace: 'pre-line', margin: 0 }}>{d.achievements}</p></ClassicSection>}
@@ -131,7 +135,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
               ) : <p style={{ fontSize: '12px', color: '#4a5568', lineHeight: 1.6, margin: 0 }}>{d.experience}</p>}
             </SidebarSection>
           )}
-          {(d.projectsEnhanced || d.projects) && <SidebarSection title="Featured Projects"><p style={{ fontSize: '12px', color: '#4a5568', lineHeight: 1.7, whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></SidebarSection>}
+          {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+            <SidebarSection title="Featured Projects">
+              {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#4a5568" linkColor="#2c3e50" compact /> : <p style={{ fontSize: '12px', color: '#4a5568', lineHeight: 1.7, whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+            </SidebarSection>
+          )}
           {d.education && <SidebarSection title="Education History"><p style={{ fontSize: '12px', color: '#4a5568', lineHeight: 1.6, whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></SidebarSection>}
           {d.achievements && <SidebarSection title="Key Accomplishments"><p style={{ fontSize: '12px', color: '#4a5568', lineHeight: 1.6, whiteSpace: 'pre-line', margin: 0 }}>{d.achievements}</p></SidebarSection>}
           {renderFooter()}
@@ -180,7 +188,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
             ) : <p style={{ fontSize: '12.5px', color: '#333', lineHeight: 1.7 }}>{d.experience}</p>}
           </ElegantSection>
         )}
-        {(d.projectsEnhanced || d.projects) && <ElegantSection title="Key Accomplishments"><p style={{ fontSize: '12.5px', color: '#333', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{d.projectsEnhanced || d.projects}</p></ElegantSection>}
+        {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+          <ElegantSection title="Key Accomplishments">
+            {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#333" linkColor="#1e3d59" /> : <p style={{ fontSize: '12.5px', color: '#333', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{d.projectsEnhanced || d.projects}</p>}
+          </ElegantSection>
+        )}
         {d.education && <ElegantSection title="Academic History"><p style={{ fontSize: '12.5px', color: '#333', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{d.education}</p></ElegantSection>}
         {d.certifications && <ElegantSection title="Professional Credentials"><CertificationList text={d.certifications} elegant /></ElegantSection>}
         {d.languages && (
@@ -225,7 +237,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
             ) : <p style={{ fontSize: '12px', margin: 0 }}>{d.experience}</p>}
           </StarkSection>
         )}
-        {(d.projectsEnhanced || d.projects) && <StarkSection title="Projects"><p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></StarkSection>}
+        {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+          <StarkSection title="Projects">
+            {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#000" linkColor="#000" /> : <p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+          </StarkSection>
+        )}
         {d.education && <StarkSection title="Education"><p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></StarkSection>}
         {d.certifications && <StarkSection title="Certifications"><CertificationList text={d.certifications} classic /></StarkSection>}
         {renderFooter()}
@@ -271,7 +287,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
             ) : <p style={{ fontSize: '12.5px', color: '#2c3e50' }}>{d.experience}</p>}
           </TealSection>
         )}
-        {(d.projectsEnhanced || d.projects) && <TealSection title="Inventions & Projects"><p style={{ fontSize: '12.5px', color: '#2c3e50', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></TealSection>}
+        {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+          <TealSection title="Inventions & Projects">
+            {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#2c3e50" linkColor="#008080" /> : <p style={{ fontSize: '12.5px', color: '#2c3e50', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+          </TealSection>
+        )}
         {d.education && <TealSection title="Studies"><p style={{ fontSize: '12.5px', color: '#2c3e50', whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></TealSection>}
         {d.certifications && <TealSection title="Credentials"><CertificationList text={d.certifications} classic /></TealSection>}
         {renderFooter()}
@@ -332,7 +352,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
               ) : <p style={{ fontSize: '12px', color: '#4a5568', margin: 0 }}>{d.experience}</p>}
             </SidebarSection>
           )}
-          {(d.projectsEnhanced || d.projects) && <SidebarSection title="Projects"><p style={{ fontSize: '12px', color: '#4a5568', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></SidebarSection>}
+          {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+            <SidebarSection title="Projects">
+              {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#4a5568" linkColor="#2c3e50" compact /> : <p style={{ fontSize: '12px', color: '#4a5568', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+            </SidebarSection>
+          )}
           {d.education && <SidebarSection title="Education"><p style={{ fontSize: '12px', color: '#4a5568', whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></SidebarSection>}
           {renderFooter()}
         </div>
@@ -374,7 +398,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
             ) : <p style={{ fontSize: '12px' }}>{d.experience}</p>}
           </HarvardSection>
         )}
-        {(d.projectsEnhanced || d.projects) && <HarvardSection title="Selected Accomplishments"><p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></HarvardSection>}
+        {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+          <HarvardSection title="Selected Accomplishments">
+            {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#000" linkColor="#333" /> : <p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+          </HarvardSection>
+        )}
         {d.education && <HarvardSection title="Education"><p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></HarvardSection>}
         {renderFooter()}
       </div>
@@ -418,7 +446,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
             ) : <p style={{ fontSize: '12.5px' }}>{d.experience}</p>}
           </TerracottaSection>
         )}
-        {(d.projectsEnhanced || d.projects) && <TerracottaSection title="Accomplishments"><p style={{ fontSize: '12.5px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></TerracottaSection>}
+        {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+          <TerracottaSection title="Accomplishments">
+            {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#332211" linkColor="#c05c46" /> : <p style={{ fontSize: '12.5px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+          </TerracottaSection>
+        )}
         {d.education && <TerracottaSection title="Education"><p style={{ fontSize: '12.5px', whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></TerracottaSection>}
         {renderFooter()}
       </div>
@@ -463,7 +495,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
             ) : <p style={{ fontSize: '12.5px', color: '#222' }}>{d.experience}</p>}
           </IndigoSection>
         )}
-        {(d.projectsEnhanced || d.projects) && <IndigoSection title="Featured Projects"><p style={{ fontSize: '12.5px', color: '#222', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></IndigoSection>}
+        {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+          <IndigoSection title="Featured Projects">
+            {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#222" linkColor="#3f51b5" /> : <p style={{ fontSize: '12.5px', color: '#222', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+          </IndigoSection>
+        )}
         {d.education && <IndigoSection title="Education"><p style={{ fontSize: '12.5px', color: '#222', whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></IndigoSection>}
         {renderFooter()}
       </div>
@@ -518,7 +554,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
             ) : <p style={{ fontSize: '12.5px' }}>{d.experience}</p>}
           </MetroSection>
         )}
-        {(d.projectsEnhanced || d.projects) && <MetroSection title="Projects"><p style={{ fontSize: '12.5px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></MetroSection>}
+        {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+          <MetroSection title="Projects">
+            {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#333" linkColor="#e67e22" /> : <p style={{ fontSize: '12.5px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+          </MetroSection>
+        )}
         {d.education && <MetroSection title="Education"><p style={{ fontSize: '12.5px', whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></MetroSection>}
         {renderFooter()}
       </div>
@@ -564,7 +604,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
               ) : <p style={{ fontSize: '12px' }}>{d.experience}</p>}
             </NavySection>
           )}
-          {(d.projectsEnhanced || d.projects) && <NavySection title="Accomplishments"><p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></NavySection>}
+          {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+            <NavySection title="Accomplishments">
+              {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#2a2a2a" linkColor="#1a365d" /> : <p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+            </NavySection>
+          )}
           {d.education && <NavySection title="Education"><p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></NavySection>}
           {renderFooter()}
         </div>
@@ -611,7 +655,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
             ) : <p style={{ fontSize: '12.5px', color: '#334155' }}>{d.experience}</p>}
           </ChicSection>
         )}
-        {(d.projectsEnhanced || d.projects) && <ChicSection title="Side Hustles & Projects"><p style={{ fontSize: '12.5px', color: '#334155', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></ChicSection>}
+        {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+          <ChicSection title="Side Hustles & Projects">
+            {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#334155" linkColor="#7b6fff" /> : <p style={{ fontSize: '12.5px', color: '#334155', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+          </ChicSection>
+        )}
         {d.education && <ChicSection title="Education"><p style={{ fontSize: '12.5px', color: '#334155', whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></ChicSection>}
         {renderFooter()}
       </div>
@@ -654,7 +702,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
             ) : <p style={{ fontSize: '12.5px' }}>{d.experience}</p>}
           </PacificSection>
         )}
-        {(d.projectsEnhanced || d.projects) && <PacificSection title="Key Ventures"><p style={{ fontSize: '12.5px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></PacificSection>}
+        {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+          <PacificSection title="Key Ventures">
+            {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#2c3e50" linkColor="#0077b6" /> : <p style={{ fontSize: '12.5px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+          </PacificSection>
+        )}
         {d.education && <PacificSection title="Academics"><p style={{ fontSize: '12.5px', whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></PacificSection>}
         {renderFooter()}
       </div>
@@ -698,7 +750,11 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
             ) : <p style={{ fontSize: '12px' }}>{d.experience}</p>}
           </CharcoalSection>
         )}
-        {(d.projectsEnhanced || d.projects) && <CharcoalSection title="Projects Portfolio"><p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p></CharcoalSection>}
+        {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+          <CharcoalSection title="Projects Portfolio">
+            {d.projectsStructured ? <ProjectList projects={d.projectsStructured} textColor="#2b2b2b" linkColor="#333" /> : <p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.projectsEnhanced || d.projects}</p>}
+          </CharcoalSection>
+        )}
         {d.education && <CharcoalSection title="Academic Path"><p style={{ fontSize: '12px', whiteSpace: 'pre-line', margin: 0 }}>{d.education}</p></CharcoalSection>}
         {renderFooter()}
       </div>
@@ -744,7 +800,14 @@ export default function ResumePreview({ resumeData, template = 'modern' }) {
           ) : <p style={{ fontSize: '12.5px', color: '#333', lineHeight: 1.7 }}>{d.experience}</p>}
         </Section>
       )}
-      {(d.projectsEnhanced || d.projects) && <Section title="Projects"><p style={{ fontSize: '12.5px', color: '#333', lineHeight: 1.8, whiteSpace: 'pre-line' }}>{d.projectsEnhanced || d.projects}</p></Section>}
+      {(d.projectsStructured || d.projectsEnhanced || d.projects) && (
+        <Section title="Projects">
+          {d.projectsStructured
+            ? <ProjectList projects={d.projectsStructured} />
+            : <p style={{ fontSize: '12.5px', color: '#333', lineHeight: 1.8, whiteSpace: 'pre-line' }}>{d.projectsEnhanced || d.projects}</p>
+          }
+        </Section>
+      )}
       {d.education && <Section title="Education"><p style={{ fontSize: '12.5px', color: '#333', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{d.education}</p></Section>}
       {d.certifications && <Section title="Certifications"><CertificationList text={d.certifications} /></Section>}
       {d.achievements && <Section title="Achievements"><p style={{ fontSize: '12.5px', color: '#333', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{d.achievements}</p></Section>}
@@ -795,8 +858,16 @@ function CertificationList({ text, classic = false, elegant = false, sidebar = f
       <ul style={{ paddingLeft: '18px', margin: 0, fontSize: '13px', color: '#222' }}>
         {certs.map((cert, i) => (
           <li key={i} style={{ marginBottom: '4px' }}>
-            <span>🏅 {cert.name}</span>
-            {cert.url && <a href={cert.url} target="_blank" rel="noreferrer" style={{ marginLeft: '8px', color: '#0056b3', textDecoration: 'underline', fontSize: '11px' }}>[Link]</a>}
+            {cert.url ? (
+              <a href={cert.url} target="_blank" rel="noreferrer" style={{ color: '#222', textDecoration: 'none' }}
+                onMouseEnter={e => e.currentTarget.style.textDecoration='underline'}
+                onMouseLeave={e => e.currentTarget.style.textDecoration='none'}>
+                🏅 {cert.name}
+                <span style={{ marginLeft: '8px', color: '#0056b3', fontSize: '11px' }}>[View ↗]</span>
+              </a>
+            ) : (
+              <span>🏅 {cert.name}</span>
+            )}
           </li>
         ))}
       </ul>
@@ -808,8 +879,16 @@ function CertificationList({ text, classic = false, elegant = false, sidebar = f
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {certs.map((cert, i) => (
           <div key={i} style={{ fontSize: '10.5px', color: '#455a64', lineHeight: 1.4 }}>
-            <span>🏅 {cert.name}</span>
-            {cert.url && <a href={cert.url} target="_blank" rel="noreferrer" style={{ display: 'block', color: '#2980b9', textDecoration: 'none', fontWeight: 600, fontSize: '9.5px', marginTop: '2px' }}>Verify Credentials ↗</a>}
+            {cert.url ? (
+              <a href={cert.url} target="_blank" rel="noreferrer" style={{ color: '#455a64', textDecoration: 'none', display: 'block' }}
+                onMouseEnter={e => e.currentTarget.style.opacity='0.75'}
+                onMouseLeave={e => e.currentTarget.style.opacity='1'}>
+                🏅 {cert.name}
+                <span style={{ display: 'block', color: '#2980b9', fontWeight: 600, fontSize: '9.5px', marginTop: '2px' }}>Verify Credentials ↗</span>
+              </a>
+            ) : (
+              <span>🏅 {cert.name}</span>
+            )}
           </div>
         ))}
       </div>
@@ -824,17 +903,121 @@ function CertificationList({ text, classic = false, elegant = false, sidebar = f
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      {certs.map((cert, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px', padding: '5px 10px', background: bg, border: border, borderRadius: '5px' }}>
-          <span style={{ fontSize: '12px', color: '#333', fontWeight: 500, flex: 1 }}>🏅 {cert.name}</span>
-          {cert.url && <a href={cert.url} target="_blank" rel="noreferrer noopener" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '10px', color: linkColor, fontWeight: 700, textDecoration: 'none', padding: '2px 8px', borderRadius: '20px', background: linkBg, border: linkBorder, whiteSpace: 'nowrap', fontFamily: "'Outfit', sans-serif" }}>View Certificate <ExternalLink size={9} /></a>}
+      {certs.map((cert, i) => {
+        const cardStyle = {
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexWrap: 'wrap', gap: '6px', padding: '5px 10px',
+          background: bg, border: border, borderRadius: '5px',
+          cursor: cert.url ? 'pointer' : 'default',
+          textDecoration: 'none',
+          transition: 'opacity 0.15s ease',
+        };
+        const inner = (
+          <>
+            <span style={{ fontSize: '12px', color: '#333', fontWeight: 500, flex: 1 }}>🏅 {cert.name}</span>
+            {cert.url && (
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '3px',
+                fontSize: '10px', color: linkColor, fontWeight: 700,
+                padding: '2px 8px', borderRadius: '20px',
+                background: linkBg, border: linkBorder, whiteSpace: 'nowrap',
+                fontFamily: "'Outfit', sans-serif"
+              }}>View Certificate <ExternalLink size={9} /></span>
+            )}
+          </>
+        );
+        return cert.url ? (
+          <a
+            key={i}
+            href={cert.url}
+            target="_blank"
+            rel="noreferrer noopener"
+            style={cardStyle}
+            onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+          >
+            {inner}
+          </a>
+        ) : (
+          <div key={i} style={cardStyle}>{inner}</div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Project List with clickable links ────────────────────────────────────────
+function ProjectList({ projects, textColor = '#333', linkColor = '#7b6fff', compact = false }) {
+  if (!projects || projects.length === 0) return null;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? '8px' : '12px' }}>
+      {projects.map((proj, i) => (
+        <div key={i} style={{
+          padding: compact ? '6px 0' : '8px 10px',
+          borderLeft: `2px solid ${linkColor}`,
+          paddingLeft: '10px',
+        }}>
+          {/* Title + Tech row */}
+          <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '6px', marginBottom: '3px' }}>
+            <span style={{ fontSize: compact ? '11px' : '12.5px', fontWeight: 700, color: textColor }}>
+              {proj.project_name}
+            </span>
+            {proj.technologies && (
+              <span style={{ fontSize: '10px', color: '#888', fontWeight: 400 }}>
+                ({proj.technologies})
+              </span>
+            )}
+          </div>
+          {/* Description */}
+          {(proj.enhancedDescription || proj.description) && (
+            <p style={{ fontSize: compact ? '10px' : '11.5px', color: textColor, lineHeight: 1.6, margin: '0 0 4px 0', opacity: 0.85 }}>
+              {proj.enhancedDescription || proj.description}
+            </p>
+          )}
+          {/* Links row */}
+          {(proj.github_link || proj.live_link) && (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+              {proj.github_link && (
+                <a
+                  href={proj.github_link.startsWith('http') ? proj.github_link : `https://${proj.github_link}`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                    fontSize: '10px', fontWeight: 700, textDecoration: 'none',
+                    color: linkColor, padding: '2px 8px', borderRadius: '20px',
+                    background: 'rgba(123,111,255,0.08)',
+                    border: '1px solid rgba(123,111,255,0.2)',
+                  }}
+                >
+                  <Github size={9} /> GitHub
+                </a>
+              )}
+              {proj.live_link && (
+                <a
+                  href={proj.live_link.startsWith('http') ? proj.live_link : `https://${proj.live_link}`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                    fontSize: '10px', fontWeight: 700, textDecoration: 'none',
+                    color: '#22c55e', padding: '2px 8px', borderRadius: '20px',
+                    background: 'rgba(34,197,94,0.08)',
+                    border: '1px solid rgba(34,197,94,0.25)',
+                  }}
+                >
+                  <ExternalLink size={9} /> Live Demo
+                </a>
+              )}
+            </div>
+          )}
         </div>
       ))}
     </div>
   );
 }
 
-// ── Layout Specific Headers/Sections ─────────────────────────────────────────
+
 
 function Section({ title, children }) {
   return (
