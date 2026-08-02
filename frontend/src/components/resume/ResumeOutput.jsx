@@ -36,10 +36,11 @@ export default function ResumeOutput({
   const [copied, setCopied] = useState(false);
 
   const resumeIdForQr = publicResumeId || resumeData?.resumeId;
-  const hashPayload = encodeResumeToHash(resumeData);
-  const hashString = hashPayload ? `#d=${hashPayload}` : '';
-  const qrUrl = `${window.location.origin}/resume/${resumeIdForQr}?via=qr${hashString}`;
-  const shareUrl = `${window.location.origin}/resume/${resumeIdForQr}${hashString}`;
+
+  // Ultra-clean, short URL (< 80 chars) for instant, 100% reliable QR scanning on any mobile camera
+  const cleanUrl = `${window.location.origin}/resume/${resumeIdForQr}`;
+  const qrUrl = `${cleanUrl}?via=qr`;
+  const shareUrl = cleanUrl;
 
 
   const [showQrModal, setShowQrModal] = useState(false);
