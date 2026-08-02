@@ -43,52 +43,53 @@ async function triggerDownload(blob, filename) {
   }
   
   document.body.removeChild(link);
-  // Keep the blob URL alive for 45 seconds to prevent Chrome from revoking it 
-  // before the download manager resolves the filename and extension!
   setTimeout(() => window.URL.revokeObjectURL(blobUrl), 45000);
 }
 
 /**
  * downloadResumeAsPDF
- * Fetches true text-based PDF from backend or falls back to client-side capture.
+ * Fetches true text-based PDF from backend or falls back to client-side layout capture.
  * @param {string} candidateName - used for the file name
  * @param {string} resumeId - backend resume identifier
  * @param {Function} onProgress - called with a status string during generation
  */
 export async function downloadResumeAsPDF(candidateName = 'resume', resumeId = '', onProgress = () => {}) {
-  // If we have a resume ID, fetch the clean ReportLab text-based PDF from the backend
+  // If we have a resume ID, try fetching backend text-based PDF first
   if (resumeId) {
     onProgress('Fetching text-based PDF...');
     try {
       const apiBase = await getBackendUrl();
       const response = await fetch(`${apiBase}/api/resume/download-pdf/${resumeId}/`);
       
-      if (!response.ok) {
-        throw new Error(`Server returned HTTP ${response.status}`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const safeName = candidateName.replace(/[^a-zA-Z0-9_\- ]/g, '').trim() || 'resume';
+        onProgress('Saving PDF...');
+        await triggerDownload(blob, `${safeName}.pdf`);
+        onProgress('');
+        return;
       }
-      
-      const blob = await response.blob();
-      const safeName = candidateName.replace(/[^a-zA-Z0-9_\- ]/g, '').trim() || 'resume';
-      
-      onProgress('Saving PDF...');
-      await triggerDownload(blob, `${safeName}.pdf`);
-      onProgress('');
-      return;
     } catch (err) {
-      console.warn('Backend PDF generation failed, falling back to client-side layout capture...', err);
+      console.warn('Backend PDF generation failed, falling back to layout capture...', err);
     }
   }
 
-  const element = document.getElementById('resume-print-area');
+  // Find print area element (supports both ResumeOutput and PublicResumePage)
+  const element = document.getElementById('resume-print-area') || 
+                  document.getElementById('public-resume-print-area') ||
+                  document.querySelector('main');
+                  
   if (!element) {
-    throw new Error('Resume preview not found. Please switch to the Resume tab first.');
+    throw new Error('Resume preview container not found for PDF export.');
   }
 
   onProgress('Capturing resume layout...');
 
-  // Temporarily make it fully visible for capture
+  // Temporarily ensure element is visible for capture
   const originalDisplay = element.style.display;
-  element.style.display = 'block';
+  if (originalDisplay === 'none') {
+    element.style.display = 'block';
+  }
 
   try {
     const canvas = await html2canvas(element, {
@@ -96,7 +97,7 @@ export async function downloadResumeAsPDF(candidateName = 'resume', resumeId = '
       useCORS: true,
       backgroundColor: '#ffffff',
       logging: false,
-      windowWidth: 800,
+      windowWidth: 1024,
     });
 
     onProgress('Generating PDF...');
@@ -115,16 +116,13 @@ export async function downloadResumeAsPDF(candidateName = 'resume', resumeId = '
       format: 'a4',
     });
 
-    // If content is taller than one A4 page, paginate
     const pageHeightMM = pdf.internal.pageSize.getHeight();
     let yOffset = 0;
     const totalHeightMM = pdfHeight;
 
     if (totalHeightMM <= pageHeightMM) {
-      // Fits on one page
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
     } else {
-      // Multi-page: slice the image per page
       const pixelsPerMM = imgHeight / totalHeightMM;
       const pageHeightPx = pageHeightMM * pixelsPerMM;
       let page = 0;
@@ -157,7 +155,9 @@ export async function downloadResumeAsPDF(candidateName = 'resume', resumeId = '
     await triggerDownload(pdfBlob, `${safeName}.pdf`);
     onProgress('');
   } finally {
-    element.style.display = originalDisplay;
+    if (originalDisplay === 'none') {
+      element.style.display = originalDisplay;
+    }
   }
 }
 
@@ -188,7 +188,6 @@ function addLinksToPdf(pdf, element, pdfWidth) {
       const w = width * pxToMm;
       const h = height * pxToMm;
 
-      // Determine page index and offset on target page
       const pageIndex = Math.floor(y / pageHeightMM);
       const yOnPage = y % pageHeightMM;
 

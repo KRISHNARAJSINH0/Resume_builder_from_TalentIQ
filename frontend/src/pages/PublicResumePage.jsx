@@ -62,20 +62,19 @@ export default function PublicResumePage() {
 
   // ── Download PDF ────────────────────────────────────────────────────────────
   const downloadPDF = async () => {
-    const element = resumeRef.current;
-    if (!element) return;
-
     setPdfLoading(true);
     setPdfStatus('Initiating PDF download...');
     setPdfDone(false);
 
     try {
-      const name = resume?.personal_info?.full_name || 'Resume';
-      await downloadResumeAsPDF(name, resumeId, (msg) => setPdfStatus(msg));
+      const d = resume?.resume_data || {};
+      const candidateName = d.name || d.full_name || resume?.personal_info?.full_name || resume?.user_name || 'Resume';
+      await downloadResumeAsPDF(candidateName, resumeId, (msg) => setPdfStatus(msg));
       setPdfDone(true);
       trackEvent(resumeId, 'pdf_download');
     } catch (err) {
       console.error('PDF generation failed:', err);
+      alert('Failed to generate PDF: ' + err.message);
     } finally {
       setPdfLoading(false);
       setPdfStatus('');
@@ -239,7 +238,7 @@ function addLinksToPdf(pdf, element, pdfWidth) {
 
         {/* ── Resume Print Area ─────────────────────────────────────── */}
         <div
-          id="public-resume-print-area"
+          id="resume-print-area"
           ref={resumeRef}
           style={resumeCardStyle}
         >

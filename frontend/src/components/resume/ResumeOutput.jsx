@@ -85,15 +85,48 @@ export default function ResumeOutput({
       const ctx = canvas.getContext('2d');
       const img = new Image();
       img.onload = () => {
-        canvas.width = 360;
-        canvas.height = 360;
+        // High-resolution canvas dimensions
+        canvas.width = 420;
+        canvas.height = 510;
+
+        // Clean white background
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 30, 30, 300, 300);
+
+        // Top accent line
+        ctx.fillStyle = '#7b6fff';
+        ctx.fillRect(0, 0, canvas.width, 8);
+
+        // Candidate Full Name / Username above QR Scanner
+        const displayName = resumeData?.name || resumeData?.personal_info?.full_name || 'TalentIQ Candidate';
+        
+        ctx.fillStyle = '#0f0f23';
+        ctx.font = 'bold 22px "Inter", "Segoe UI", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(displayName, canvas.width / 2, 48);
+
+        // Subtitle badge
+        ctx.fillStyle = '#7b6fff';
+        ctx.font = '600 12px "JetBrains Mono", monospace';
+        ctx.fillText('LIVE INTERACTIVE RESUME', canvas.width / 2, 70);
+
+        // Draw QR Code Image centered (300x300px)
+        ctx.drawImage(img, 60, 95, 300, 300);
+
+        // Instruction footer
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '500 12px "Inter", sans-serif';
+        ctx.fillText('Scan with phone camera to view full resume online', canvas.width / 2, 430);
+
+        // Brand signature
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '600 11px "JetBrains Mono", monospace';
+        ctx.fillText('Powered by TalentIQ', canvas.width / 2, 470);
+
         const pngFile = canvas.toDataURL('image/png');
         const downloadLink = document.createElement('a');
-        const candidateName = (resumeData?.name || 'TalentIQ_Resume').replace(/\s+/g, '_');
-        downloadLink.download = `${candidateName}_QR.png`;
+        const candidateNameFile = displayName.replace(/\s+/g, '_');
+        downloadLink.download = `${candidateNameFile}_QR.png`;
         downloadLink.href = pngFile;
         downloadLink.click();
       };
