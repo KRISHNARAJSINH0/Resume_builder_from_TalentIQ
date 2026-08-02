@@ -56,10 +56,13 @@ export default function ResumeChat({
       if (c.issuer.trim()) parts.push(c.issuer.trim());
       const line = parts.join(' — ');
       let entry = c.issue_date.trim() ? `• ${line} (${c.issue_date.trim()})` : `• ${line}`;
-      // ONLY use credential_url if it's a real external URL (not a blob:// local file URL)
-      const link = c.credential_url && c.credential_url.trim() && !c.credential_url.startsWith('blob:')
-        ? c.credential_url.trim()
-        : '';
+      // Priority: real credential URL > base64 image (for cross-device viewing) > nothing
+      let link = '';
+      if (c.credential_url && c.credential_url.trim() && !c.credential_url.startsWith('blob:')) {
+        link = c.credential_url.trim();
+      } else if (c.base64Url) {
+        link = c.base64Url; // embedded image — works from any device
+      }
       if (link) entry += ` – ${link}`;
       return entry;
     });
@@ -124,34 +127,37 @@ export default function ResumeChat({
       const uploaded = [];
 
       for (const file of files) {
-        // Read file as text if possible (for PDFs just use filename)
-        let textContent = file.name;
-        if (file.type === 'text/plain') {
-          try {
-            textContent = await file.text();
-          } catch {
-            textContent = file.name;
-          }
-        }
-
-        // Use Groq AI to parse certificate details from filename/text
-        const parseResult = await parseCertificateText(textContent).catch(() => ({
+        // Use Groq AI to parse certificate details from filename
+        const parseResult = await parseCertificateText(file.name).catch(() => ({
           name: file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
           issuer: '',
           issue_date: '',
         }));
 
-        // Create a local object URL for preview
-        const localUrl = URL.createObjectURL(file);
+        // Convert image to base64 so it works cross-device (stored in Render DB)
+        let base64Url = '';
+        if (file.type.startsWith('image/') && file.size < 800 * 1024) {
+          // Only convert images < 800KB to base64
+          base64Url = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => resolve(ev.target.result);
+            reader.onerror = () => resolve('');
+            reader.readAsDataURL(file);
+          });
+        }
+
+        const localPreviewUrl = URL.createObjectURL(file);
 
         uploaded.push({
           id: Math.random().toString(36).substring(2, 9),
           filename: file.name,
-          url: localUrl,
+          url: localPreviewUrl,      // for local preview in chat UI
+          base64Url,                 // for cross-device viewing (stored in Render)
           credential_url: '',
           name: parseResult.name || file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
           issuer: parseResult.issuer || '',
           issue_date: parseResult.issue_date || '',
+          fileType: file.type,
         });
       }
       setUploadedCerts(prev => [...prev, ...uploaded]);
@@ -162,6 +168,7 @@ export default function ResumeChat({
       setUploadingCert(false);
     }
   };
+
 
 
   const removeCert = (idxToRemove) => {

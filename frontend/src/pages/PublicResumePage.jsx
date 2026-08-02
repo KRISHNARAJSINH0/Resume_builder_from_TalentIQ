@@ -505,33 +505,19 @@ function PublicProjectList({ projects }) {
               {proj.github_link && (
                 <a
                   href={proj.github_link.startsWith('http') ? proj.github_link : `https://${proj.github_link}`}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '4px',
-                    fontSize: '11px', fontWeight: 700, textDecoration: 'none',
-                    color: '#7b6fff', padding: '3px 10px', borderRadius: '20px',
-                    background: 'rgba(123,111,255,0.08)',
-                    border: '1px solid rgba(123,111,255,0.25)',
-                  }}
+                  target="_blank" rel="noreferrer noopener"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 700, textDecoration: 'none', color: '#7b6fff', padding: '3px 10px', borderRadius: '20px', background: 'rgba(123,111,255,0.08)', border: '1px solid rgba(123,111,255,0.25)' }}
                 >
-                  <Github size={10} /> GitHub
+                  GitHub
                 </a>
               )}
               {proj.live_link && (
                 <a
                   href={proj.live_link.startsWith('http') ? proj.live_link : `https://${proj.live_link}`}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '4px',
-                    fontSize: '11px', fontWeight: 700, textDecoration: 'none',
-                    color: '#16a34a', padding: '3px 10px', borderRadius: '20px',
-                    background: 'rgba(22,163,74,0.08)',
-                    border: '1px solid rgba(22,163,74,0.25)',
-                  }}
+                  target="_blank" rel="noreferrer noopener"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 700, textDecoration: 'none', color: '#16a34a', padding: '3px 10px', borderRadius: '20px', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.25)' }}
                 >
-                  <ExternalLink size={10} /> Live Demo
+                  Live Demo
                 </a>
               )}
             </div>
@@ -542,48 +528,76 @@ function PublicProjectList({ projects }) {
   );
 }
 
-// ── Certification helpers ─────────────────────────────────────────────────────────────────────────────
+// ── Certification helpers ─────────────────────────────────────────────────────
 function parseCertifications(text) {
   if (!text) return [];
-  const entries = text.split(/\n|(?<!\bhttps?:),/).map(s => s.trim()).filter(Boolean);
-  const URL_RE = /https?:\/\/[^\s,)>\]]+/i;
-  return entries.map(entry => {
-    const match = entry.match(URL_RE);
-    if (match) {
-      const url = match[0];
-      const name = entry.replace(/[-\u2013\u2014|:]\s*https?:\/\/[^\s,)>\]]+/i, '').replace(URL_RE, '').trim();
-      const cleanName = name.replace(/^\[Certificate Uploaded:\s*/i, '').replace(/\]$/, '').trim();
-      return { name: cleanName || name || entry, url };
+  const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
+  return lines.map(entry => {
+    const dataUrlMatch = entry.match(/(data:image\/[^;\s]+;base64,[A-Za-z0-9+/=]+)/);
+    if (dataUrlMatch) {
+      const dataUrl = dataUrlMatch[1];
+      const nameRaw = entry.replace(/ – data:image\/[^\s]+;base64,[A-Za-z0-9+/=]+/, '').replace(/^[•\-\*\s]+/, '').trim();
+      return { name: nameRaw || 'Certificate', url: dataUrl, isImage: true };
     }
-
-    const uploadMatch = entry.match(/\[Certificate Uploaded:\s*([^\]]+)\]/i);
-    if (uploadMatch) {
-      const filename = uploadMatch[1];
-      const mockUrl = `https://images.unsplash.com/photo-1589330694653-ded6df03f754?q=80&w=1200`;
-      return { name: filename, url: mockUrl };
+    const urlMatch = entry.match(/https?:\/\/[^\s,)>\]]+/i);
+    if (urlMatch) {
+      const url = urlMatch[0];
+      const nameRaw = entry.replace(/ – https?:\/\/[^\s,)>\]]+/i, '').replace(/^[•\-\*\s]+/, '').trim();
+      return { name: nameRaw || entry, url, isImage: false };
     }
-
-    return { name: entry, url: null };
+    const nameRaw = entry.replace(/^[•\-\*\s]+/, '').trim();
+    return { name: nameRaw, url: null, isImage: false };
   });
 }
 
 function CertificationList({ text }) {
+  const [viewingImg, setViewingImg] = React.useState(null);
   const certs = parseCertifications(text);
 
-  const cardStyle = (hasUrl) => ({
+  const cardStyle = (hasAction) => ({
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     flexWrap: 'wrap', gap: '6px',
     padding: '5px 10px',
     background: 'rgba(123,111,255,0.04)',
     border: '1px solid rgba(123,111,255,0.12)',
     borderRadius: '5px',
-    cursor: hasUrl ? 'pointer' : 'default',
+    cursor: hasAction ? 'pointer' : 'default',
     textDecoration: 'none',
     transition: 'opacity 0.15s ease',
   });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      {/* Image viewer modal */}
+      {viewingImg && (
+        <div
+          onClick={() => setViewingImg(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            background: 'rgba(0,0,0,0.85)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '20px',
+          }}
+        >
+          <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }}>
+            <img
+              src={viewingImg}
+              alt="Certificate"
+              style={{ maxWidth: '100%', maxHeight: '85vh', borderRadius: '10px', boxShadow: '0 8px 40px rgba(0,0,0,0.6)' }}
+            />
+            <button
+              onClick={() => setViewingImg(null)}
+              style={{
+                position: 'absolute', top: '-14px', right: '-14px',
+                width: '30px', height: '30px', borderRadius: '50%',
+                background: '#ff6b6b', color: '#fff', border: 'none',
+                fontSize: '16px', cursor: 'pointer', fontWeight: 700,
+              }}
+            >×</button>
+          </div>
+        </div>
+      )}
+
       {certs.map((cert, i) => {
         const inner = (
           <>
@@ -599,11 +613,26 @@ function CertificationList({ text }) {
                 border: '1px solid rgba(123,111,255,0.25)',
                 whiteSpace: 'nowrap',
               }}>
-                View Certificate <ExternalLink size={9} />
+                {cert.isImage ? '🖼 View Image' : '🔗 View Certificate'} <ExternalLink size={9} />
               </span>
             )}
           </>
         );
+
+        if (cert.isImage && cert.url) {
+          return (
+            <div
+              key={i}
+              style={cardStyle(true)}
+              onClick={() => setViewingImg(cert.url)}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+            >
+              {inner}
+            </div>
+          );
+        }
+
         return cert.url ? (
           <a
             key={i}
