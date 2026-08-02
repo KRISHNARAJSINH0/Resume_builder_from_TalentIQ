@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { getBackendUrl } from '../utils/apiConfig';
+import { saveResumeLocally } from '../api/resumePublicAPI';
 import {
   generateInterviewQuestions,
   enhanceSummary,
@@ -265,11 +266,14 @@ export default function useResumeBuilder() {
         summary: enhancedSummary,
         experienceEnhanced: enhancedExpText,
         projectsEnhanced: enhancedProjText,
+        // Structured project array preserves github_link / live_link for clickable rendering
+        projectsStructured: processedProjects.length > 0 ? processedProjects : null,
         education: formattedEduText || rawData.education,
         resumeId: `TIQ-${Date.now()}`,
         createdAt: new Date().toISOString(),
         templateName: 'TalentIQ-Professional-v1',
       };
+
 
       // Step 4: Skill Gap
       update({ generatingStep: '🎯 Identifying skill gaps...' });
@@ -389,12 +393,15 @@ export default function useResumeBuilder() {
           publicResumeUrl = resData.public_url;
           resumeSaveStatus = 'Saved';
         } else {
-          resumeSaveStatus = 'Failed to save';
+          resumeSaveStatus = 'Saved Locally';
         }
       } catch (e) {
-        console.error("Failed to save resume dynamically:", e);
-        resumeSaveStatus = 'Failed to save';
+        console.error("Failed to save resume to backend (using local storage):", e);
+        resumeSaveStatus = 'Saved Locally';
       }
+
+      // Always save to localStorage so QR code public URL works without backend
+      saveResumeLocally(savedResumeId, resumeData);
 
       update({
         phase: 'results',

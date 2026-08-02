@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, SkipForward, User, Sparkles, ChevronRight, Upload, File, Loader, Trash2, Plus, AlertCircle } from 'lucide-react';
-import { getBackendUrl } from '../../utils/apiConfig';
 import { PROFESSIONS } from '../../hooks/useResumeBuilder';
 import { parseCertificateText } from '../../api/resumeAPI';
 
@@ -120,43 +119,47 @@ export default function ResumeChat({
     setUploadingCert(true);
     try {
       const uploaded = [];
-      const apiBase = await getBackendUrl();
 
       for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch(`${apiBase}/api/resume/upload-certificate/`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error('Upload failed');
+        // Read file as text if possible (for PDFs just use filename)
+        let textContent = file.name;
+        if (file.type === 'text/plain') {
+          try {
+            textContent = await file.text();
+          } catch {
+            textContent = file.name;
+          }
         }
 
-        const data = await response.json();
-        const parseResult = await parseCertificateText(data.extracted_text || file.name);
+        // Use Groq AI to parse certificate details from filename/text
+        const parseResult = await parseCertificateText(textContent).catch(() => ({
+          name: file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
+          issuer: '',
+          issue_date: '',
+        }));
+
+        // Create a local object URL for preview
+        const localUrl = URL.createObjectURL(file);
 
         uploaded.push({
           id: Math.random().toString(36).substring(2, 9),
           filename: file.name,
-          url: data.url,
-          // Pre-fill credential_url with the backend file URL so it's included automatically
-          credential_url: data.url || '',
-          name: parseResult.name || file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " "),
-          issuer: parseResult.issuer || "",
-          issue_date: parseResult.issue_date || "",
+          url: localUrl,
+          credential_url: '',
+          name: parseResult.name || file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' '),
+          issuer: parseResult.issuer || '',
+          issue_date: parseResult.issue_date || '',
         });
       }
       setUploadedCerts(prev => [...prev, ...uploaded]);
     } catch (err) {
       console.error(err);
-      alert('Failed to upload certificate file. Make sure Django server is running.');
+      alert('Failed to process certificate file. Please try again.');
     } finally {
       setUploadingCert(false);
     }
   };
+
 
   const removeCert = (idxToRemove) => {
     setUploadedCerts(prev => prev.filter((_, idx) => idx !== idxToRemove));

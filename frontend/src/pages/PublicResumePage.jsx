@@ -163,6 +163,27 @@ function addLinksToPdf(pdf, element, pdfWidth) {
 
   const d = resume.resume_data || {};
 
+  // Normalize: localStorage stores flat resumeData, backend stores nested resume_data
+  // Map both structures to a unified shape
+  const name = d.name || d.full_name || resume.user_name || 'Candidate';
+  const profession = d.profession || resume.profession || '';
+  const email = d.email || '';
+  const phone = d.phone || '';
+  const address = d.address || '';
+  const linkedin = d.linkedin || d.linkedin_url || '';
+  const portfolio = d.portfolio || d.portfolio_url || '';
+  const github = d.github || d.github_url || '';
+  const summary = d.summary || d.professional_summary || '';
+  const skills = d.skills || '';
+  const experience = d.experience || '';
+  const experienceEnhanced = d.experienceEnhanced || d.experience_enhanced || '';
+  const projects = d.projects || '';
+  const projectsEnhanced = d.projectsEnhanced || d.projects_enhanced || '';
+  const projectsStructured = d.projectsStructured || null;
+  const education = d.education || '';
+  const certifications = d.certifications || '';
+  const achievements = d.achievements || '';
+  const languages = d.languages || '';
 
   const parseLines = (text) => {
     if (!text) return [];
@@ -174,6 +195,7 @@ function addLinksToPdf(pdf, element, pdfWidth) {
     if (Array.isArray(text)) return text;
     return text.split(/[,•\n]+/).map(s => s.trim()).filter(Boolean);
   };
+
 
   // ── Resume Page ─────────────────────────────────────────────────────────────
   return (
@@ -220,10 +242,10 @@ function addLinksToPdf(pdf, element, pdfWidth) {
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
               <div>
                 <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#0f0f23', marginBottom: '4px' }}>
-                  {d.name || resume.user_name || 'Candidate'}
+                  {name}
                 </h1>
                 <div style={{ fontSize: '14px', color: '#7b6fff', fontWeight: 700, marginBottom: '12px' }}>
-                  {d.profession || resume.profession}
+                  {profession}
                 </div>
               </div>
 
@@ -231,24 +253,24 @@ function addLinksToPdf(pdf, element, pdfWidth) {
 
             {/* Contact Info */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '12px', color: '#444' }}>
-              {d.email && (
-                <a href={`mailto:${d.email}`} style={contactLinkStyle}>
-                  <Mail size={12} color="#7b6fff" /> {d.email}
+              {email && (
+                <a href={`mailto:${email}`} style={contactLinkStyle}>
+                  <Mail size={12} color="#7b6fff" /> {email}
                 </a>
               )}
-              {d.phone && (
-                <a href={`tel:${d.phone}`} style={contactLinkStyle}>
-                  <Phone size={12} color="#7b6fff" /> {d.phone}
+              {phone && (
+                <a href={`tel:${phone}`} style={contactLinkStyle}>
+                  <Phone size={12} color="#7b6fff" /> {phone}
                 </a>
               )}
-              {d.address && (
+              {address && (
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <MapPin size={12} color="#7b6fff" /> {d.address}
+                  <MapPin size={12} color="#7b6fff" /> {address}
                 </span>
               )}
-              {d.linkedin && (
+              {linkedin && (
                 <a
-                  href={d.linkedin.startsWith('http') ? d.linkedin : `https://${d.linkedin}`}
+                  href={linkedin.startsWith('http') ? linkedin : `https://${linkedin}`}
                   target="_blank" rel="noreferrer"
                   style={contactLinkStyle}
                 >
@@ -256,9 +278,9 @@ function addLinksToPdf(pdf, element, pdfWidth) {
                   <ExternalLink size={10} />
                 </a>
               )}
-              {d.portfolio && (
+              {portfolio && (
                 <a
-                  href={d.portfolio.startsWith('http') ? d.portfolio : `https://${d.portfolio}`}
+                  href={portfolio.startsWith('http') ? portfolio : `https://${portfolio}`}
                   target="_blank" rel="noreferrer"
                   style={contactLinkStyle}
                 >
@@ -266,9 +288,9 @@ function addLinksToPdf(pdf, element, pdfWidth) {
                   <ExternalLink size={10} />
                 </a>
               )}
-              {d.github && (
+              {github && (
                 <a
-                  href={d.github.startsWith('http') ? d.github : `https://github.com/${d.github}`}
+                  href={github.startsWith('http') ? github : `https://github.com/${github}`}
                   target="_blank" rel="noreferrer"
                   style={contactLinkStyle}
                 >
@@ -279,18 +301,17 @@ function addLinksToPdf(pdf, element, pdfWidth) {
             </div>
           </div>
 
-          {/* ── Professional Summary ─────────────────────────────── */}
-          {d.summary && (
+          {summary && (
             <ResumeSection title="Professional Summary">
-              <p style={{ fontSize: '13px', color: '#333', lineHeight: 1.8 }}>{d.summary}</p>
+              <p style={{ fontSize: '13px', color: '#333', lineHeight: 1.8 }}>{summary}</p>
             </ResumeSection>
           )}
 
           {/* ── Core Skills ──────────────────────────────────────── */}
-          {d.skills && (
+          {skills && (
             <ResumeSection title="Core Skills">
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {parseCommaList(d.skills).map((skill, i) => (
+                {parseCommaList(skills).map((skill, i) => (
                   <span key={i} style={skillBadgeStyle}>{skill}</span>
                 ))}
               </div>
@@ -298,62 +319,65 @@ function addLinksToPdf(pdf, element, pdfWidth) {
           )}
 
           {/* ── Work Experience ───────────────────────────────────── */}
-          {(d.experienceEnhanced || d.experience) && (
+          {(experienceEnhanced || experience) && (
             <ResumeSection title="Work Experience">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {d.experienceEnhanced
-                  ? parseLines(d.experienceEnhanced).map((line, i) => (
+                {experienceEnhanced
+                  ? parseLines(experienceEnhanced).map((line, i) => (
                     <div key={i} style={{ fontSize: '13px', color: '#333', lineHeight: 1.7 }}>
                       {line.startsWith('•') ? line : `• ${line}`}
                     </div>
                   ))
-                  : <p style={{ fontSize: '13px', color: '#333', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{d.experience}</p>
+                  : <p style={{ fontSize: '13px', color: '#333', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{experience}</p>
                 }
               </div>
             </ResumeSection>
           )}
 
-          {/* ── Projects ──────────────────────────────────────────── */}
-          {(d.projectsEnhanced || d.projects) && (
+          {/* ── Projects ───────────────────────────────────────── */}
+          {(projectsStructured || projectsEnhanced || projects) && (
             <ResumeSection title="Projects">
-              <p style={{ fontSize: '13px', color: '#333', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
-                {d.projectsEnhanced || d.projects}
-              </p>
+              {projectsStructured
+                ? <PublicProjectList projects={projectsStructured} />
+                : <p style={{ fontSize: '13px', color: '#333', lineHeight: 1.8, whiteSpace: 'pre-line' }}>
+                    {projectsEnhanced || projects}
+                  </p>
+              }
             </ResumeSection>
           )}
 
           {/* ── Education ─────────────────────────────────────────── */}
-          {d.education && (
+          {education && (
             <ResumeSection title="Education">
               <p style={{ fontSize: '13px', color: '#333', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
-                {d.education}
+                {education}
               </p>
             </ResumeSection>
           )}
 
           {/* ── Certifications ───────────────────────────── */}
-          {d.certifications && (
+          {certifications && (
             <ResumeSection title="Certifications">
-              <CertificationList text={d.certifications} />
+              <CertificationList text={certifications} />
             </ResumeSection>
           )}
 
           {/* ── Achievements ──────────────────────────────────────── */}
-          {d.achievements && (
+          {achievements && (
             <ResumeSection title="Achievements">
               <p style={{ fontSize: '13px', color: '#333', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
-                {d.achievements}
+                {achievements}
               </p>
             </ResumeSection>
           )}
 
           {/* ── Languages ─────────────────────────────────────────── */}
-          {d.languages && (
+          {languages && (
             <ResumeSection title="Languages">
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                {parseCommaList(d.languages).map((lang, i) => (
+                {parseCommaList(languages).map((lang, i) => (
                   <span key={i} style={{ fontSize: '13px', color: '#333' }}>
-                    {lang}{i < parseCommaList(d.languages).length - 1 ? ' ·' : ''}
+                    {lang}{i < parseCommaList(languages).length - 1 ? ' ·' : ''}
                   </span>
                 ))}
               </div>
@@ -444,6 +468,74 @@ function addLinksToPdf(pdf, element, pdfWidth) {
   );
 }
 
+// ── Public Project List with clickable links ─────────────────────────────────────────
+function PublicProjectList({ projects }) {
+  if (!projects || projects.length === 0) return null;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      {projects.map((proj, i) => (
+        <div key={i} style={{
+          borderLeft: '2px solid rgba(123,111,255,0.4)',
+          paddingLeft: '12px',
+        }}>
+          {/* Title + tech */}
+          <div style={{ display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: '8px', marginBottom: '3px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: '#222' }}>
+              {proj.project_name}
+            </span>
+            {proj.technologies && (
+              <span style={{ fontSize: '11px', color: '#888' }}>({proj.technologies})</span>
+            )}
+          </div>
+          {/* Description */}
+          {(proj.enhancedDescription || proj.description) && (
+            <p style={{ fontSize: '12px', color: '#444', lineHeight: 1.6, margin: '0 0 6px 0' }}>
+              {proj.enhancedDescription || proj.description}
+            </p>
+          )}
+          {/* Links */}
+          {(proj.github_link || proj.live_link) && (
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {proj.github_link && (
+                <a
+                  href={proj.github_link.startsWith('http') ? proj.github_link : `https://${proj.github_link}`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                    fontSize: '11px', fontWeight: 700, textDecoration: 'none',
+                    color: '#7b6fff', padding: '3px 10px', borderRadius: '20px',
+                    background: 'rgba(123,111,255,0.08)',
+                    border: '1px solid rgba(123,111,255,0.25)',
+                  }}
+                >
+                  <Github size={10} /> GitHub
+                </a>
+              )}
+              {proj.live_link && (
+                <a
+                  href={proj.live_link.startsWith('http') ? proj.live_link : `https://${proj.live_link}`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                    fontSize: '11px', fontWeight: 700, textDecoration: 'none',
+                    color: '#16a34a', padding: '3px 10px', borderRadius: '20px',
+                    background: 'rgba(22,163,74,0.08)',
+                    border: '1px solid rgba(22,163,74,0.25)',
+                  }}
+                >
+                  <ExternalLink size={10} /> Live Demo
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Certification helpers ─────────────────────────────────────────────────────────────────────────────
 function parseCertifications(text) {
   if (!text) return [];
@@ -471,40 +563,57 @@ function parseCertifications(text) {
 
 function CertificationList({ text }) {
   const certs = parseCertifications(text);
+
+  const cardStyle = (hasUrl) => ({
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    flexWrap: 'wrap', gap: '6px',
+    padding: '5px 10px',
+    background: 'rgba(123,111,255,0.04)',
+    border: '1px solid rgba(123,111,255,0.12)',
+    borderRadius: '5px',
+    cursor: hasUrl ? 'pointer' : 'default',
+    textDecoration: 'none',
+    transition: 'opacity 0.15s ease',
+  });
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      {certs.map((cert, i) => (
-        <div key={i} style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: '6px',
-          padding: '5px 10px',
-          background: 'rgba(123,111,255,0.04)',
-          border: '1px solid rgba(123,111,255,0.12)',
-          borderRadius: '5px',
-        }}>
-          <span style={{ fontSize: '12px', color: '#333', fontWeight: 500, flex: 1 }}>
-            🏅 {cert.name}
-          </span>
-          {cert.url && (
-            <a
-              href={cert.url}
-              target="_blank"
-              rel="noreferrer noopener"
-              style={{
+      {certs.map((cert, i) => {
+        const inner = (
+          <>
+            <span style={{ fontSize: '12px', color: '#333', fontWeight: 500, flex: 1 }}>
+              🏅 {cert.name}
+            </span>
+            {cert.url && (
+              <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: '3px',
                 fontSize: '10px', color: '#7b6fff', fontWeight: 700,
-                textDecoration: 'none',
                 padding: '2px 8px', borderRadius: '20px',
                 background: 'rgba(123,111,255,0.1)',
                 border: '1px solid rgba(123,111,255,0.25)',
                 whiteSpace: 'nowrap',
-              }}
-            >
-              View Certificate <ExternalLink size={9} />
-            </a>
-          )}
-        </div>
-      ))}
+              }}>
+                View Certificate <ExternalLink size={9} />
+              </span>
+            )}
+          </>
+        );
+        return cert.url ? (
+          <a
+            key={i}
+            href={cert.url}
+            target="_blank"
+            rel="noreferrer noopener"
+            style={cardStyle(true)}
+            onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
+            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+          >
+            {inner}
+          </a>
+        ) : (
+          <div key={i} style={cardStyle(false)}>{inner}</div>
+        );
+      })}
     </div>
   );
 }
