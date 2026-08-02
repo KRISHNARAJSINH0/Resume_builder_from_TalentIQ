@@ -11,6 +11,7 @@ import {
   Award, Clock, TrendingUp, Zap, Download, Loader, QrCode,
   ShieldCheck, ShieldAlert, Eye, Share2, Activity,
 } from 'lucide-react';
+import { encodeResumeToHash } from '../../api/resumePublicAPI';
 
 
 const TABS = [
@@ -35,8 +36,10 @@ export default function ResumeOutput({
   const [copied, setCopied] = useState(false);
 
   const resumeIdForQr = publicResumeId || resumeData?.resumeId;
-  const qrUrl = `${window.location.origin}/resume/${resumeIdForQr}?via=qr`;
-  const shareUrl = `${window.location.origin}/resume/${resumeIdForQr}`;
+  const hashPayload = encodeResumeToHash(resumeData);
+  const hashString = hashPayload ? `#d=${hashPayload}` : '';
+  const qrUrl = `${window.location.origin}/resume/${resumeIdForQr}?via=qr${hashString}`;
+  const shareUrl = `${window.location.origin}/resume/${resumeIdForQr}${hashString}`;
 
 
   const handleCopyLink = () => {

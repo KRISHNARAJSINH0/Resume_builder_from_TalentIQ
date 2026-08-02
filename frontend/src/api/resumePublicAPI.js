@@ -24,9 +24,76 @@ export function saveResumeLocally(resumeId, resumeData) {
   }
 }
 
+/**
+ * Compact URL-safe Base64 encoder for embedding resume payload in QR codes.
+ * Ensures instant loading on ANY device, offline or online, without backend.
+ */
+export function encodeResumeToHash(resumeData) {
+  if (!resumeData) return '';
+  try {
+    // Create a copy without massive base64 images to keep QR code size small & scannable
+    const compactData = { ...resumeData };
+    if (compactData.certifications && typeof compactData.certifications === 'string') {
+      // Keep cert text, trim giant image strings if needed
+      compactData.certifications = compactData.certifications.replace(/data:image\/[^;\s]+;base64,[A-Za-z0-9+/=]{500,}/g, '[Embedded Certificate]');
+    }
+    const jsonStr = JSON.stringify(compactData);
+    // UTF-8 friendly Base64 encoding
+    const base64 = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (match, p1) =>
+      String.fromCharCode(parseInt(p1, 16))
+    ));
+    return base64;
+  } catch (e) {
+    console.warn('Could not encode resume to URL hash:', e);
+    return '';
+  }
+}
+
+/**
+ * Decodes URL-safe Base64 payload back to resume object.
+ */
+export function decodeResumeFromHash(hashStr) {
+  if (!hashStr) return null;
+  try {
+    // Strip leading # or ?d= or d= if present
+    const cleanHash = hashStr.replace(/^#/, '').replace(/^\?d=/, '').replace(/^d=/, '');
+    if (!cleanHash) return null;
+    const jsonStr = decodeURIComponent(
+      atob(cleanHash)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonStr);
+  } catch (e) {
+    console.warn('Could not decode resume from URL hash:', e);
+    return null;
+  }
+}
+
+
 // ── Get Public Resume ──────────────────────────────────────────────────────────
 export async function getPublicResume(resumeId) {
-  // 0. If ID is a Cloud Store ID, load directly from Cloud Store (always online, any device)
+  // -1. Level 1 Failsafe: Check if embedded resume payload exists in URL hash or query params
+  try {
+    const hash = window.location.hash || window.location.search;
+    const hashDataMatch = hash.match(/[#?&]d=([A-Za-z0-9%+/=]+)/);
+    if (hashDataMatch && hashDataMatch[1]) {
+      const decoded = decodeResumeFromHash(hashDataMatch[1]);
+      if (decoded) {
+        return {
+          resume_id: resumeId,
+          resume_data: decoded,
+          view_count: 0,
+          source: 'url_embedded',
+        };
+      }
+    }
+  } catch (e) {
+    console.warn('Error reading URL hash payload:', e);
+  }
+
+  // 0. Level 2 Failsafe: If ID is a Cloud Store ID, load directly from Cloud Store (always online, any device)
   if (isCloudId(resumeId)) {
     try {
       const record = await loadFromCloudStore(resumeId);
@@ -40,6 +107,7 @@ export async function getPublicResume(resumeId) {
       console.warn('Failed to load from Cloud Store:', e);
     }
   }
+
 
   // 1. Try localStorage next (works offline on same device)
   try {
