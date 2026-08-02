@@ -381,11 +381,23 @@ export default function useResumeBuilder() {
             : [],
         };
 
-        const response = await fetch(`${apiBase}/api/resume/create/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+        // Retry up to 3 times (Render may be mid-wake-up)
+        let response = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            response = await fetch(`${apiBase}/api/resume/create/`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+            if (response.ok) break; // success — stop retrying
+          } catch (fetchErr) {
+            if (attempt < 3) {
+              await new Promise(r => setTimeout(r, 2000)); // wait 2s before retry
+            }
+          }
+        }
+
 
         if (response.ok) {
           const resData = await response.json();

@@ -133,14 +133,18 @@ function addLinksToPdf(pdf, element, pdfWidth) {
           <div style={loadingStyle}>
             <div style={logoStyle}>TalentIQ</div>
             <div className="spinner" style={{ margin: '2rem auto', width: '40px', height: '40px' }} />
-            <p style={{ color: '#8888a5', fontSize: '14px', fontFamily: 'JetBrains Mono, monospace' }}>
+            <p style={{ color: '#8888a5', fontSize: '14px', fontFamily: 'JetBrains Mono, monospace', textAlign: 'center' }}>
               Loading resume...
+            </p>
+            <p style={{ color: '#555570', fontSize: '11px', marginTop: '8px', textAlign: 'center', maxWidth: '280px' }}>
+              If this takes &gt;10 seconds, the server is waking up from sleep. Please wait.
             </p>
           </div>
         </div>
       </div>
     );
   }
+
 
   // ── Error State ─────────────────────────────────────────────────────────────
   if (error || !resume) {

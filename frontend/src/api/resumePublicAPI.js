@@ -41,17 +41,25 @@ export async function getPublicResume(resumeId) {
     // localStorage unavailable or corrupted — fall through to backend
   }
 
-  // 2. Try Django backend (if running)
+  // 2. Try Django backend with retry (Render may be waking up)
   try {
     const API_BASE = await getBackendUrl();
-    const response = await fetch(`${API_BASE}/api/resume/public/${resumeId}/`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    if (response.ok) return response.json();
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const response = await fetch(`${API_BASE}/api/resume/public/${resumeId}/`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (response.ok) return response.json();
+        if (response.status === 404) break; // Resume doesn't exist — no point retrying
+      } catch {
+        if (attempt < 2) await new Promise(r => setTimeout(r, 3000)); // wait 3s
+      }
+    }
   } catch {
     // Backend unavailable
   }
+
 
   throw new Error('Resume not found. The link may be expired or the resume was created on a different device.');
 }

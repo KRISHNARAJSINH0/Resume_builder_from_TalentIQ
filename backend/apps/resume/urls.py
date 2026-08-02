@@ -40,6 +40,7 @@ from .groq_proxy import groq_proxy
 urlpatterns = [
     # ── Health check ──────────────────────────────────────────────────────────
     path('', ResumeHealthView.as_view(), name='resume-health'),
+    path('health/', ResumeHealthView.as_view(), name='resume-health-ping'),
 
     # ── Groq AI Proxy (keeps API key server-side) ─────────────────────────────
     path('groq-proxy/', groq_proxy, name='groq-proxy'),
