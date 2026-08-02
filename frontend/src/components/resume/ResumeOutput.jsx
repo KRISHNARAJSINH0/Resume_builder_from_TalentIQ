@@ -37,10 +37,14 @@ export default function ResumeOutput({
 
   const resumeIdForQr = publicResumeId || resumeData?.resumeId;
 
-  // Ultra-clean, short URL (< 80 chars) for instant, 100% reliable QR scanning on any mobile camera
+  // Hybrid QR URL: Clean & ultra-short (~60 chars) for Cloud IDs; includes fallback hash for raw local IDs
+  const isCloud = resumeIdForQr && (resumeIdForQr.startsWith('cloud_') || resumeIdForQr.startsWith('jb_'));
+  const hashPayload = isCloud ? '' : encodeResumeToHash(resumeData);
+  const hashString = hashPayload ? `#d=${hashPayload}` : '';
+
   const cleanUrl = `${window.location.origin}/resume/${resumeIdForQr}`;
-  const qrUrl = `${cleanUrl}?via=qr`;
-  const shareUrl = cleanUrl;
+  const qrUrl = `${cleanUrl}?via=qr${hashString}`;
+  const shareUrl = `${cleanUrl}${hashString}`;
 
 
   const [showQrModal, setShowQrModal] = useState(false);

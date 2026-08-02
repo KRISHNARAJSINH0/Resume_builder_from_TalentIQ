@@ -27,9 +27,11 @@ export function isCloudId(id) {
  * Save resume to cloud store. Returns a public cloud ID (e.g., "cloud_ff808181...").
  */
 export async function saveToCloudStore(resumeId, resumeData) {
+  // Sanitize payload to ensure pure JSON
+  const cleanData = JSON.parse(JSON.stringify(resumeData));
   const payload = {
     resume_id: resumeId,
-    resume_data: resumeData,
+    resume_data: cleanData,
     saved_at: new Date().toISOString(),
     source: 'talentiq',
   };
@@ -62,7 +64,7 @@ export async function saveToCloudStore(resumeId, resumeData) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: `TalentIQ_${resumeId}`,
+        name: resumeId,
         data: payload,
       }),
     });
@@ -78,10 +80,10 @@ export async function saveToCloudStore(resumeId, resumeData) {
 }
 
 /**
- * Load resume from cloud store by prefixed ID.
+ * Load resume from cloud store by prefixed ID or raw ID.
  */
-export async function loadFromCloudStore(prefixedId) {
-  const idStr = String(prefixedId);
+export async function loadFromCloudStore(id) {
+  const idStr = String(id);
 
   // Strategy 1: JSONBin
   if (idStr.startsWith(PREFIX_JSONBIN)) {
@@ -95,7 +97,7 @@ export async function loadFromCloudStore(prefixedId) {
     return data.record;
   }
 
-  // Strategy 2: Restful-API object store
+  // Strategy 2: Restful-API object store (cloud_...)
   if (idStr.startsWith(PREFIX_RESTFUL)) {
     const objId = idStr.replace(PREFIX_RESTFUL, '');
     const res = await fetch(`${RESTFUL_API_BASE}/${objId}`);
@@ -104,5 +106,16 @@ export async function loadFromCloudStore(prefixedId) {
     return data.data; // { resume_id, resume_data, saved_at }
   }
 
-  throw new Error('Unknown cloud store format.');
+  // Strategy 3: Try raw ID directly against Restful-API object store
+  try {
+    const res = await fetch(`${RESTFUL_API_BASE}/${idStr}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.data) return data.data;
+    }
+  } catch (e) {
+    // Ignore fallback failure
+  }
+
+  throw new Error('Cloud store record not found.');
 }

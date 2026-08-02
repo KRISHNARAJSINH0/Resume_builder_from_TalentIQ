@@ -93,19 +93,19 @@ export async function getPublicResume(resumeId) {
     console.warn('Error reading URL hash payload:', e);
   }
 
-  // 0. Level 2 Failsafe: If ID is a Cloud Store ID, load directly from Cloud Store (always online, any device)
-  if (isCloudId(resumeId)) {
-    try {
-      const record = await loadFromCloudStore(resumeId);
+  // 0. Level 2 Failsafe: Load directly from Cloud Store (always online, any device)
+  try {
+    const record = await loadFromCloudStore(resumeId);
+    if (record && record.resume_data) {
       return {
         resume_id: record.resume_id || resumeId,
         resume_data: record.resume_data,
         view_count: 0,
         source: 'cloud',
       };
-    } catch (e) {
-      console.warn('Failed to load from Cloud Store:', e);
     }
+  } catch (e) {
+    console.warn('Cloud store lookup failed:', e.message);
   }
 
 
