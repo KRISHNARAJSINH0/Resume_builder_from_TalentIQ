@@ -276,10 +276,13 @@ class ResumePublicView(APIView):
 
         serializer = ResumePublicSerializer(resume)
         data = serializer.data
-        data['analytics'] = {
-            'view_count': resume.view_count,
-        }
+        data['view_count'] = resume.view_count
+        data['pdf_downloads'] = getattr(resume, 'pdf_download_count', 0)
+        data['qr_scans'] = ResumeView.objects.filter(
+            resume=resume, visitor_type=ResumeView.VisitorType.QR
+        ).count()
         return Response(data)
+
 
 
 

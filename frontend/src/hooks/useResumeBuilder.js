@@ -381,25 +381,24 @@ export default function useResumeBuilder() {
             : [],
         };
 
-        // Retry up to 3 times (Render may be mid-wake-up)
+        // Save with 60-second timeout — Render cold starts take up to 50s
+        update({ generatingStep: '🔗 Saving for cross-device QR sharing (may take 30s)...' });
         let response = null;
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          try {
-            response = await fetch(`${apiBase}/api/resume/create/`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-            });
-            if (response.ok) break; // success — stop retrying
-          } catch (fetchErr) {
-            if (attempt < 3) {
-              await new Promise(r => setTimeout(r, 2000)); // wait 2s before retry
-            }
-          }
+        try {
+          const controller = new AbortController();
+          const tid = setTimeout(() => controller.abort(), 60000);
+          response = await fetch(`${apiBase}/api/resume/create/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal,
+          });
+          clearTimeout(tid);
+        } catch {
+          response = null;
         }
 
-
-        if (response.ok) {
+        if (response && response.ok) {
           const resData = await response.json();
           savedResumeId = resData.resume_id;
           publicResumeUrl = resData.public_url;
@@ -408,11 +407,11 @@ export default function useResumeBuilder() {
           resumeSaveStatus = 'Saved Locally';
         }
       } catch (e) {
-        console.error("Failed to save resume to backend (using local storage):", e);
+        console.error('Failed to save resume to backend:', e);
         resumeSaveStatus = 'Saved Locally';
       }
 
-      // Always save to localStorage so QR code public URL works without backend
+      // Always save to localStorage under same ID for same-device fallback
       saveResumeLocally(savedResumeId, resumeData);
 
       update({

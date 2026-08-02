@@ -46,8 +46,9 @@ export default function PublicResumePage() {
         const data = await getPublicResume(resumeId);
         setResume(data);
 
-        // Track analytics
-        trackEvent(resumeId, 'view');
+        // Track view — detect if came from QR code scan
+        const via = new URLSearchParams(window.location.search).get('via') || 'direct';
+        trackEvent(resumeId, 'view', via);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -57,6 +58,7 @@ export default function PublicResumePage() {
 
     load();
   }, [resumeId]);
+
 
   // ── Download PDF ────────────────────────────────────────────────────────────
   const downloadPDF = async () => {

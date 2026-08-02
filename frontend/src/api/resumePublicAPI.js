@@ -65,11 +65,11 @@ export async function getPublicResume(resumeId) {
 }
 
 // ── Track Analytics Event ──────────────────────────────────────────────────────
-export async function trackEvent(resumeId, eventType) {
+export async function trackEvent(resumeId, eventType, via = 'direct') {
   if (!resumeId) return;
   try {
     const API_BASE = await getBackendUrl();
-    await fetch(`${API_BASE}/api/resume/track/${resumeId}/`, {
+    await fetch(`${API_BASE}/api/resume/track/${resumeId}/?via=${via}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ event: eventType }),

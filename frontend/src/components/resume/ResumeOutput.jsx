@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import ResumePreview from './ResumePreview';
 import { downloadResumeAsPDF } from '../../utils/pdfDownloader';
+import { evaluateProfile } from '../../utils/profileEvaluator';
+import { getBackendUrl } from '../../utils/apiConfig';
 import {
   FileText, BarChart2, GitBranch, Target, MessageSquare,
-  Globe, PieChart, Printer, RotateCcw, Copy,
+  Globe, Printer, RotateCcw, Copy,
   CheckCircle2, AlertTriangle, ExternalLink, ChevronRight,
   Award, Clock, TrendingUp, Zap, Download, Loader, QrCode,
+  ShieldCheck, ShieldAlert, Eye, Share2, Activity,
 } from 'lucide-react';
 
 
@@ -16,7 +19,7 @@ const TABS = [
   { id: 2, label: 'Job Match', icon: Target, color: 'var(--t)' },
   { id: 3, label: 'Interview Prep', icon: MessageSquare, color: 'var(--pk)' },
   { id: 4, label: 'Portfolio', icon: Globe, color: 'var(--b)' },
-  { id: 5, label: 'Analytics', icon: PieChart, color: 'var(--t)' },
+  { id: 5, label: 'Analytics', icon: BarChart2, color: 'var(--a)' },
   { id: 6, label: 'Print', icon: Printer, color: 'var(--g)' },
 ];
 
@@ -31,9 +34,10 @@ export default function ResumeOutput({
   const [selectedTemplate, setSelectedTemplate] = useState('modern');
   const [copied, setCopied] = useState(false);
 
-  const qrUrl = publicResumeId
-    ? `${window.location.origin}/resume/${publicResumeId}`
-    : `${window.location.origin}/resume/${resumeData?.resumeId}`;
+  const resumeIdForQr = publicResumeId || resumeData?.resumeId;
+  const qrUrl = `${window.location.origin}/resume/${resumeIdForQr}?via=qr`;
+  const shareUrl = `${window.location.origin}/resume/${resumeIdForQr}`;
+
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(qrUrl);
@@ -312,7 +316,7 @@ export default function ResumeOutput({
         {activeTab === 2 && <JobMatchTab onMatch={onJobMatch} jobMatchData={jobMatchData} loading={jobMatchLoading} />}
         {activeTab === 3 && <InterviewPrepTab interviewPrepData={interviewPrepData} />}
         {activeTab === 4 && <PortfolioTab portfolioData={portfolioData} resumeData={resumeData} />}
-        {activeTab === 5 && <AnalyticsTab resumeData={resumeData} />}
+        {activeTab === 5 && <AnalyticsTab resumeData={resumeData} publicResumeId={publicResumeId} />}
         {activeTab === 6 && <PrintTab onPrint={onPrint} resumeData={resumeData} onDownloadPDF={handleDownloadPDF} pdfLoading={pdfLoading} pdfStatus={pdfStatus} />}
       </div>
     </div>
@@ -693,40 +697,134 @@ function PortfolioTab({ portfolioData, resumeData }) {
 // ─────────────────────────────────────────────────────────────────
 // TAB 5: ANALYTICS
 // ─────────────────────────────────────────────────────────────────
-function AnalyticsTab({ resumeData }) {
+function AnalyticsTab({ resumeData, publicResumeId }) {
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchAnalytics() {
+      setLoading(true);
+      try {
+        const apiBase = await getBackendUrl();
+        const res = await fetch(`${apiBase}/api/resume/public/${publicResumeId || resumeData?.resumeId}/`);
+        if (!cancelled && res.ok) {
+          const data = await res.json();
+          setAnalytics(data);
+        }
+      } catch {
+        // Backend unavailable — show local metadata only
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    if (publicResumeId || resumeData?.resumeId) fetchAnalytics();
+    else setLoading(false);
+    return () => { cancelled = true; };
+  }, [publicResumeId, resumeData?.resumeId]);
+
+  const createdAt = resumeData?.createdAt
+    ? new Date(resumeData.createdAt).toLocaleString()
+    : 'Just now';
+
+  const publicUrl = `${window.location.origin}/resume/${publicResumeId || resumeData?.resumeId}`;
+
+  const viewCount   = analytics?.view_count   ?? 0;
+  const isSaved     = analytics != null;
+
+  const statCard = (icon, label, value, color) => (
+    <div style={{
+      background: 'var(--s2)', border: '1px solid var(--border)',
+      borderRadius: '10px', padding: '20px 24px',
+      display: 'flex', alignItems: 'center', gap: '14px',
+    }}>
+      <div style={{
+        width: '44px', height: '44px', borderRadius: '10px', flexShrink: 0,
+        background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        {React.cloneElement(icon, { size: 20, style: { color } })}
+      </div>
+      <div>
+        <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text)' }}>{value}</div>
+        <div style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>{label}</div>
+      </div>
+    </div>
+  );
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <div className="card glass">
-        <h3 style={{ fontSize: '14px', fontWeight: 700, marginBottom: '1.25rem', color: 'var(--t)' }}>
-          📈 Recruiter Analytics Metadata
-        </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
-          {[
-            { label: 'Resume ID', value: resumeData?.resumeId, icon: FileText, color: 'var(--v)' },
-            { label: 'Candidate ID', value: `CAND-${resumeData?.resumeId?.split('-')[1]}`, icon: Award, color: 'var(--pk)' },
-            { label: 'Creation Date', value: new Date(resumeData?.createdAt).toLocaleString(), icon: Clock, color: 'var(--b)' },
-            { label: 'Template', value: resumeData?.templateName, icon: FileText, color: 'var(--a)' },
-            { label: 'Profession', value: resumeData?.profession, icon: TrendingUp, color: 'var(--g)' },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <div key={item.label} style={{
-                background: 'var(--s2)', border: '1px solid var(--border)',
-                borderRadius: '8px', padding: '1rem',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <Icon size={13} style={{ color: item.color }} />
-                  <span style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>{item.label}</span>
-                </div>
-                <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)', wordBreak: 'break-all' }}>{item.value}</div>
-              </div>
-            );
-          })}
+
+      {/* Header */}
+      <div className="card glass" style={{
+        background: 'linear-gradient(135deg, rgba(0,207,168,0.06), rgba(123,111,255,0.04))',
+        border: '1px solid rgba(0,207,168,0.2)',
+        display: 'flex', alignItems: 'center', gap: '14px',
+      }}>
+        <Activity size={28} style={{ color: 'var(--a)', flexShrink: 0 }} />
+        <div>
+          <div style={{ fontSize: '17px', fontWeight: 800 }}>Resume Analytics</div>
+          <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '3px' }}>
+            {isSaved
+              ? '✅ Saved to cloud — QR code works from any device'
+              : '⚠️ Not yet synced to cloud — QR may only work on this device'}
+          </div>
         </div>
+        {loading && <Loader size={16} style={{ color: 'var(--muted)', animation: 'spin 0.8s linear infinite', marginLeft: 'auto' }} />}
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid-cols-2" style={{ gap: '14px' }}>
+        {statCard(<Eye />, 'TOTAL VIEWS', viewCount, 'var(--v)')}
+        {statCard(<Share2 />, 'QR SCANS', analytics?.qr_scans ?? viewCount, 'var(--t)')}
+        {statCard(<Download />, 'PDF DOWNLOADS', analytics?.pdf_downloads ?? 0, 'var(--a)')}
+        {statCard(<CheckCircle2 />, 'CLOUD STATUS', isSaved ? 'Saved ✓' : 'Local only', isSaved ? 'var(--g)' : 'var(--a)')}
+      </div>
+
+      {/* Resume Metadata */}
+      <div className="card glass">
+        <h3 style={{ fontSize: '13px', fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <FileText size={14} style={{ color: 'var(--v)' }} /> Recruiter Metadata
+        </h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(200px,1fr))', gap: '14px' }}>
+          {[
+            { label: 'Resume ID', value: resumeData?.resumeId },
+            { label: 'Candidate ID', value: `CAND-${(resumeData?.resumeId || '').replace('TIQ-', '')}` },
+            { label: 'Creation Date', value: createdAt },
+            { label: 'Template', value: resumeData?.templateName || 'TalentIQ-Professional-v1' },
+            { label: 'Profession', value: resumeData?.profession },
+            { label: 'Cloud Saved', value: isSaved ? 'Yes' : 'No' },
+          ].map(({ label, value }) => (
+            <div key={label} style={{ padding: '10px 14px', background: 'var(--s2)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>{label}</div>
+              <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text)', wordBreak: 'break-all' }}>{value || '—'}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Public Link */}
+      <div className="card glass" style={{ borderLeft: '3px solid var(--t)' }}>
+        <h3 style={{ fontSize: '13px', fontWeight: 700, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Share2 size={14} style={{ color: 'var(--t)' }} /> Public Resume URL
+        </h3>
+        <div style={{
+          background: 'var(--s2)', border: '1px solid var(--border)', borderRadius: '8px',
+          padding: '10px 14px', fontFamily: 'var(--font-mono)', fontSize: '11px',
+          color: 'var(--v)', wordBreak: 'break-all',
+        }}>
+          {publicUrl}
+        </div>
+        <p style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '8px' }}>
+          {isSaved
+            ? 'Scan the QR code on the Resume tab — anyone can view this resume from any device.'
+            : 'The QR code will work cross-device once Render backend is awake and saves your resume.'}
+        </p>
       </div>
     </div>
   );
 }
+
+
 
 // ─────────────────────────────────────────────────────────────────
 // TAB 8: PRINT & DOWNLOAD

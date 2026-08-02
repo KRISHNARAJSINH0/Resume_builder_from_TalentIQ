@@ -56,11 +56,14 @@ export default function ResumeChat({
       if (c.issuer.trim()) parts.push(c.issuer.trim());
       const line = parts.join(' — ');
       let entry = c.issue_date.trim() ? `• ${line} (${c.issue_date.trim()})` : `• ${line}`;
-      // Use manually entered credential_url first, then fall back to the uploaded file URL
-      const link = (c.credential_url && c.credential_url.trim()) ? c.credential_url.trim() : (c.url || '');
+      // ONLY use credential_url if it's a real external URL (not a blob:// local file URL)
+      const link = c.credential_url && c.credential_url.trim() && !c.credential_url.startsWith('blob:')
+        ? c.credential_url.trim()
+        : '';
       if (link) entry += ` – ${link}`;
       return entry;
     });
+
 
     let finalAnswer = inputValue.trim();
     if (certLines.length > 0) {
