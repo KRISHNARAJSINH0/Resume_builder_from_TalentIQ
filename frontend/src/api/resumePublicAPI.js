@@ -6,6 +6,7 @@
  */
 
 import { getBackendUrl } from '../utils/apiConfig';
+import { loadFromCloudStore, isCloudId } from './resumeCloudStore';
 
 const STORAGE_PREFIX = 'talentiq_resume_';
 
@@ -25,7 +26,22 @@ export function saveResumeLocally(resumeId, resumeData) {
 
 // ── Get Public Resume ──────────────────────────────────────────────────────────
 export async function getPublicResume(resumeId) {
-  // 1. Try localStorage first (works offline, no backend needed)
+  // 0. If ID is a Cloud Store ID, load directly from Cloud Store (always online, any device)
+  if (isCloudId(resumeId)) {
+    try {
+      const record = await loadFromCloudStore(resumeId);
+      return {
+        resume_id: record.resume_id || resumeId,
+        resume_data: record.resume_data,
+        view_count: 0,
+        source: 'cloud',
+      };
+    } catch (e) {
+      console.warn('Failed to load from Cloud Store:', e);
+    }
+  }
+
+  // 1. Try localStorage next (works offline on same device)
   try {
     const stored = localStorage.getItem(`${STORAGE_PREFIX}${resumeId}`);
     if (stored) {
@@ -59,7 +75,6 @@ export async function getPublicResume(resumeId) {
   } catch {
     // Backend unavailable
   }
-
 
   throw new Error('Resume not found. The link may be expired or the resume was created on a different device.');
 }

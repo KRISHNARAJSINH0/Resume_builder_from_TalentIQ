@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react';
 import { getBackendUrl } from '../utils/apiConfig';
 import { saveResumeLocally } from '../api/resumePublicAPI';
+import { saveToCloudStore, isCloudId } from '../api/resumeCloudStore';
+
 import {
   generateInterviewQuestions,
   enhanceSummary,
@@ -381,40 +383,64 @@ export default function useResumeBuilder() {
             : [],
         };
 
-        // Save with 60-second timeout — Render cold starts take up to 50s
-        update({ generatingStep: '🔗 Saving for cross-device QR sharing (may take 30s)...' });
-        let response = null;
+        // ── Cloud Save (Zero-config Cloud Store primary, Render fallback) ────
+        // Always online, no cold starts → QR works from any device
+        update({ generatingStep: '🔗 Saving resume for cross-device QR sharing...' });
+
+        let cloudSaved = false;
+
+        // 1. Try zero-config Cloud Store first (instant, works anywhere)
         try {
-          const controller = new AbortController();
-          const tid = setTimeout(() => controller.abort(), 60000);
-          response = await fetch(`${apiBase}/api/resume/create/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-            signal: controller.signal,
-          });
-          clearTimeout(tid);
-        } catch {
-          response = null;
+          const cloudId = await saveToCloudStore(savedResumeId, resumeData);
+          savedResumeId = cloudId; // e.g. "cloud_ff808181..." or "jb_abc123"
+          publicResumeUrl = `${window.location.origin}/resume/${savedResumeId}`;
+          resumeSaveStatus = 'Saved';
+          cloudSaved = true;
+        } catch (cloudErr) {
+          console.warn('Cloud store save failed:', cloudErr.message);
         }
 
-        if (response && response.ok) {
-          const resData = await response.json();
-          savedResumeId = resData.resume_id;
-          publicResumeUrl = resData.public_url;
-          resumeSaveStatus = 'Saved';
-        } else {
+
+        // 2. Fallback: Try Render backend (60s timeout to handle cold starts)
+        if (!cloudSaved) {
+          try {
+            const apiBase = await getBackendUrl();
+            const controller = new AbortController();
+            const tid = setTimeout(() => controller.abort(), 60000);
+            const response = await fetch(`${apiBase}/api/resume/create/`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+              signal: controller.signal,
+            });
+            clearTimeout(tid);
+            if (response && response.ok) {
+              const resData = await response.json();
+              savedResumeId = resData.resume_id;
+              publicResumeUrl = resData.public_url;
+              resumeSaveStatus = 'Saved';
+              cloudSaved = true;
+            }
+          } catch {
+            // Render unavailable
+          }
+        }
+
+        if (!cloudSaved) {
           resumeSaveStatus = 'Saved Locally';
         }
+
+        // Always save to localStorage as same-device fallback
+        saveResumeLocally(savedResumeId, resumeData);
+
       } catch (e) {
-        console.error('Failed to save resume to backend:', e);
+        console.error('Resume generation error:', e);
         resumeSaveStatus = 'Saved Locally';
+        saveResumeLocally(savedResumeId, resumeData);
       }
 
-      // Always save to localStorage under same ID for same-device fallback
-      saveResumeLocally(savedResumeId, resumeData);
-
       update({
+
         phase: 'results',
         loading: false,
         generatingStep: '',

@@ -12,10 +12,13 @@ export async function getBackendUrl() {
   const hostname = window.location.hostname;
   let envUrl = import.meta.env.VITE_API_BASE_URL;
 
-  // Clean trailing slash if provided in environment variable
-  if (envUrl && envUrl.endsWith('/')) {
-    envUrl = envUrl.slice(0, -1);
+  // Clean trailing slash AND trailing /api if the env var was set with /api suffix
+  // (prevents the /api/api/resume/... double-prefix bug)
+  if (envUrl) {
+    envUrl = envUrl.replace(/\/+$/, '');    // strip trailing slashes
+    envUrl = envUrl.replace(/\/api$/, ''); // strip trailing /api
   }
+
 
   // Skip port probing in production (on Vercel / non-localhost)
   const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.');
