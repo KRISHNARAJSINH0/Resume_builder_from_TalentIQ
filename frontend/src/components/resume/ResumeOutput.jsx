@@ -236,7 +236,8 @@ export default function ResumeOutput({
                 size={240}
                 bgColor="#ffffff"
                 fgColor="#000000"
-                level="M"
+                level="L"
+                includeMargin={true}
               />
             </div>
 
@@ -425,7 +426,8 @@ export default function ResumeOutput({
                       size={94}
                       bgColor="#ffffff"
                       fgColor="#000000"
-                      level="M"
+                      level="L"
+                      includeMargin={true}
                     />
                     <div style={{
                       position: 'absolute',
