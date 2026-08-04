@@ -11,7 +11,7 @@ import {
   Award, Clock, TrendingUp, Zap, Download, Loader, QrCode,
   ShieldCheck, ShieldAlert, Eye, Share2, Activity,
 } from 'lucide-react';
-import { encodeResumeToHash } from '../../api/resumePublicAPI';
+import { getPublicResumeId } from '../../api/resumePublicAPI';
 
 
 const TABS = [
@@ -37,14 +37,12 @@ export default function ResumeOutput({
 
   const resumeIdForQr = publicResumeId || resumeData?.resumeId;
 
-  // Hybrid QR URL: Clean & ultra-short (~60 chars) for Cloud IDs; includes fallback hash for raw local IDs
-  const isCloud = resumeIdForQr && (resumeIdForQr.startsWith('cloud_') || resumeIdForQr.startsWith('jb_'));
-  const hashPayload = isCloud ? '' : encodeResumeToHash(resumeData);
-  const hashString = hashPayload ? `#d=${hashPayload}` : '';
-
+  // QR code value is always the short clean URL only.
+  // Embedding the full resume hash caused RangeError: Data too long (QR max ~2953 bytes).
+  // The resume is accessible via Cloud Store or localStorage at this URL.
   const cleanUrl = `${window.location.origin}/resume/${resumeIdForQr}`;
-  const qrUrl = `${cleanUrl}?via=qr${hashString}`;
-  const shareUrl = `${cleanUrl}${hashString}`;
+  const qrUrl = `${cleanUrl}?via=qr`;
+  const shareUrl = cleanUrl;
 
 
   const [showQrModal, setShowQrModal] = useState(false);
@@ -503,9 +501,10 @@ export default function ResumeOutput({
                         ✓ Naturally Incorporated Keywords ({resumeData.keywordsUsed.length})
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                        {resumeData.keywordsUsed.map((kw, i) => (
-                          <span key={i} className="chip bg" style={{ fontSize: '11px' }}>{kw}</span>
-                        ))}
+                        {resumeData.keywordsUsed.map((kw, i) => {
+                          const label = typeof kw === 'string' ? kw : (kw?.keyword || kw?.name || JSON.stringify(kw));
+                          return <span key={i} className="chip bg" style={{ fontSize: '11px' }}>{label}</span>;
+                        })}
                       </div>
                     </div>
                   )}
@@ -515,9 +514,10 @@ export default function ResumeOutput({
                         ⚠ Omitted/Skipped Keywords (Not Fabricated: {resumeData.keywordsSkipped.length})
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                        {resumeData.keywordsSkipped.map((kw, i) => (
-                          <span key={i} className="chip ba" style={{ fontSize: '11px' }}>{kw}</span>
-                        ))}
+                        {resumeData.keywordsSkipped.map((kw, i) => {
+                          const label = typeof kw === 'string' ? kw : (kw?.keyword || kw?.name || JSON.stringify(kw));
+                          return <span key={i} className="chip ba" style={{ fontSize: '11px' }}>{label}</span>;
+                        })}
                       </div>
                     </div>
                   )}

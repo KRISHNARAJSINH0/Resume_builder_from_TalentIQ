@@ -1,9 +1,22 @@
 import React from 'react';
 import { Mail, Phone, MapPin, Linkedin, Globe, Github, ExternalLink } from 'lucide-react';
 
+/** Safely converts a value to a comma-separated string (handles arrays from ATS JSON) */
+function toStr(val) {
+  if (!val) return '';
+  if (Array.isArray(val)) return val.map(v => (typeof v === 'string' ? v : (v?.name || v?.skill_name || String(v)))).join(', ');
+  return String(val);
+}
+
 export default function ResumePreview({ resumeData, template = 'modern' }) {
   if (!resumeData) return null;
-  const d = resumeData;
+  // Normalize fields that may be arrays when coming from the ATS generation path
+  const d = {
+    ...resumeData,
+    skills: toStr(resumeData.skills),
+    languages: toStr(resumeData.languages),
+    certifications: typeof resumeData.certifications === 'string' ? resumeData.certifications : '',
+  };
 
   const parseLines = (text) => {
     if (!text) return [];

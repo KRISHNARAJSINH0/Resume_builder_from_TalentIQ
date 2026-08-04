@@ -312,6 +312,12 @@ export default function useResumeBuilder() {
         formattedEduText = eduInput;
       }
 
+      // Normalize keyword arrays: Groq may return objects like {keyword, reason} — flatten to strings
+      const normalizeKeywords = (arr) => {
+        if (!Array.isArray(arr)) return [];
+        return arr.map(kw => typeof kw === 'string' ? kw : (kw?.keyword || kw?.name || JSON.stringify(kw)));
+      };
+
       // Build final resume data object
       const resumeData = {
         ...rawData,
@@ -321,8 +327,8 @@ export default function useResumeBuilder() {
         projectsEnhanced: enhancedProjText,
         projectsStructured: processedProjects.length > 0 ? processedProjects : null,
         education: formattedEduText || rawData.education,
-        keywordsUsed: atsData?.keywords_used || [],
-        keywordsSkipped: atsData?.keywords_skipped || [],
+        keywordsUsed: normalizeKeywords(atsData?.keywords_used),
+        keywordsSkipped: normalizeKeywords(atsData?.keywords_skipped),
         resumeId: `TIQ-${Date.now()}`,
         createdAt: new Date().toISOString(),
         templateName: 'TalentIQ-Professional-v1',
@@ -366,8 +372,9 @@ export default function useResumeBuilder() {
             github_url: resumeData.github && !resumeData.github.startsWith('http') ? `https://${resumeData.github}` : (resumeData.github || ''),
           },
           // ── Skills: detect category by keyword ─────────────────────
-          skills: resumeData.skills
-            ? resumeData.skills.split(',').map(s => s.trim()).filter(Boolean).map(s => {
+          skills: (typeof resumeData.skills === 'string' ? resumeData.skills : Array.isArray(resumeData.skills) ? resumeData.skills.join(', ') : '')
+            .split(',')
+            .map(s => s.trim()).filter(Boolean).map(s => {
                 const lower = s.toLowerCase();
                 let category = 'Technical';
                 if (['excel', 'word', 'powerpoint', 'ms office', 'autocad', 'revit', 'sap', 'tally'].some(t => lower.includes(t))) category = 'Tool';
