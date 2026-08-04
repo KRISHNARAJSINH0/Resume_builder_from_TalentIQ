@@ -190,14 +190,6 @@ export default function useResumeBuilder() {
       const eduInput = answers.educations || answers.education || [];
       const projInput = answers.projects || answers.project || answers.best_project || answers.key_projects || [];
 
-      // Pre-submit validation
-      const validWorkExp = Array.isArray(workExpInput) ? workExpInput.filter(j => j.role && j.company) : [];
-      const validEdu = Array.isArray(eduInput) ? eduInput.filter(e => e.degree && e.institution) : [];
-
-      if (validWorkExp.length === 0 && validEdu.length === 0) {
-        throw new Error('Please provide at least one Work Experience or Education entry before generating your resume.');
-      }
-
       // Build raw resume data from answers
       const rawData = buildRawData(answers, profession);
       const jdText = answers.job_description || answers.jd_text || '';
@@ -339,15 +331,15 @@ export default function useResumeBuilder() {
 
       // Step 4: Skill Gap
       update({ generatingStep: '🎯 Identifying skill gaps...' });
-      const gapData = await analyzeSkillGap(answers.skills || '', profession.label);
+      const gapData = await analyzeSkillGap(answers.skills || '', profession.label).catch(() => null);
 
       // Step 6: Interview Prep
       update({ generatingStep: '💬 Generating interview questions...' });
-      const interviewPrepData = await generateInterviewPrep(profession.label, answers.skills || '');
+      const interviewPrepData = await generateInterviewPrep(profession.label, answers.skills || '').catch(() => null);
 
       // Step 7: Portfolio
       update({ generatingStep: '🌐 Building portfolio content...' });
-      const portfolioData = await generatePortfolio(resumeData, profession.label);
+      const portfolioData = await generatePortfolio(resumeData, profession.label).catch(() => null);
 
       let savedResumeId = resumeData.resumeId;
       let publicResumeUrl = '';
@@ -517,7 +509,25 @@ export default function useResumeBuilder() {
         resumeSaveStatus: resumeSaveStatus,
       });
     } catch (err) {
-      update({ loading: false, error: err.message, generatingStep: '', phase: 'interview' });
+      console.error('Failed to generate resume:', err);
+      const rawData = buildRawData(answers, profession);
+      const fallbackResumeData = {
+        ...rawData,
+        summary: rawData.summary || `Dedicated ${profession?.label || 'Professional'} with relevant skills and project experience.`,
+        resumeId: `TIQ-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        templateName: 'TalentIQ-Professional-v1',
+      };
+      saveResumeLocally(fallbackResumeData.resumeId, fallbackResumeData);
+      update({
+        phase: 'results',
+        loading: false,
+        generatingStep: '',
+        error: err?.message || 'Resume generated with basic formatting.',
+        resumeData: fallbackResumeData,
+        publicResumeId: fallbackResumeData.resumeId,
+        resumeSaveStatus: 'Saved Locally',
+      });
     }
   }, []);
 
