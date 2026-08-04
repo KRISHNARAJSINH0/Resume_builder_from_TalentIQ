@@ -56,12 +56,10 @@ export default function ResumeChat({
       if (c.issuer.trim()) parts.push(c.issuer.trim());
       const line = parts.join(' — ');
       let entry = c.issue_date.trim() ? `• ${line} (${c.issue_date.trim()})` : `• ${line}`;
-      // Priority: real credential URL > base64 image (for cross-device viewing) > nothing
+      // Only include real web credential URLs (e.g. https://credly.com/...), never raw base64 data URIs
       let link = '';
-      if (c.credential_url && c.credential_url.trim() && !c.credential_url.startsWith('blob:')) {
+      if (c.credential_url && c.credential_url.trim() && !c.credential_url.startsWith('data:') && !c.credential_url.startsWith('blob:')) {
         link = c.credential_url.trim();
-      } else if (c.base64Url) {
-        link = c.base64Url; // embedded image — works from any device
       }
       if (link) entry += ` – ${link}`;
       return entry;
