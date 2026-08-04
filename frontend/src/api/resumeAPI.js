@@ -77,11 +77,98 @@ Format:
     {"id":"work_experiences","question":"Please detail your Work Experience (Role, Company, Dates, Responsibilities) (Optional).","placeholder":"","required":false,"suggestions":["Add Current Job","Add Past Role"]},
     {"id":"educations","question":"Please detail your Education (Degree, Institution, Graduation Year, CGPA/Percentage).","placeholder":"","required":true,"suggestions":["B.Tech Computer Science","MBA","Bachelor of Commerce"]},
     {"id":"projects","question":"Please detail your Key Projects (Title, Technologies, GitHub/Live URLs, Description) (Optional).","placeholder":"","required":false,"suggestions":["E-Commerce App","Portfolio Website","AI Resume Builder"]},
-    {"id":"certifications","question":"What professional certifications do you hold? For each one, include the credential link if available.","placeholder":"e.g. AWS Cloud Practitioner – https://credly.com/badges/xyz","required":false,"suggestions":["AWS Certified Cloud Practitioner","Google Project Management Certificate","None"]}
+    {"id":"certifications","question":"What professional certifications do you hold? For each one, include the credential link if available.","placeholder":"e.g. AWS Cloud Practitioner – https://credly.com/badges/xyz","required":false,"suggestions":["AWS Certified Cloud Practitioner","Google Project Management Certificate","None"]},
+    {"id":"job_description","question":"Paste a Target Job Description (or target keywords) to optimize your resume specifically for that role (Optional).","placeholder":"Paste the full job description or key requirements here...","required":false,"suggestions":["Skip"]}
   ]
 }`,
     },
   ], 0.3, 2000);
+  return parseJSON(raw);
+}
+
+/** Unified ATS Resume Generation using candidate input, target profession, and JD */
+export async function generateATSResume(rawUserInput, targetProfession, jdText = '', jdKeywords = '') {
+  const systemPrompt = `You are an expert resume writer and ATS optimization specialist. Your job is to
+transform a candidate's raw input into resume content that is (a) fully honest,
+(b) ATS-parseable by construction, and (c) tightly aligned to a specific job
+description. You never invent experience, skills, or metrics the candidate did
+not provide.
+
+═══════════════════════════════════════
+HARD RULES (non-negotiable, violating any of these fails validation)
+═══════════════════════════════════════
+1. NEVER fabricate: no invented employers, titles, dates, tools, certifications,
+   or metrics. If the candidate gave no number for an achievement, write it
+   qualitatively — do not insert a fake percentage or dollar figure.
+2. Every bullet starts with a strong past/present-tense action verb
+   (Built, Led, Reduced, Designed, Automated, Owned) — never "Responsible for"
+   or "Worked on".
+3. Every bullet follows: [Action] + [What/How] + [Quantifiable outcome, if the
+   candidate provided one]. If no outcome was given, end after [What/How] —
+   do not pad with invented impact.
+4. Use JD keywords ONLY where they are truthfully applicable to what the
+   candidate actually did. Do not keyword-stuff a bullet with a tool the
+   candidate never mentioned using.
+5. Plain text only. No tables, no special characters for bullets other than
+   a single standard "-" or "•", no text boxes, no icons carrying information,
+   no columns. Section headers must be exactly one of:
+   "Summary", "Skills", "Experience", "Education", "Projects", "Certifications".
+6. Dates in MM/YYYY – MM/YYYY format, consistent across all entries.
+7. Output length: bullets are 1–2 lines each, max 6 bullets per role.
+
+═══════════════════════════════════════
+CONTENT PRIORITIES (in order)
+═══════════════════════════════════════
+1. Truthful representation of the candidate's actual experience
+2. Natural inclusion of JD keywords the candidate genuinely has grounds for
+3. Quantification wherever the candidate supplied a number
+4. Seniority-appropriate language matched to target profession conventions
+
+═══════════════════════════════════════
+OUTPUT FORMAT — return ONLY valid JSON, no markdown fences, no preamble
+═══════════════════════════════════════
+{
+  "summary": "2-3 line professional summary, JD-aligned",
+  "skills": ["skill1", "skill2"],
+  "experience": [
+    {
+      "title": "...",
+      "company": "...",
+      "dates": "MM/YYYY - MM/YYYY",
+      "bullets": ["...", "..."]
+    }
+  ],
+  "projects": [
+    {
+      "title": "...",
+      "tech_stack": "...",
+      "bullets": ["...", "..."]
+    }
+  ],
+  "education": [
+    {
+      "degree": "...",
+      "institution": "...",
+      "dates": "MM/YYYY - MM/YYYY"
+    }
+  ],
+  "keywords_used": ["list of JD keywords naturally incorporated"],
+  "keywords_skipped": ["JD keywords NOT used, with reason — e.g. 'no supporting experience provided by candidate'"]
+}`;
+
+  const userContent = `═══════════════════════════════════════
+CANDIDATE INPUT
+═══════════════════════════════════════
+Raw background: ${typeof rawUserInput === 'string' ? rawUserInput : JSON.stringify(rawUserInput)}
+Target role/profession: ${targetProfession}
+Target job description: ${jdText || 'None provided'}
+Extracted JD keywords (hard skills, tools, certs, seniority terms): ${jdKeywords || 'None provided'}`;
+
+  const raw = await groqChat([
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userContent },
+  ], 0.3, 3000);
+
   return parseJSON(raw);
 }
 

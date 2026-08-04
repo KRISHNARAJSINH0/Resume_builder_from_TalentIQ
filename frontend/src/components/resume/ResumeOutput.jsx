@@ -485,6 +485,46 @@ export default function ResumeOutput({
               </div>
             </div>
 
+            {((resumeData?.keywordsUsed && resumeData.keywordsUsed.length > 0) || (resumeData?.keywordsSkipped && resumeData.keywordsSkipped.length > 0)) && (
+              <div style={{
+                background: 'var(--s1)',
+                border: '1px solid rgba(123, 111, 255, 0.3)',
+                borderRadius: '10px',
+                padding: '14px 18px',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <Zap size={16} style={{ color: 'var(--v)' }} />
+                  <h3 style={{ fontSize: '13px', fontWeight: 700, margin: 0 }}>ATS Job Keyword Alignment</h3>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {resumeData?.keywordsUsed?.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: '11px', color: 'var(--g)', fontWeight: 600, marginBottom: '4px' }}>
+                        ✓ Naturally Incorporated Keywords ({resumeData.keywordsUsed.length})
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                        {resumeData.keywordsUsed.map((kw, i) => (
+                          <span key={i} className="chip bg" style={{ fontSize: '11px' }}>{kw}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {resumeData?.keywordsSkipped?.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: '11px', color: 'var(--a)', fontWeight: 600, marginBottom: '4px' }}>
+                        ⚠ Omitted/Skipped Keywords (Not Fabricated: {resumeData.keywordsSkipped.length})
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                        {resumeData.keywordsSkipped.map((kw, i) => (
+                          <span key={i} className="chip ba" style={{ fontSize: '11px' }}>{kw}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div style={{
 
               display: 'flex',

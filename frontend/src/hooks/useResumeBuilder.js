@@ -5,6 +5,7 @@ import { saveToCloudStore, isCloudId } from '../api/resumeCloudStore';
 
 import {
   generateInterviewQuestions,
+  generateATSResume,
   enhanceSummary,
   enhanceExperience,
   enhanceProjects,
@@ -199,26 +200,62 @@ export default function useResumeBuilder() {
 
       // Build raw resume data from answers
       const rawData = buildRawData(answers, profession);
+      const jdText = answers.job_description || answers.jd_text || '';
 
-      // Step 1: Enhance summary
-      update({ generatingStep: '✨ Crafting ATS-optimized summary...' });
-      const enhancedSummary = await enhanceSummary(profession.label, rawData);
+      // Single ATS-optimized generation call using system prompt
+      update({ generatingStep: '✨ Generating ATS-parseable, job-aligned content...' });
+      let atsData = null;
+      try {
+        atsData = await generateATSResume(rawData, profession.label, jdText);
+      } catch (atsErr) {
+        console.warn('Unified ATS generation fallback:', atsErr);
+      }
 
-      // Step 2: Rewrite work experience descriptions using AI while keeping structured fields
-      update({ generatingStep: '💼 Rewriting experience with impact metrics...' });
+      // Step 1: Summary
+      let enhancedSummary = atsData?.summary || rawData.summary;
+      if (!enhancedSummary || enhancedSummary.trim().length < 10) {
+        enhancedSummary = await enhanceSummary(profession.label, rawData).catch(() => rawData.summary || `Dedicated ${profession.label} with a strong track record of success.`);
+      }
+
+      // Step 2: Work Experience
       let processedWorkExp = [];
       let enhancedExpText = '';
 
-      if (Array.isArray(workExpInput) && workExpInput.length > 0) {
+      if (atsData?.experience && Array.isArray(atsData.experience) && atsData.experience.length > 0) {
+        processedWorkExp = (Array.isArray(workExpInput) ? workExpInput : []).map((exp, idx) => {
+          const atsExp = atsData.experience[idx] || atsData.experience.find(e => e.company?.toLowerCase() === exp.company?.toLowerCase()) || {};
+          const bullets = atsExp.bullets || (exp.description ? exp.description.split('\n').filter(Boolean) : []);
+          const enhancedDesc = bullets.map(b => b.startsWith('•') || b.startsWith('-') ? b : `• ${b}`).join('\n');
+          return {
+            ...exp,
+            bullets,
+            enhancedDescription: enhancedDesc,
+          };
+        });
+
+        // Fallback for string input or extra items returned by ATS
+        if (processedWorkExp.length === 0) {
+          processedWorkExp = atsData.experience.map(exp => ({
+            role: exp.title || profession.label,
+            company: exp.company || 'Company',
+            start_date: exp.dates?.split('-')[0]?.trim() || '',
+            end_date: exp.dates?.split('-')[1]?.trim() || '',
+            bullets: exp.bullets || [],
+            enhancedDescription: (exp.bullets || []).map(b => b.startsWith('•') || b.startsWith('-') ? b : `• ${b}`).join('\n')
+          }));
+        }
+
+        enhancedExpText = processedWorkExp.map(exp => (
+          `• ${exp.role} at ${exp.company} (${exp.start_date || ''} - ${exp.is_current ? 'Present' : (exp.end_date || '')})\n${exp.enhancedDescription || exp.description || ''}`
+        )).join('\n\n');
+      } else if (Array.isArray(workExpInput) && workExpInput.length > 0) {
         processedWorkExp = await Promise.all(workExpInput.map(async (exp) => {
           let enhancedDesc = exp.description || '';
           if (exp.description && exp.description.trim().length >= 10) {
             enhancedDesc = await enhanceExperience(exp.description, profession.label).catch(() => exp.description);
           }
-          return {
-            ...exp,
-            enhancedDescription: enhancedDesc,
-          };
+          const bullets = enhancedDesc.split('\n').map(s => s.trim()).filter(Boolean);
+          return { ...exp, bullets, enhancedDescription: enhancedDesc };
         }));
 
         enhancedExpText = processedWorkExp.map(exp => (
@@ -228,21 +265,42 @@ export default function useResumeBuilder() {
         enhancedExpText = await enhanceExperience(workExpInput, profession.label).catch(() => workExpInput);
       }
 
-      // Step 3: Enhance projects while keeping structured fields (github_link, live_link, tech)
-      update({ generatingStep: '🚀 Generating professional project descriptions...' });
+      // Step 3: Projects
       let processedProjects = [];
       let enhancedProjText = '';
 
-      if (Array.isArray(projInput) && projInput.length > 0) {
+      if (atsData?.projects && Array.isArray(atsData.projects) && atsData.projects.length > 0) {
+        processedProjects = (Array.isArray(projInput) ? projInput : []).map((proj, idx) => {
+          const atsProj = atsData.projects[idx] || {};
+          const bullets = atsProj.bullets || (proj.description ? [proj.description] : []);
+          const enhancedDesc = bullets.map(b => b.startsWith('•') || b.startsWith('-') ? b : `• ${b}`).join('\n');
+          return {
+            ...proj,
+            bullets,
+            enhancedDescription: enhancedDesc,
+          };
+        });
+
+        if (processedProjects.length === 0) {
+          processedProjects = atsData.projects.map(p => ({
+            project_name: p.title || 'Project',
+            technologies: p.tech_stack || answers.skills || '',
+            bullets: p.bullets || [],
+            enhancedDescription: (p.bullets || []).map(b => b.startsWith('•') || b.startsWith('-') ? b : `• ${b}`).join('\n')
+          }));
+        }
+
+        enhancedProjText = processedProjects.map(p => (
+          `• ${p.project_name}${p.technologies ? ' (' + p.technologies + ')' : ''}\n${p.enhancedDescription || p.description || ''}`
+        )).join('\n\n');
+      } else if (Array.isArray(projInput) && projInput.length > 0) {
         processedProjects = await Promise.all(projInput.map(async (proj) => {
           let enhancedDesc = proj.description || '';
           if (proj.description && proj.description.trim().length >= 10) {
             enhancedDesc = await enhanceProjects(proj.description, proj.technologies || answers.skills || '', profession.label).catch(() => proj.description);
           }
-          return {
-            ...proj,
-            enhancedDescription: enhancedDesc,
-          };
+          const bullets = enhancedDesc.split('\n').map(s => s.trim()).filter(Boolean);
+          return { ...proj, bullets, enhancedDescription: enhancedDesc };
         }));
 
         enhancedProjText = processedProjects.map(p => (
@@ -267,10 +325,12 @@ export default function useResumeBuilder() {
         ...rawData,
         summary: enhancedSummary,
         experienceEnhanced: enhancedExpText,
+        work_experiences: processedWorkExp.length > 0 ? processedWorkExp : rawData.work_experiences,
         projectsEnhanced: enhancedProjText,
-        // Structured project array preserves github_link / live_link for clickable rendering
         projectsStructured: processedProjects.length > 0 ? processedProjects : null,
         education: formattedEduText || rawData.education,
+        keywordsUsed: atsData?.keywords_used || [],
+        keywordsSkipped: atsData?.keywords_skipped || [],
         resumeId: `TIQ-${Date.now()}`,
         createdAt: new Date().toISOString(),
         templateName: 'TalentIQ-Professional-v1',
